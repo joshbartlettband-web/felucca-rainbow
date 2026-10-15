@@ -18,6 +18,7 @@ enum { ED_INFO = 1, ED_GET, ED_SET, ED_DUMP, ED_DESC, ED_STEP_GET, ED_STEP_SET, 
        ED_TRACK, ED_TRACK_MIX, ED_TRACK_DUMP, ED_TRACK_STEP,                    /* v3: tracks */
        ED_TRACK_PARAM, ED_TRACK_CHANGED, ED_SONG,
        ED_UI_STATE, ED_UI_SET, ED_UI_PALETTES, ED_FAV_GET, ED_FAV_SET,
+       ED_NAME = 50,                                                           /* Rainbow mode: the hello's name */
        ED_MOTION = 64, ED_BACKUP_LIST, ED_BACKUP_GET, ED_BACKUP_PUT };                              /* v6: song chain */
 
 static uint8_t ed_out[600];
@@ -445,6 +446,35 @@ static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes between F0
         ed_motion_reply(a[0], rc, na > 1u && a[1] >= 5u);
         break;
     }
+#ifdef KID_NAME_AT
+    case ED_NAME: {                                        /* [10 letters or spaces] -> rc, the name kept (10 bytes) */
+        uint8_t *b = KID_NAME_AT, c[KID_NAME_MAX];         /* rc: 0 saved, 1 not a name, 3 / 4 the flash (as UI_SET) */
+        uint32_t rc = 0, ok = 1;                           /* (Double Rainbow's NAME is the same, in the same bytes) */
+        if (na == KID_NAME_MAX) {
+            for (i = 0; i < KID_NAME_MAX; i++) {
+                c[i] = a[i] >= 'a' && a[i] <= 'z' ? (uint8_t)(a[i] - 32u) : a[i];
+                if (c[i] != ' ' && (c[i] < 'A' || c[i] > 'Z'))
+                    ok = 0;
+            }
+            if (ok) {
+                for (i = 0; i < KID_NAME_MAX; i++)
+                    b[i] = c[i];
+                b[KID_NAME_MAX] = (uint8_t)kid_name_check(b);
+                kid_hello_name();                          /* (the hello greets it from now on) */
+                rc = ed_ui_save();
+            } else
+                rc = 1;
+        } else if (na)
+            rc = 1;
+        ed_b(rc);
+        ok = kid_name_check(b) == b[KID_NAME_MAX];
+        for (i = 0; i < KID_NAME_MAX; i++)
+            ok &= b[i] == ' ' || (b[i] >= 'A' && b[i] <= 'Z');
+        for (i = 0; i < KID_NAME_MAX; i++)
+            ed_b(ok ? b[i] : ' ');
+        break;
+    }
+#endif
     case ED_INFO:
         ed_str("FELUCCA " FELUCCA_VERSION, 24);
         ed_b(NENGINES);

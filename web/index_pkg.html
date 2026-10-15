@@ -37,6 +37,13 @@
   <p class="small"><span data-t="brick"></span>
     <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener" style="color:inherit">FM-1-transporter</a></p>
   <p><button id="go" disabled data-t="install"></button></p>
+  <section style="margin-top:20px">
+    <p><label><span data-t="nameTitle"></span><br>
+      <input id="kid-name" maxlength="10" autocomplete="off" spellcheck="false"
+             style="text-transform:uppercase; font:inherit; padding:6px 8px; width:12em"></label>
+      <button id="name-go" data-t="nameGo"></button></p>
+    <p class="small" data-t="nameHelp"></p>
+  </section>
   <details style="margin-top:24px">
     <summary data-t="stockTitle"></summary>
     <p class="small" data-t="back"></p>
@@ -128,6 +135,24 @@ const TEXT = {
     license: "GPL-3.0, no warranty. Source:",
   },
 };
+/* the kid's name on the start screen: sent straight to the FM-1 by the editor's NAME (cmd 50: 10 letters or
+ * spaces; the reply: rc, the name kept). Nothing goes to a server, and the page keeps nothing. */
+Object.assign(TEXT.ja, {
+  nameTitle: "起動時のあいさつに出る名前（任意、アルファベット10文字まで）", nameGo: "名前を送る",
+  nameHelp: "名前は USB で FM-1 にだけ送られ、サーバーには送られません。インストール前に入力しておくと、インストールの後で送ります。いつでも接続して「名前を送る」を押せます。空欄で送ると名前を消します。FM-1 本体では: HOME を1秒押したまま ALGORITHM を回します。",
+  nameSaved: "保存しました。次の起動からあいさつします: ", nameCleared: "名前を消しました。あいさつは HI! に戻ります。",
+  nameBad: "使えるのは A〜Z と空白だけです。", nameFlash: "FM-1 に保存できませんでした。もう一度押してください。",
+  nameNoDevice: "Rainbow mode の FM-1 が見つかりません。USB で接続し、MIDI を使う他のアプリを閉じてから、もう一度押してください。",
+  nameNoReply: "FM-1 が応答しません。先にこのバージョンをインストールしてから（古いバージョンは名前に未対応）、もう一度押してください。",
+});
+Object.assign(TEXT.en, {
+  nameTitle: "A name for the hello at power-up (optional, up to 10 letters)", nameGo: "Send the name",
+  nameHelp: "The name goes over USB to the FM-1 only, never to a server. Type it before installing and it is sent when the install is done, or connect any time and press Send. Sending it empty clears it. On the FM-1 itself: hold HOME for a second, then turn ALGORITHM.",
+  nameSaved: "Saved. From the next power-on it says hello to ", nameCleared: "Cleared. The hello goes back to HI!",
+  nameBad: "Letters A to Z and spaces only.", nameFlash: "The FM-1 could not save it. Press Send again.",
+  nameNoDevice: "No FM-1 with Rainbow mode found. Connect it by USB, close other apps that use MIDI, and press Send again.",
+  nameNoReply: "The FM-1 did not answer. Install this version first (older ones have no names), then press Send again.",
+});
 let lang = (navigator.language || "en").toLowerCase().startsWith("ja") ? "ja" : "en";
 const t = (k) => TEXT[lang][k];
 let lastKey = null, lastArg = "";
@@ -178,7 +203,7 @@ $("go").addEventListener("click", async () => {
       if (k === "loader") sayK("loader");
       if (k === "write") { sayK("write"); $("bar").value = ((74 + a) / total) * 100; }
       if (k === "reboot") sayK("reboot");
-      if (k === "done") { $("bar").value = 100; sayK("done"); }
+      if (k === "done") { $("bar").value = 100; sayK("done"); if (nameTyped()) setTimeout(() => sendName(6), 1500); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
     if (ota) {
@@ -253,6 +278,42 @@ $("stock-go").addEventListener("click", async () => {
     log(String(e.stack || e));
   } finally { if (link) link.close(); lockInstaller(false); }
 });
+
+/* the name: the editor's NAME to the FM-1's port (as the editor finds it), its reply within 2 s; after an install,
+ * a few tries while the FM-1 comes back */
+const NAME_CMD = 50;
+const cleanName = (v) => v.toUpperCase().replace(/[^A-Z ]/g, "").slice(0, 10);
+const nameTyped = () => cleanName($("kid-name").value).trim() !== "";
+$("kid-name").addEventListener("input", () => { const e = $("kid-name"), v = cleanName(e.value); if (v !== e.value) e.value = v; });
+async function sendName(tries = 1) {
+  const name = cleanName($("kid-name").value).trimEnd().padEnd(10, " ");
+  let midi;
+  try { midi = await navigator.requestMIDIAccess({ sysex: true }); } catch (e) { sayK("denied"); return; }
+  for (let n = 0; n < tries; n++) {
+    if (n) await new Promise((r) => setTimeout(r, 2500));
+    const isF = (p) => /melodee|felucca|rainbow/i.test(p.name || "") && p.state !== "disconnected";
+    const input = [...midi.inputs.values()].find(isF), output = [...midi.outputs.values()].find(isF);
+    if (!input || !output) { if (n === tries - 1) sayK("nameNoDevice"); continue; }
+    const reply = new Promise((res) => {
+      const to = setTimeout(() => { input.onmidimessage = null; res(null); }, 2000);
+      input.onmidimessage = (e) => {
+        const d = e.data;
+        if (d[0] === 0xF0 && d[1] === 0x7D && d[2] === 0x46 && d[3] === 0x4C && d[4] === NAME_CMD) {
+          clearTimeout(to); input.onmidimessage = null; res(d);
+        }
+      };
+    });
+    try { output.send([0xF0, 0x7D, 0x46, 0x4C, NAME_CMD, ...[...name].map((c) => c.charCodeAt(0)), 0xF7]); }
+    catch (e) { input.onmidimessage = null; continue; }
+    const d = await reply;
+    if (!d) { if (n === tries - 1) sayK("nameNoReply"); continue; }
+    const rc = d[5], kept = String.fromCharCode(...d.slice(6, 16)).trim();
+    if (rc === 0 || rc === 4) sayK(kept ? "nameSaved" : "nameCleared", kept ? kept + "!" : "");
+    else sayK(rc === 1 ? "nameBad" : "nameFlash");
+    return;
+  }
+}
+$("name-go").addEventListener("click", () => { if (!writing) sendName(1); });
 </script>
 </body>
 </html>

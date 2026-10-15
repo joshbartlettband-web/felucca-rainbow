@@ -244,6 +244,12 @@ power-up from then on. **HOME** leaves without changing anything. To take the na
 The name is kept in a few spare bytes of the settings (`favorites.factory[13][20..30]`, `kid_name_*` in `kid.c`), so it
 survives power-off, and it goes before a name the build has (below).
 
+It can also be set from the website: the installer page has a name box. The name goes over USB to the FM-1 only
+(the editor's NAME, cmd 50: ten letters or spaces; the reply is the result and the name kept), never to a server, and
+the page keeps nothing. Typed before installing, it is sent once the install is done; sending it empty takes the name
+away. Double Rainbow has the same command and keeps its name in the same bytes. `web/test_name_page.py` checks the box
+against a fake FM-1 in Chromium.
+
 ## The private installer
 
 No child's name is in this repository, and the installer on the public site has none built in: its hello is a plain HI!
