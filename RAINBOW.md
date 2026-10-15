@@ -66,7 +66,8 @@ surprise from HOME) or a new sky (REC) gets the small one. The drum, bass and no
 ## Stars and secrets
 
 Every game won earns a star: a right GUESS, a COPY ME round played back, a FOLLOW song or a CHORDS lesson finished. The count
-is kept over power-off (it is written about five seconds after the last win, or when leaving Rainbow mode). Some things wait
+is kept over power-off (written at every tenth star, at each secret, after half a minute without a win and when leaving Rainbow mode, so
+the flash is not written at every win; a power-off in between loses at most nine stars). Some things wait
 for stars:
 
 | Stars | What opens |
@@ -329,5 +330,6 @@ still not smooth: draw the still parts (sky, rainbow, grass) once and redraw onl
   (the half beat, `kw_notes`) is the thing to move.
 - The BREAK beat: SLICE's break played a slice a step. It sounds right in the browser; on the device the first thing to listen for is
   a click where one slice ends and the next begins.
-- The stars are written to the settings a few seconds after a win (`settings_save`, which waits for the beat to stop). A very busy
-  child could write the settings often; if the flash wear worries anyone, lengthen the five seconds in `kid_input`.
+- The stars are written to the settings every tenth star and after half a minute of quiet (`settings_save`, which waits for the beat
+  to stop). Settings writes are flash erases (about a hundred thousand are promised), so it is worth a look at how often that is
+  in real use.

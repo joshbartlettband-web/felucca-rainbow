@@ -440,7 +440,7 @@ static struct {
     uint32_t hint_ms, key_ms, hop_ms, party_ms, exit_ms, play_ms, bg_ms;
     uint32_t cheer_ms;                  /* the cheer's next note at (a few notes the friend plays when something is won) */
     uint8_t cheer_i, cheer_n, cheer_on; /* .. which note, how many (0 none), sounding */
-    uint8_t star_dirty;                 /* the star count changed: written at star_ms + 5 s */
+    uint8_t star_dirty;                 /* the star count changed: written at star_ms + 30 s, every 10 stars, at a secret */
     uint32_t star_ms;
     uint32_t hello_ms;                  /* the power-up hello since (fm1_ms | 1), 0 none */
     char hello_name[12];                /* .. the name it shows, with its "!" ("" none: HI! alone), and its letters' scale */
@@ -752,7 +752,7 @@ static void kid_beat_load(void)
 #define KID_HAT_BYTE (favorites.factory[13][19])
 
 /* STARS and secrets: each game won (the cheer's) is a star, kept over power-off (favorites.factory[13][15..17]: the
- * count, low and high, and a check byte). 10 stars: the STAR hat; 25: the secret sky, AURORA; 50: the secret friend (KID_SECRET_FR). HOME held 1 s,
+ * count, low and high, and a check byte; written every 10 stars, at each secret, after half a minute of quiet and on leaving: not at every one, to spare the flash). 10 stars: the STAR hat; 25: the secret sky, AURORA; 50: the secret friend (KID_SECRET_FR). HOME held 1 s,
  * then KNOB 3, shows how far the next one is. The count is written a few seconds after the last win */
 #define KID_STAR_AT (&favorites.factory[13][15])
 #define KID_STAR_HAT 10u
@@ -1553,6 +1553,10 @@ static void kid_win(uint32_t big)
         kid_stars_set(++n);
     kid.star_dirty = 1;
     kid.star_ms = fm1_ms | 1u;
+    if (n % 10u == 0u || n == KID_STAR_SKY) {                     /* (kept now) */
+        kid.star_dirty = 0;
+        settings_save();
+    }
     if (n == KID_STAR_HAT) {                                      /* the STAR hat, on at once */
         KID_HAT_BYTE = KID_HAT_N;
         kid.full = 1;
@@ -1954,7 +1958,7 @@ static void kid_input(void)
             break;
         }
     }
-    if (kid.star_dirty && (fm1_ms | 1u) - kid.star_ms > 5000u) {            /* the stars, kept */
+    if (kid.star_dirty && (fm1_ms | 1u) - kid.star_ms > 30000u) {           /* the stars, kept after a quiet half minute */
         kid.star_dirty = 0;
         settings_save();
     }

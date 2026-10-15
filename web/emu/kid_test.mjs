@@ -749,7 +749,7 @@ check("PLAY again stops it", ex.web_playing() === 0);
   seen = tour();
   check(`..now it is on PRESETS (${seen.size} friends)`, seen.size === NF);
   const nor = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
-  render(6500);                                                               // (written 5 s after the last win)
+  render(1500);                                                               // (a tenth star and the secrets are written at once)
   const nor2 = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
   const e5 = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
   e5._initialize();
@@ -757,6 +757,15 @@ check("PLAY again stops it", ex.web_playing() === 0);
   e5.web_boot();
   for (let k = 0; k < 400; k++) e5.web_render(128);
   check(`..kept over a power-off (${e5.web_kid_stars()} stars)`, e5.web_kid_stars() === 50);
+  win(); win(); win();                                                        // 53: not a tenth, so written after half a minute of quiet
+  render(31500);
+  const nor3 = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
+  const e6 = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
+  e6._initialize();
+  new Uint8Array(e6.memory.buffer, e6.web_nor(), e6.web_nor_size()).set(nor3);
+  e6.web_boot();
+  for (let k = 0; k < 400; k++) e6.web_render(128);
+  check(`..and the ones after it, written after half a minute of quiet (${e6.web_kid_stars()} stars)`, e6.web_kid_stars() === 53);
   ex.web_kid_stars_set(0); hatStep(11);                                       // (back as the other tests left it: no hat, no stars)
   while (ex.web_kid_friend() !== f0) { ex.web_enc(EN.PRESETS, 1); render(120); }
   render(1500);
