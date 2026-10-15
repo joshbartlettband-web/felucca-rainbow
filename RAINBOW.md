@@ -319,7 +319,15 @@ still not smooth: draw the still parts (sky, rainbow, grass) once and redraw onl
 ## Not checked yet on a real FM-1
 
 - Drawing speed. The screen has no frame buffer, so moving pictures are drawn in strips. Animated skies
-  (stars, hearts, bubbles, confetti) redraw the whole picture area, about 60 ms a frame over the screen's
+  (stars, hearts, bubbles, confetti, and the sea, rain, fireworks and northern lights, which do more work for each pixel)
+  redraw the whole picture area, about 60 ms a frame over the screen's
   connection. If it feels slow on the device, the first thing to try is drawing only the friend's area.
 - The volume steps (`KID_VOL_CAP` in `kid.c`, 8 steps of about 3 dB) and the limiter's ceiling (`KID_LIM_X2`): check that the middle steps feel right on the speaker and the headphones.
 - The staff drawing on the animated skies (it adds the panel's pixels to each redraw).
+- Loop and layer in WRITE: a key lands in the nearest beat's column, judged from the screen's frame clock, so on the device a
+  frame's delay (about 30 ms) is the most it can be off. If notes land a column late at fast tempos, the rounding point
+  (the half beat, `kw_notes`) is the thing to move.
+- The BREAK beat: SLICE's break played a slice a step. It sounds right in the browser; on the device the first thing to listen for is
+  a click where one slice ends and the next begins.
+- The stars are written to the settings a few seconds after a win (`settings_save`, which waits for the beat to stop). A very busy
+  child could write the settings often; if the flash wear worries anyone, lengthen the five seconds in `kid_input`.
