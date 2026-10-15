@@ -253,12 +253,12 @@ function filesOk(img) {
 }
 
 // the image the device addresses during an update: the .fwsc without the marker bytes (20 blocks, or the
-// detected count when the files' CRCs agree: a 20-block package can have 0x7D after block 20 by chance)
+// detected count only when its files' CRCs agree: a 20-block package can have 0x7D after block 20 by chance)
 export function logicalImage(fwsc) {
   const n = blockCount(fwsc);
   if (n !== BLOCKS) {
     const img = deinterleave(fwsc, n);
-    if (filesOk(img) || !filesOk(deinterleave(fwsc, BLOCKS))) return img;
+    if (filesOk(img)) return img;
   }
   return deinterleave(fwsc, BLOCKS);
 }

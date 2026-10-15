@@ -126,7 +126,8 @@ export class Updater {
              `out: ${outs.map((p) => `"${p.name}" (${p.state})`).join(", ") || "none"}`);
     for (const input of ins) {
       if (input.state === "disconnected") continue;
-      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear (Melodee: a Felucca fork, same protocol)
+      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|(makkuro|snoop|vector|vox) ?37|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear (Melodee: a Felucca fork, same protocol; the other port firmwares by their "37" names,
+                                                  // so a VOX amp or a Vector synth is left alone)
       const output = outs.find((o) => o.name === input.name && o.state !== "disconnected");
       if (!output) { this.log(`"${input.name}": no output port of the same name`); continue; }
       try { await input.open(); await output.open(); } catch (e) { this.log(`"${input.name}": cannot open (${e && e.message})`); continue; }

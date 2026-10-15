@@ -43,7 +43,7 @@ LOADER_MARK = b"FELUCCA-LOADER-1"
 STOCK_V15_SHA256 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a"
 # the unmodified official SMK-37 Pro V016 (SMK-37_Pro_016.fwsc, 36 interleave blocks): the return of an SMK-37 Pro
 STOCK_SMK016_SHA256 = "2d98ce72530e71d617384963423820536f094501299e2cfec0a8d3c3fb6bcfb0"
-PORT_RE = re.compile(r"fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi", re.I)   # never probe other gear
+PORT_RE = re.compile(r"fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|(makkuro|snoop|vector|vox) ?37|ota|composite|sinco|usb-midi", re.I)   # never probe other gear
 
 # seconds; the tests shorten them
 DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0, "retry": 1.0,
@@ -198,11 +198,11 @@ def files_ok(image):
 
 
 def deinterleave(raw):
-    """the logical image: 20 blocks, or the detected count when the files' CRCs agree"""
+    """the logical image: 20 blocks, or the detected count only when its files' CRCs agree"""
     n = block_count(raw)
     if n != BLOCKS:
         image = logical_image(raw, n)
-        if files_ok(image) or not files_ok(logical_image(raw, BLOCKS)):
+        if files_ok(image):
             return image
     return logical_image(raw, BLOCKS)
 

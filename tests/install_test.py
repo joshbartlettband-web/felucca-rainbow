@@ -400,8 +400,9 @@ ok(I.same_keyboard("SMK-37 Elite_016", "SMK-37 Pro_900") and I.same_keyboard("ot
    and not I.same_keyboard("ota-SMK-37 Pro_900", "FM-1_900") and not I.same_keyboard("XY-9_001", "SMK-37 Pro_900"),
    "models: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another")
 ok(all(I.PORT_RE.search(n) for n in ("SMK-37 Elite", "MKE-P37", "STARRYKEY-37 PLAY", "Snoop37", "Vox37", "Felucca",
-                                     "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update")),
-   "port names: every SMK model and every port firmware probed")
+                                     "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update"))
+   and not any(I.PORT_RE.search(n) for n in ("VOX Adio Air GT", "Vector Synth", "IAC Driver Bus 1")),
+   "port names: every SMK model and every port firmware probed, other gear (VOX, Vector) not")
 against_js()
 official()
 shutil.rmtree(TMP, ignore_errors=True)
