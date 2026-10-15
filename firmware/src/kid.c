@@ -32,6 +32,8 @@
  *               note's value by how long it was held against the beat (a sixteenth .. a whole, growing while held);
  *               it goes after 6 s of quiet. The big letter stays in the band
  *   HOME held 1 s, then OCT- / OCT+   the grown-ups' VOLUME: how loud MASTER can go (8 steps, kept over power-off)
+ *   HOME held 1 s, then ALGORITHM the grown-ups' NAME: the name the hello greets (PRESETS a letter, ALGORITHM the next,
+ *                                 SAVE keeps it, HOME leaves it as it was), kept over power-off
  *   HOME held 1 s, then PRESETS   the grown-ups' LOOK-ALIKES: left shows original stand-ins for the friends drawn
  *               after TV and film characters (the same sounds), right the originals (kept over power-off)
  * MASTER is capped at that level (the default is about half) for small ears, and the output limiter's ceiling
@@ -96,6 +98,8 @@ static const int16_t TW_SNOWMAN[] = {P_E0, 12, P_E1, 17, P_E4, 0, P_E5, 110, P_D
 static const int16_t TW_CRAB[] = {P_E0, 1, P_E1, 0, P_E4, 50, P_E5, 45, P_ED_FLT, 55, P_DEC, 72, P_REL, 36, -1};
 static const int16_t TW_WOLF[] = {P_E4, 34, P_E5, 55, P_ED_FLT, 40, P_ATK, 55, P_SUS, 110, P_REL, 60, -1};
 static const int16_t TW_CAMEL[] = {P_E1, 22, P_E4, 62, P_E5, 18, P_E6, 25, P_ATK, 8, -1};
+static const int16_t TW_FAIRY[] = {P_E1, 12, P_E2, 19, P_E3, 14, P_E6, 50, P_DEC, 80, -1};   /* (the ring bell higher, an octave
+                                                  * and a twelfth up, shimmering: a twinkle, not ICE CREAM's bell) */
 static const int16_t TW_GOOBERT[] = {P_E0, 1, P_E1, 6, P_E2, 50, P_E4, 26, P_E5, 96, P_E6, 0, P_ED_FLT, 48, P_ATK, 2,
                                      P_DEC, 62, P_SUS, 56, P_REL, 45, P_LD_FLT, 10, -1};   /* (a rubbery bloop: a
                                      * ringing filter that pops open and settles, with a little jelly wobble) */
@@ -182,13 +186,13 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {2, "RESO", 100, KS_RAINBOW, KB_DISCO, 0, 0, 0, 0, TW_SPIDERMOM},           /* SPIDER MOM: a zappy, resonant hero (a look-alike: RAINBOW MOM) */
     {5, "VOX LEAD", 89, KS_CLOUDS, KB_ROCK, 0, 0, 70},   /* DRAGON DUCK: a quacky vowel with a dragon's growl (DIST) */
     {7, "GOSPEL", 98, KS_STARS, KB_ROCK},            /* SPIDER GRANDMA: a gospel organ (a look-alike: GREEN GRANNY) */
-    {2, "BELL", 108, KS_STARS, KB_LULLABY},           /* NIGHT LIGHT: a music box bell, after her night light */
+    {0, "SOFT PAD", 95, KS_STARS, KB_LULLABY},       /* NIGHT LIGHT: a soft, glowing pad, after her night light */
     {2, "STRING", 89, KS_RAINBOW, KB_DANCE},         /* GREEN QUEEN: royal strings */
     {12, "BRASS", 104, KS_BUBBLES, KB_MARCH},         /* KING AXOLOTL: a fanfare */
-    {6, "RING BELL", 116, KS_STREET, KB_DISCO},       /* FAIRY MONSTER: a magic ringing bell (a look-alike: PIXIE) */
-    {9, "MARIMBA", 127, KS_FLOWERS, KB_REGGAE},       /* MORNING GLORY: a wooden marimba */
+    {6, "RING BELL", 116, KS_STREET, KB_DISCO, 0, 0, 0, 0, TW_FAIRY},     /* FAIRY MONSTER: a twinkly magic bell (a look-alike: PIXIE) */
+    {0, "WIND", 89, KS_FLOWERS, KB_REGGAE},          /* MORNING GLORY: a breathy flute, like a morning breeze */
     {6, "FAT BASS", 107, KS_STREET, KB_HIPHOP, 0, 0, 40},   /* GROUCH: a grumpy, growly bass (a look-alike: ALLEY CAT) */
-    {12, "TINE EP", 95, KS_LEAVES, KB_TRAIN},        /* TIGER CUB: an electric piano, and a trolley's beat (a look-alike: LION CUB) */
+    {2, "ORGAN", 79, KS_LEAVES, KB_TRAIN},           /* TIGER CUB: a bright, reedy organ, and a trolley's beat (a look-alike: LION CUB) */
     {2, "WIRE", 100, KS_STARS, KB_DISCO},             /* RACCOON: a plucky wire, out at night (a look-alike: SQUIRREL) */
     {0, "STRINGS", 93, KS_LEAVES, KB_HOEDOWN},       /* GOLDENROD: prairie strings (Nebraska's state flower) */
 };
@@ -365,6 +369,11 @@ static struct {
     uint8_t full;                       /* draw everything next frame */
     uint32_t hint_ms, key_ms, hop_ms, party_ms, exit_ms, play_ms, bg_ms;
     uint32_t hello_ms;                  /* the power-up hello since (fm1_ms | 1), 0 none */
+    char hello_name[12];                /* .. the name it shows, with its "!" ("" none: HI! alone), and its letters' scale */
+    uint8_t hello_sc;
+    uint8_t name_on, name_cur;          /* the grown-ups' NAME is open; the letter being changed */
+    char name_ed[11];                   /* .. the name as it is being written: 10 letters or spaces */
+    uint32_t name_sig;                  /* .. what its screen last showed */
     /* (the times stored as fm1_ms | 1 are compared from now | 1: never "in the future") */
     uint32_t band_sig, pic_sig;         /* what the band and the picture last showed */
     int16_t bx0, by0, bx1, by1;         /* the area the friends covered last frame */
@@ -718,6 +727,115 @@ static void kid_look_set(int hide)
     }
     kid.full = 1;
     kid_hint(KH_LOOK);
+}
+
+/* the grown-ups' NAME (HOME held 1 s, then ALGORITHM): the name the hello greets, 10 letters at most, in bytes of the
+ * settings no engine uses (SLICE has two presets, so its favourites use one byte of 32): its letters or spaces, then a
+ * check byte. None kept: the name the build has (KID_HELLO_NAME, the private build), else HI! alone */
+#define KID_NAME_MAX 10u
+#define KID_NAME_AT (&favorites.factory[13][20])
+static uint32_t kid_name_check(const uint8_t *b)
+{
+    uint32_t i, c = 0x5Au;
+    for (i = 0; i < KID_NAME_MAX; i++)
+        c = ((c << 1) | (c >> 7)) ^ b[i];
+    return c & 0xFFu;
+}
+
+static uint32_t kid_name_load(char *out)          /* the kept name, its spaces at the end left off; its length, 0 none */
+{
+    const uint8_t *b = KID_NAME_AT;
+    uint32_t i, n = 0;
+    for (i = 0; i < KID_NAME_MAX; i++)
+        if (b[i] != ' ' && (b[i] < 'A' || b[i] > 'Z'))
+            return 0;
+    if (kid_name_check(b) != b[KID_NAME_MAX])
+        return 0;
+    for (i = 0; i < KID_NAME_MAX; i++) {
+        out[i] = (char)b[i];
+        if (b[i] != ' ')
+            n = i + 1u;
+    }
+    out[n] = 0;
+    return n;
+}
+
+static void kid_hello_name(void)                  /* the name the hello shows: the kept one, else the build's */
+{
+    uint32_t n = kid_name_load(kid.hello_name), sc = 5;
+    if (!n) {
+        for (n = 0; KID_HELLO_NAME[n] && n + 1u < sizeof kid.hello_name; n++)
+            kid.hello_name[n] = KID_HELLO_NAME[n];
+        kid.hello_name[n] = 0;
+        kid.hello_sc = KID_HELLO_SC;
+        return;
+    }
+    kid.hello_name[n++] = '!';
+    kid.hello_name[n] = 0;
+    while (sc > 2u && n * 6u * sc - sc > 236u)
+        sc--;
+    kid.hello_sc = (uint8_t)sc;
+}
+
+static void kid_name_open(void)
+{
+    char cur[KID_NAME_MAX + 1];
+    uint32_t i, n = kid_name_load(cur);
+    if (!n) {                                     /* (none kept: the build's, its "!" left off) */
+        for (i = 0; KID_HELLO_NAME[i] && KID_HELLO_NAME[i] != '!' && i < KID_NAME_MAX; i++)
+            cur[i] = KID_HELLO_NAME[i];
+        n = i;
+    }
+    for (i = 0; i < KID_NAME_MAX; i++)
+        kid.name_ed[i] = i < n ? cur[i] : ' ';
+    kid.name_ed[KID_NAME_MAX] = 0;
+    kid.name_cur = (uint8_t)(n < KID_NAME_MAX ? n : 0u);
+    kid.name_on = 1;
+    kid.vol_open = kid.vol_hold = kid.home_down = 0;
+    kid.hello_ms = 0;
+    kid.full = 1;
+}
+
+static void kid_name_input(uint32_t pressed)       /* the NAME's own controls; everything else waits */
+{
+    static const char ABC[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    uint32_t id;
+    int32_t s;
+    if ((s = KID_PRESET_TURN()) != 0) {           /* PRESETS: the letter, round the alphabet (a space first) */
+        int32_t i = 0;
+        while (i < 27 && ABC[i] != kid.name_ed[kid.name_cur])
+            i++;
+        kid.name_ed[kid.name_cur] = ABC[(i % 27 + (s > 0 ? 1 : 26)) % 27];
+    }
+    if ((s = panel_enc(EN_ALGO)) != 0)            /* ALGORITHM: the next letter or the one before */
+        kid.name_cur = (uint8_t)clamp((int32_t)kid.name_cur + (s > 0 ? 1 : -1), 0, (int32_t)KID_NAME_MAX - 1);
+    (void)panel_enc(EN_SELECT);                   /* (the rest turn nothing here) */
+    (void)panel_enc(EN_K1);
+    (void)panel_enc(EN_K2);
+    (void)panel_enc(EN_K3);
+    (void)panel_enc(EN_K4);
+    for (id = 0; id < FM1_NBTN; id++) {
+        uint32_t b;
+        if (!((pressed >> id) & 1u))
+            continue;
+        b = panel_btn_of(id);
+        if (b == B_SAVE) {                        /* SAVE: kept, and the hello says it */
+            uint8_t *d = KID_NAME_AT;
+            for (id = 0; id < KID_NAME_MAX; id++)
+                d[id] = (uint8_t)kid.name_ed[id];
+            d[KID_NAME_MAX] = (uint8_t)kid_name_check(d);
+            settings_save();
+            kid.name_on = 0;
+            kid.hello_ms = fm1_ms | 1u;
+            kid.full = 1;
+            return;
+        }
+        if (b == B_HOME) {                        /* HOME: left as it was */
+            kid.name_on = 0;
+            kid.full = 1;
+            return;
+        }
+    }
 }
 
 static uint32_t kid_beat_ms(void);
@@ -1269,6 +1387,10 @@ static void kid_input(void)
     int32_t s;
     uint32_t any = pressed | notes;
     fm6_poll();
+    if (kid.name_on) {                            /* the grown-ups' NAME: its own controls */
+        kid_name_input(pressed);
+        return;
+    }
 #if BOARD_SMK37
     any |= (uint32_t)kid_smk_input(pressed);
 #endif
@@ -1513,7 +1635,10 @@ static void kid_input(void)
             kid_friend((uint32_t)((int32_t)kid.fr + (s > 0 ? 1 : (int32_t)KID_N - 1)));
         }
     }
-    if ((s = panel_enc(EN_ALGO)) != 0 && !kw.on) {   /* how the keys play: a step a turn */
+    if ((s = panel_enc(EN_ALGO)) != 0 && kid.vol_open && !kw.on) {   /* HOME held 1 s: the grown-ups' NAME */
+        kid_name_open();
+        return;
+    } else if (s != 0 && !kw.on) {                /* how the keys play: a step a turn */
         any = 1u;
         kid_mode_set((uint32_t)clamp((int32_t)kid.mode + (s > 0 ? 1 : -1), 0, KM_COUNT - 1));
         kid_hint(KH_CHORD);
@@ -2525,8 +2650,8 @@ static int32_t kid_hello_line(const char *s, int32_t sc, int32_t top, uint32_t f
 static uint16_t kid_hello_px(int32_t x, int32_t y)
 {
     int32_t c;
-    if (KID_HELLO_NAME[0] ? (c = kid_hello_line("HI", 7, 14, 0u, x, y)) >= 0 ||
-                            (c = kid_hello_line(KID_HELLO_NAME, KID_HELLO_SC, 76, 2u, x, y)) >= 0
+    if (kid.hello_name[0] ? (c = kid_hello_line("HI", 7, 14, 0u, x, y)) >= 0 ||
+                            (c = kid_hello_line(kid.hello_name, kid.hello_sc, 76, 2u, x, y)) >= 0
                           : (c = kid_hello_line("HI!", 8, 34, 0u, x, y)) >= 0)
         return (uint16_t)c;
 #if BOARD_SMK37
@@ -2782,6 +2907,43 @@ static uint16_t kw_px(int32_t x, int32_t y)
     return kid_mix(kf.sky[y], KID_WHITE, 224u);
 }
 
+/* the grown-ups' NAME: the name in rainbow letters on ten places, the one being changed lit (blinking), and how */
+static uint16_t kid_name_px(int32_t x, int32_t y)
+{
+    static const kid_txt_t T[5] = {
+        {"YOUR NAME", 40, 16, 3}, {"PRESETS  LETTER", 30, 120, 2}, {"ALGORITHM  NEXT", 30, 146, 2},
+        {"SAVE  KEEP IT", 42, 172, 2}, {"HOME  LEAVE IT", 36, 198, 2}};
+    static const int8_t OX[4] = {-1, 1, 0, 0}, OY[4] = {0, 0, -1, 1};
+    const uint16_t BG = RGB(255, 246, 228);
+    int32_t i, k, c;
+    for (i = 0; i < 5; i++)
+        if (y >= T[i].y - 2 && y < T[i].y + 7 * T[i].sc + 2 && (c = i ? kid_ink_at(&T[i], x, y) : kid_text_at(&T[i], x, y, 2)) != 0)
+            return c == 1 && !i ? KID_RAINBOW[4] : KID_INK;
+    if (y >= 60 && y < 100 && x >= 22 && x < 218) {               /* the ten places, 19 px apart */
+        i = (x - 22) / 19;
+        k = (x - 22) % 19;
+        if (i == kid.name_cur && ((kf.t / 400u) & 1u) == 0u && k < 17 && y < 92)
+            if (!kid_char_ink(kid.name_ed[i], 22 + i * 19 + 1, 66, 3, x, y))
+                return RGB(255, 222, 120);                       /* (the place being changed, lit) */
+        if (kid_char_ink(kid.name_ed[i], 22 + i * 19 + 1, 66, 3, x, y))
+            return KID_RAINBOW[i % 7u];
+        for (c = 0; c < 4; c++)
+            if (kid_char_ink(kid.name_ed[i], 22 + i * 19 + 1, 66, 3, x + OX[c] * 2, y + OY[c] * 2))
+                return KID_INK;
+        if (y >= 94 && y < 97 && k < 17)                          /* a line under each place */
+            return i == kid.name_cur ? KID_RAINBOW[0] : RGB(190, 180, 200);
+    }
+    return BG;
+}
+
+static uint32_t kid_name_sig(uint32_t now)
+{
+    uint32_t i, h = kid.name_cur * 31u + ((now / 400u) & 1u);
+    for (i = 0; i < KID_NAME_MAX; i++)
+        h = h * 33u + (uint8_t)kid.name_ed[i];
+    return h;
+}
+
 /* draw x0 .. x1-1, y0 .. y1-1: strips into the canvas's two halves, one drawn while the other goes out */
 static void kid_paint(int32_t x0, int32_t y0, int32_t x1, int32_t y1)
 {
@@ -2811,7 +2973,8 @@ static void kid_paint(int32_t x0, int32_t y0, int32_t x1, int32_t y1)
                 continue;
             }
             for (x = x0; x < x1; x++)
-                *p++ = swap16(yy < (int32_t)KID_BAND_Y ? (kw.on ? kw_px(x, yy) : kid_view_px(x, yy)) : kid_band_px(x, yy));
+                *p++ = swap16(kid.name_on ? kid_name_px(x, yy)
+                              : yy < (int32_t)KID_BAND_Y ? (kw.on ? kw_px(x, yy) : kid_view_px(x, yy)) : kid_band_px(x, yy));
         }
         lcd_blit((uint32_t)x0, (uint32_t)y, w, (uint32_t)n, px);
         buf ^= 1u;
@@ -2874,7 +3037,17 @@ static void kid_draw(void)
     int32_t x0 = 240, y0 = 240, x1 = 0, y1 = 0;
     int anim = kid.scene == KS_STARS || kid.scene == KS_HEARTS || kid.scene == KS_BUBBLES || kid.scene == KS_CONFETTI;
     kid_frame_setup(now);
+    if (kid.name_on) {                                            /* the grown-ups' NAME: all of it, when it changes */
+        uint32_t ns = kid_name_sig(now);
+        if (ns != kid.name_sig || kid.full) {
+            kid.full = 0;
+            kid.name_sig = ns;
+            kid_paint(0, 0, 240, 240);
+        }
+        return;
+    }
     if (kid.hello_ms) {                                           /* the hello: the whole screen, every frame */
+        kid_hello_name();
         if ((now | 1u) - kid.hello_ms > KID_HELLO_MS) {
             kid.hello_ms = 0;
             kid.full = 1;

@@ -33,6 +33,7 @@ at the next power-on.
 | HOME | A surprise friend, with confetti. Held for 1 second it opens the grown-ups' VOLUME instead (below). |
 | SAVE | WRITE: she writes her own song (below). SAVE again goes back to playing. |
 | HOME held 1 s, then OCT- / OCT+ | The grown-ups' VOLUME: the most the MASTER knob can give (below). |
+| HOME held 1 s, then ALGORITHM | The grown-ups' NAME: the name the hello greets (below). |
 | HOME held 1 s, then PRESETS | The grown-ups' LOOK-ALIKES: left swaps the friends drawn after TV and film characters for original stand-ins, right brings them back (below). |
 | MASTER | Volume, up to the VOLUME the grown-ups chose (about half, unless changed). |
 
@@ -186,15 +187,15 @@ Yellow Bird's home sky, and with LOOK-ALIKES off the stand-ins move in instead. 
 shades.
 
 Her second batch: Spider Grandma (a green web-hero mask with silver curls, a bun and pearls; WHEEL's GOSPEL organ),
-Night Light (drawn from her own axolotl night light: white, with mint gills, hugging a mint egg; PHASE's BELL, like a
-music box), Green Queen (the night light as a green queen in a gold crown and a rainbow cape; PHASE's STRING), King
+Night Light (drawn from her own axolotl night light: white, with mint gills, hugging a mint egg; ANALOG's SOFT PAD, a
+soft glow), Green Queen (the night light as a green queen in a gold crown and a rainbow cape; PHASE's STRING), King
 Axolotl (green, on a rainbow throne in red and green robes; FM6's BRASS fanfare), Fairy Monster (a pink fairy monster
-with pigtails, little wings and a star wand, who moved in next door on the street; TRIO's RING BELL) and Morning Glory (a
-vine with heart-shaped leaves and purple trumpet flowers; PHYS's MARIMBA). Spider Grandma and Fairy Monster are
+with pigtails, little wings and a star wand, who moved in next door on the street; TRIO's RING BELL pitched up into a twinkle) and Morning Glory (a
+vine with heart-shaped leaves and purple trumpet flowers; ANALOG's WIND, a breathy flute). Spider Grandma and Fairy Monster are
 look-alikes, with Green Granny and Pixie as their stand-ins.
 
 And her third: Grouch (a grumpy green monster in a trash can, lid on his head; TRIO's FAT BASS with a growl; he lives in
-the street's can now, and Slimy moved into a window), Tiger Cub (in a red zip-up sweater; FM6's TINE EP piano and the TRAIN
+the street's can now, and Slimy moved into a window), Tiger Cub (in a red zip-up sweater; PHASE's ORGAN, bright and reedy, and the TRAIN
 beat, for the trolley), Raccoon (with a box of treasures he collected; PHASE's WIRE, under the stars) and Goldenrod
 (Nebraska's state flower: golden plumes on tall stems; ANALOG's STRINGS and HOEDOWN, for the prairie). Grouch, Tiger Cub and
 Raccoon are look-alikes, with Alley Cat, Lion Cub and Squirrel as their stand-ins.
@@ -234,10 +235,19 @@ The landing page has a "Say thanks" card with a tip button when the repository h
 Ko-fi or Buy Me a Coffee page. Without it, or with anything that is not an `https://` link, the card is left out. Change it any time
 and re-run the workflow (or push anything) to update the site.
 
-## The name in the hello, and the private installer
+## The name in the hello
 
-The name is not in this repository, and the installer on the public site has none in it: its hello is a plain HI!, the same as the
-browser demo. Two repository secrets (**Settings → Secrets and variables → Actions**) add a second, named build:
+Anyone can put a name in the hello, right on the FM-1: hold **HOME for 1 second, then turn ALGORITHM**. A YOUR NAME screen
+opens with ten places. Turn **PRESETS** to pick the letter in the lit place (a space, then A to Z), turn **ALGORITHM** for the
+next place or the one before, and press **SAVE** to keep it: the hello plays at once, greeting the name, and does at every
+power-up from then on. **HOME** leaves without changing anything. To take the name away, make every place a space and SAVE.
+The name is kept in a few spare bytes of the settings (`favorites.factory[13][20..30]`, `kid_name_*` in `kid.c`), so it
+survives power-off, and it goes before a name the build has (below).
+
+## The private installer
+
+No child's name is in this repository, and the installer on the public site has none built in: its hello is a plain HI!
+(the same as the browser demo) until someone sets a name on the FM-1 (above). Two repository secrets (**Settings → Secrets and variables → Actions**) add a second, named build:
 
 - `KID_NAME`: the name the hello greets, capitals only, at most 10 letters (`tools/gen_kid_art.py` reads it).
 - `PRIVATE_PATH`: a long random word, 12 to 64 letters, digits, `-` or `_`.

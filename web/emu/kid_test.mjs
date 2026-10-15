@@ -567,6 +567,39 @@ check("PLAY again stops it", ex.web_playing() === 0);
   check("REC: another sky", sky0 !== sky1);
 }
 
+// the grown-ups' NAME: HOME held 1 s, then ALGORITHM opens it; PRESETS picks a letter, ALGORITHM the next, SAVE keeps it
+// (and the hello says it, after a power-off too), HOME leaves it as it was
+{
+  const CREAM = (31 << 11) | (61 << 5) | 28, f0 = ex.web_kid_friend();
+  const hello = async (nor) => {                                              // a fresh FM-1's hello, 1.5 s in
+    const e = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
+    e._initialize();
+    if (nor) new Uint8Array(e.memory.buffer, e.web_nor(), e.web_nor_size()).set(nor); else e.web_nor_erase();
+    e.web_boot(); e.web_master(1023);
+    for (let k = 0; k < 517; k++) e.web_render(128);
+    return new Uint16Array(e.memory.buffer, e.web_screen(), 240 * 240).slice(0, 240 * 150).join(",");
+  };
+  ex.web_buttons(1 << B.HOME); render(1300);
+  ex.web_enc(EN.ALGO, 1); render(200);
+  ex.web_buttons(0); render(300);
+  shot("name");
+  check("NAME: HOME held 1 s, then ALGORITHM, opens it", px(5, 5) === CREAM);
+  ex.web_enc(EN.PRESETS, 1); render(60); ex.web_enc(EN.ALGO, 1); render(60); ex.web_enc(EN.PRESETS, 2); render(60);   // "AB"
+  ex.web_keys(1 << 12); render(200); ex.web_keys(0); render(100);
+  check("..PRESETS writes letters there, not friends", ex.web_kid_friend() === f0 && px(5, 5) === CREAM);
+  ex.web_buttons(1 << B.SAVE); render(60); ex.web_buttons(0); render(1500);
+  shot("name_hello");
+  check("..SAVE keeps it: the hello again", px(5, 5) !== CREAM);
+  render(3000);
+  const nor = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
+  check("..and after a power-off the hello greets the name", (await hello(nor)) !== (await hello(null)));
+  ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.ALGO, 1); render(200); ex.web_buttons(0); render(300);
+  ex.web_enc(EN.PRESETS, 1); render(60);
+  ex.web_buttons(1 << B.HOME); render(60); ex.web_buttons(0); render(1500);
+  const nor2 = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
+  check("..HOME leaves it as it was", px(5, 5) !== CREAM && (await hello(nor2)) === (await hello(nor)));
+}
+
 for (const r of [EN.K1, EN.K2, EN.K3, EN.K4, EN.ALGO, EN.SELECT]) { ex.web_enc(r, 3); render(200); }
 for (const b of [B.FX, B.SCL, B.ENV, B.LFO, B.EDIT, B.GLO, B.ARP, B.SEQ, B.REC, B.HOME]) { ex.web_buttons(1 << b); render(60); ex.web_buttons(0); render(300); }
 shot("knobs");
