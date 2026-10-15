@@ -558,7 +558,10 @@ check("PLAY again stops it", ex.web_playing() === 0);
   tapb(B.PLAY); render(2200);
   shot("write2");
   check(`PLAY: the song plays (peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.05);
-  tapb(B.PLAY); render(5000);
+  tapb(B.PLAY); render(500);
+  for (let i = 0; i < 18; i++) tapb(B.SEQ);                                   // (a late beat: it needs 5 bits to be kept)
+  const wb = ex.web_kid_wbeat();
+  render(5000);
   const nor = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
   const e2 = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
   e2._initialize();
@@ -568,6 +571,7 @@ check("PLAY again stops it", ex.web_playing() === 0);
   r2(1500); e2.web_keys(1 << 20); r2(100); e2.web_keys(0); r2(1500); e2.web_buttons(1 << B.SAVE); r2(60); e2.web_buttons(0); r2(600);
   const p2 = (x, y) => { const v = new Uint16Array(e2.memory.buffer, e2.web_screen(), 240 * 240)[y * 240 + x]; return ((v & 255) << 8) | (v >> 8); };
   check("kept over a power-off: the next start's WRITE has the song", p2(46 + 10, 128 + 9) === C_RED && p2(46 + 2 * 23 + 10, 128 - 24 + 9) === G_TEAL);
+  check(`..and its beat (${wb}, as written)`, wb >= 16 && e2.web_kid_wbeat() === wb);
   tapb(B.REC, 2300);
   check("REC held 2 s: a new, empty song", ball(0, 0) !== C_RED && ball(2, 4) !== G_TEAL);
   while (ex.web_kid_friend() !== 12) { ex.web_enc(EN.PRESETS, 1); render(150); }   // SCISSORS, a drum friend

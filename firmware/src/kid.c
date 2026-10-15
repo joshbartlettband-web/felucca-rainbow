@@ -1092,16 +1092,16 @@ static uint32_t kw_bits_get(uint32_t *at, uint32_t n)
     return v;
 }
 
-/* the song into its bytes: a version (4 bits), the band (3 x 6: friend + 1), the tempo ((BPM - 60) / 5), the beat (0 none),
+/* the song into its bytes: a version (4 bits), the band (3 x 7: friend + 1), the tempo ((BPM - 60) / 5), the beat (0 none; 5 bits),
  * then each column as one number: ((track A * 3 + track B) * 28 + key A) * 28 + key B (keys + 1, 0 empty), 13 bits */
 static void kw_pack(void)
 {
     uint32_t at = 0, c, i;
-    kw_bits_put(&at, 2, 4);                                      /* (version 2: a band friend in 7 bits; 1 had 6) */
+    kw_bits_put(&at, 3, 4);                                      /* (version 3: the beat in 5 bits; 2 had 4, and a band friend in 7: 1 had 6) */
     for (i = 0; i < 3u; i++)
         kw_bits_put(&at, kw.band[i] == 0xFFu ? 0u : kw.band[i] + 1u, 7);
     kw_bits_put(&at, (uint32_t)clamp((song.g[G_BPM] - 60) / 5, 0, 24), 5);
-    kw_bits_put(&at, kw.beat, 4);
+    kw_bits_put(&at, kw.beat, 5);
     for (c = 0; c < KW_COLS; c++) {
         uint32_t a = kw.note[c][0], b = kw.note[c][1];
         kw_bits_put(&at, (((a >> 5) % 3u * 3u + (b >> 5) % 3u) * 28u + (a & 31u)) * 28u + (b & 31u), 13);
@@ -1109,7 +1109,8 @@ static void kw_pack(void)
 }
 
 _Static_assert(KID_N <= 126, "WRITE keeps a band friend in 7 bits (kw_pack): at most 126 friends");
-_Static_assert(4 + 3 * 7 + 5 + 4 + KW_COLS * 13 <= 58 * 8, "WRITE's song fits its 58 bytes");
+_Static_assert(4 + 3 * 7 + 5 + 5 + KW_COLS * 13 <= 58 * 8, "WRITE's song fits its 58 bytes");
+_Static_assert(KB_COUNT < 32, "WRITE keeps the beat in 5 bits (kw_pack)");
 
 static void kw_unpack(void)
 {
@@ -1119,14 +1120,14 @@ static void kw_unpack(void)
     kw.band[0] = kw.band[1] = kw.band[2] = 0xFF;
     kw.beat = 0;
     ver = kw_bits_get(&at, 4);
-    if (ver != 1u && ver != 2u)                                   /* none yet (or another version): an empty song */
+    if (ver < 1u || ver > 3u)                                     /* none yet (or another version): an empty song */
         return;
     for (i = 0; i < 3u; i++) {
-        v = kw_bits_get(&at, ver == 2u ? 7u : 6u);               /* (a song saved before 63 friends: 6 bits) */
+        v = kw_bits_get(&at, ver >= 2u ? 7u : 6u);               /* (a song saved before 63 friends: 6 bits) */
         kw.band[i] = v && v <= KID_N ? (uint8_t)(v - 1u) : 0xFFu;
     }
     song.g[G_BPM] = (int16_t)(60 + 5 * (int32_t)kw_bits_get(&at, 5));
-    v = kw_bits_get(&at, 4);
+    v = kw_bits_get(&at, ver >= 3u ? 5u : 4u);                   /* (a song saved before 16 beats: 4 bits) */
     kw.beat = (uint8_t)(v <= KB_COUNT ? v : 0u);
     for (c = 0; c < KW_COLS; c++) {
         uint32_t x = kw_bits_get(&at, 13), kb = x % 28u, ka = x / 28u % 28u, s = x / 784u, sa = s / 3u, sb = s % 3u;
