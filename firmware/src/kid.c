@@ -204,6 +204,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {4, "PIANO", 96, KS_STARS, KB_BOSSA},          /* PIANO PAL: a real piano recording (SAMPLE) */
     {4, "FLUTE", 95, KS_CLOUDS, KB_SAMBA},           /* FLUTE BIRD: a real flute (SAMPLE) */
     {4, "SAX", 93, KS_BUBBLES, KB_SHUFFLE},           /* SAX CAT: a real saxophone (SAMPLE) */
+    {7, "ROCK DRIVE", 95, KS_STARS, KB_ROCK},      /* GOLD DUCKY (the secret friend): a rock star's organ */
 };
 
 /* the beats: drums on track 4 (DRUM), a bass line on track 2, 16 steps of 1/16. Drums: a string per lane
@@ -337,7 +338,7 @@ static const int8_t KID_SIN[32] = {0, 25, 49, 71, 90, 106, 117, 125, 127, 125, 1
                                    0, -25, -49, -71, -90, -106, -117, -125, -127, -125, -117, -106, -90, -71, -49, -25};
 
 enum { KH_NONE, KH_SIZE, KH_NIGHT, KH_ECHO, KH_WIGGLE, KH_SPEED, KH_CHORD, KH_SPARKLE, KH_BEAT, KH_VOLUME, KH_NEWSONG, KH_SONG,
-       KH_LOOK, KH_HAT };
+       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND };
 enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 /* ALGORITHM: how the keys play (kid_mode_set). CHOIR: three friends sing a chord; STRUM: an Omnichord (seq.c
  * kb_strum_map); GUESS: an ear game; FOLLOW: songs to learn, the next key lit */
@@ -405,6 +406,8 @@ static struct {
     uint32_t hint_ms, key_ms, hop_ms, party_ms, exit_ms, play_ms, bg_ms;
     uint32_t cheer_ms;                  /* the cheer's next note at (a few notes the friend plays when something is won) */
     uint8_t cheer_i, cheer_n, cheer_on; /* .. which note, how many (0 none), sounding */
+    uint8_t star_dirty;                 /* the star count changed: written at star_ms + 5 s */
+    uint32_t star_ms;
     uint32_t hello_ms;                  /* the power-up hello since (fm1_ms | 1), 0 none */
     char hello_name[12];                /* .. the name it shows, with its "!" ("" none: HI! alone), and its letters' scale */
     uint8_t hello_sc;
@@ -694,11 +697,48 @@ static void kid_beat_load(void)
     song.g[G_BPM] = b->bpm;
 }
 
+#define KID_HAT_BYTE (favorites.factory[13][19])
+
+/* STARS and secrets: each game won (the cheer's) is a star, kept over power-off (favorites.factory[13][15..17]: the
+ * count, low and high, and a check byte). 10 stars: the STAR hat; 50: the secret friend (KID_SECRET_FR). HOME held 1 s,
+ * then KNOB 3, shows how far the next one is. The count is written a few seconds after the last win */
+#define KID_STAR_AT (&favorites.factory[13][15])
+#define KID_STAR_HAT 10u
+#define KID_STAR_FRIEND 50u
+#define KID_STAR_MAX 9999u
+static uint32_t kid_stars(void)
+{
+    const uint8_t *b = KID_STAR_AT;
+    return (uint8_t)(b[0] ^ b[1] ^ 0xA5u) == b[2] ? (uint32_t)b[0] | (uint32_t)b[1] << 8 : 0u;
+}
+
+static void kid_stars_set(uint32_t n)
+{
+    uint8_t *b = KID_STAR_AT;
+    n = n > KID_STAR_MAX ? KID_STAR_MAX : n;
+    b[0] = (uint8_t)n;
+    b[1] = (uint8_t)(n >> 8);
+    b[2] = (uint8_t)(b[0] ^ b[1] ^ 0xA5u);
+}
+
+#define KID_HATS_OPEN (KID_HAT_N - (kid_stars() < KID_STAR_HAT))     /* (the last hat is the secret one) */
+#define KID_HAT (KID_HAT_BYTE > KID_HATS_OPEN ? 0u : (uint32_t)KID_HAT_BYTE)
+#define KID_FRIEND_LOCKED(f) ((f) == KID_SECRET_FR && kid_stars() < KID_STAR_FRIEND)
 static void kid_cheer_stop(void);
+static uint32_t kid_next_friend(int32_t d)                        /* the friend after (d > 0) or before this one, a secret one left out */
+{
+    uint32_t f = kid.fr;
+    do
+        f = (f + (d > 0 ? 1u : KID_N - 1u)) % KID_N;
+    while (KID_FRIEND_LOCKED(f));
+    return f;
+}
+
 static void kid_friend(uint32_t f)
 {
     kid_cheer_stop();                             /* (its note off while its sound is still there) */
-    kid.fr = (uint8_t)(f % KID_N);
+    f %= KID_N;
+    kid.fr = (uint8_t)(KID_FRIEND_LOCKED(f) ? 0u : f);
     kid_sound();
     kid.scene = KID_SOUND[kid.fr].sky;
     if (kid.beat != KID_SOUND[kid.fr].beat) {
@@ -776,6 +816,10 @@ static void kid_mode_set(uint32_t m);
 static void kid_leave(void)
 {
     fx_warm = 0;
+    if (kid.star_dirty) {
+        kid.star_dirty = 0;
+        settings_save();
+    }
     if (kw.on)
         kw_leave();
     kid_mode_set(KM_ONE);                         /* (the keys back to their own notes: STRUM off) */
@@ -941,12 +985,10 @@ static void kid_name_input(uint32_t pressed)       /* the NAME's own controls; e
 
 /* the HAT (HOME held 1 s, then KNOB 4): one of KID_HAT_N hats on every friend, or none, kept over power-off in a spare
  * setting byte (favorites.factory[13][19]: SLICE has two presets, so its favourites use one byte of 32) */
-#define KID_HAT_BYTE (favorites.factory[13][19])
-#define KID_HAT (KID_HAT_BYTE > KID_HAT_N ? 0u : (uint32_t)KID_HAT_BYTE)
 static void kid_hat_step(int32_t d)
 {
-    int32_t h = (int32_t)KID_HAT + (d > 0 ? 1 : -1);
-    h = h < 0 ? (int32_t)KID_HAT_N : h > (int32_t)KID_HAT_N ? 0 : h;           /* round: none, the hats, none */
+    int32_t h = (int32_t)KID_HAT + (d > 0 ? 1 : -1), n = (int32_t)KID_HATS_OPEN;
+    h = h < 0 ? n : h > n ? 0 : h;                                               /* round: none, the hats, none */
     KID_HAT_BYTE = (uint8_t)h;
     settings_save();
     kid.full = 1;
@@ -1422,6 +1464,27 @@ static void kid_cheer_tick(uint32_t now)
     }
 }
 
+/* a game won: the cheer, and a star (10 and 50 of them open a secret) */
+static void kid_win(uint32_t big)
+{
+    uint32_t n = kid_stars();
+    if (n < KID_STAR_MAX)
+        kid_stars_set(++n);
+    kid.star_dirty = 1;
+    kid.star_ms = fm1_ms | 1u;
+    if (n == KID_STAR_HAT) {                                      /* the STAR hat, on at once */
+        KID_HAT_BYTE = KID_HAT_N;
+        kid.full = 1;
+        kid_hint(KH_NEWHAT);
+    } else if (n == KID_STAR_FRIEND) {                            /* the secret friend, there at once */
+        kid_friend(KID_SECRET_FR);
+        kid_hint(KH_NEWFRIEND);
+    }
+    if (n == KID_STAR_HAT || n == KID_STAR_FRIEND)
+        kid.party_ms = fm1_ms | 1u;
+    kid_cheer(big || n == KID_STAR_HAT || n == KID_STAR_FRIEND);
+}
+
 /* COPY ME (Double Rainbow's idea, here first): the friend plays a pattern of notes, lighting each key; the child plays
  * it back. A round won adds a note (2 .. 8: then a party and it starts again); a wrong key and the friend plays it
  * again, and after three wrong in a row the pattern gets a note shorter. PLAY: hear it again. The notes: C D E G A
@@ -1490,7 +1553,7 @@ static void kid_copy(int32_t lo, uint32_t now)
                 kid.party_ms = now | 1u;
                 kid.m_stars++;
                 kid.m_wrong = 0;
-                kid_cheer(kid.m_len >= KID_COPY_MAX);
+                kid_win(kid.m_len >= KID_COPY_MAX);
                 if (kid.m_len >= KID_COPY_MAX) {                  /* the longest: all the way round, and again from two */
                     kid.m_done_ms = now | 1u;
                     kid.m_len = 0;
@@ -1574,7 +1637,7 @@ static void kid_game(int32_t lo)
                 kid.g_yes_ms = now | 1u;
                 kid.g_try_ms = 0;
                 kid.party_ms = now | 1u;
-                kid_cheer(0);
+                kid_win(0);
                 if (++kid.g_streak >= 3u && kid.g_level < 6u) {
                     kid.g_level++;
                     kid.g_streak = 0;
@@ -1603,7 +1666,7 @@ static void kid_game(int32_t lo)
             if (kid_song_key(kid.f_song, kid.f_pos) == 99u) {     /* the whole song: a party */
                 kid.f_done_ms = now | 1u;
                 kid.party_ms = now | 1u;
-                kid_cheer(1);
+                kid_win(1);
             }
         }
     } else if (kid.mode == KM_CHORDS) {
@@ -1625,7 +1688,7 @@ static void kid_game(int32_t lo)
                     kid.c_pos = (uint8_t)((kid.c_pos + 1u) % KID_LESSON_LEN);
                     if (!kid.c_pos) {
                         kid.party_ms = now | 1u;
-                        kid_cheer(1);
+                        kid_win(1);
                     }
                 }
             }
@@ -1800,6 +1863,10 @@ static void kid_input(void)
             break;
         }
     }
+    if (kid.star_dirty && (fm1_ms | 1u) - kid.star_ms > 5000u) {            /* the stars, kept */
+        kid.star_dirty = 0;
+        settings_save();
+    }
     if (kid.sleep_ms && (fm1_ms | 1u) - kid.sleep_ms > KID_SLEEP_MS) {   /* SLEEPY wakes up by itself (its tape */
         kid.sleep_ms = 0;                                                  /* stop would leave the keys silent) */
         kid_fx_set(0);
@@ -1913,10 +1980,10 @@ static void kid_input(void)
     } else if (s != 0) {
         any = 1u;
         if (kw.on) {                              /* WRITE: the friend to write with */
-            kid.fr = (uint8_t)(((int32_t)kid.fr + (s > 0 ? 1 : (int32_t)KID_N - 1)) % (int32_t)KID_N);
+            kid.fr = (uint8_t)kid_next_friend(s);
             kw_stamp(kid.fr);
         } else {
-            kid_friend((uint32_t)((int32_t)kid.fr + (s > 0 ? 1 : (int32_t)KID_N - 1)));
+            kid_friend(kid_next_friend(s));
         }
     }
     if ((s = panel_enc(EN_ALGO)) != 0 && kid.vol_open && !kw.on) {   /* HOME held 1 s: the grown-ups' NAME */
@@ -1951,6 +2018,12 @@ static void kid_input(void)
         kid_knobs();
         kid_hint(KH_NIGHT);
     }
+#if !BOARD_SMK37
+    if ((s = panel_enc(EN_K3)) != 0 && kid.vol_open) {              /* HOME held 1 s: the STARS */
+        any = 1u;
+        kid_hint(KH_STARS);
+    } else
+#endif
     if ((s = panel_enc(EN_K3)) != 0 && !kw.on) {
         any = 1u;
         kid.echo = (uint8_t)clamp(kid.echo + s, 0, 8);
@@ -2375,7 +2448,8 @@ static uint32_t kid_play_band(uint32_t now)
 static uint32_t kid_band_setup(uint32_t now)
 {
     uint32_t sig, len, w;
-    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
+    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
+               kid.hint == KH_NEWFRIEND) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
     int hint = kid.hint != KH_NONE && now - kid.hint_ms < 1500u;
     kf.meter = -1;
     kf.ol = 2;
@@ -2426,7 +2500,8 @@ static uint32_t kid_band_setup(uint32_t now)
         kf.bg2 = kid_mix(kf.bg, RGB(0, 0, 0), 60u);
         sig = 0x400u | kid.fxk;
     } else if (kid.hint != KH_NONE && now - kid.hint_ms < 1500u) {
-        static const char *const WORD[] = {"", "", "DAY", "ECHO", "WIGGLE", "", "", "SPARKLE", "", "VOLUME", "", "", ""};
+        static const char *const WORD[] = {"", "", "DAY", "ECHO", "WIGGLE", "", "", "SPARKLE", "", "VOLUME", "", "", "", "", "STARS",
+                                           "NEW HAT!", "NEW FRIEND!"};
         int32_t v = 0;
         kf.band = KB_HINT;
         kf.txt = WORD[kid.hint];
@@ -2453,6 +2528,12 @@ static uint32_t kid_band_setup(uint32_t now)
             break;
         case KH_LOOK: kf.txt = KID_VOL_BYTE & KID_HIDE_BIT ? "LOOK-ALIKES OFF" : "LOOK-ALIKES ON"; v = -1; break;
         case KH_HAT: kf.txt = KID_HAT ? KID_HAT_NAME[KID_HAT - 1u] : "NO HAT"; v = -1; break;
+        case KH_NEWHAT: case KH_NEWFRIEND: v = -1; break;
+        case KH_STARS: {                                  /* how far the next secret is (no digits in the band's font) */
+            uint32_t n = kid_stars(), next = n < KID_STAR_HAT ? KID_STAR_HAT : KID_STAR_FRIEND;
+            v = n >= KID_STAR_FRIEND ? 8 : (int32_t)(n * 8u / next);
+            break;
+        }
         default: break;
         }
         kf.meter = (int8_t)clamp(v, -1, 8);

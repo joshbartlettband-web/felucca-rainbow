@@ -41,7 +41,8 @@ const shot = (name) => {
   fs.writeFileSync(`${outDir}/kid_${name}.ppm`, Buffer.concat([Buffer.from("P6 240 240 255\n"), b]));
 };
 const WHITE = 0xFFFF;
-const NF = 76;                                                               // the friends (kid_art.h KID_N)
+const NF = 77;                                                               // the friends (kid_art.h KID_N), the secret one last
+const NFP = NF - 1;                                                          // (the ones PRESETS shows before the 50 stars)
 const KID_Y = (step) => 54 - 3 * step;
 const FXB = [B.FX, B.SCL, B.ENV, B.LFO, B.EDIT, B.GLO];
 
@@ -132,6 +133,7 @@ check("PRESETS: another friend (the band shows its name)", band() !== name0);
 
 // every friend sounds, and about as loud as the others: loudness (the energy over a phrase, the lows filtered out as the
 // ear hears them, about), not peaks: a pluck and an organ with the same peak are far apart to the ear
+ex.web_kid_stars_set(50);                                                    // (every friend is open for these two loops)
 const levels = [], peaks = [];
 for (let f = 0; f < NF; f++) {
   let e = 0, n = 0, px = 0, py = 0;
@@ -167,6 +169,7 @@ for (let f = 0; f < NF; f++) {
 }
 check(`3 FRIENDS: every friend sings three notes${thin.length ? " (not: " + thin.join(" ") + ")" : ""}`, thin.length === 0);
 ex.web_enc(EN.ALGO, -3); render(100);
+ex.web_kid_stars_set(0);
 ex.web_keys(1 << 12); render(120);
 const mono1 = ex.web_voices(0);
 ex.web_keys(0); render(500);
@@ -327,7 +330,7 @@ check("PLAY again stops it", ex.web_playing() === 0);
 {
   const f0 = ex.web_kid_friend(), go = (e, f) => { for (let i = 0; i < NF && e.web_kid_friend() !== f; i++) { e.web_enc(EN.PRESETS, 1); for (let k = 0; k < 10; k++) e.web_render(128); } for (let k = 0; k < 600; k++) e.web_render(128); };
   const fb = (e) => new Uint16Array(e.memory.buffer, e.web_screen(), 240 * 240).slice(190 * 240, 236 * 240).join(",");
-  const tour = (e) => { const seen = new Set(); for (let i = 0; i < NF + 4; i++) { e.web_enc(EN.PRESETS, 1); for (let k = 0; k < 40; k++) e.web_render(128); seen.add(e.web_kid_friend()); } return seen; };
+  const tour = (e) => { const seen = new Set(); for (let i = 0; i < NFP + 4; i++) { e.web_enc(EN.PRESETS, 1); for (let k = 0; k < 40; k++) e.web_render(128); seen.add(e.web_kid_friend()); } return seen; };
   go(ex, 14);                                                                  // WEB HERO
   const name = band();
   ex.web_buttons(1 << B.HOME); render(1300);
@@ -337,7 +340,7 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_buttons(0); render(2600);
   shot("standin");
   check("HOME held, PRESETS left: the band says so, then WEB HERO shows its stand-in's name", word !== name && band() !== name && band() !== word && ex.web_kid_friend() === 14);
-  check(`..every friend is still on PRESETS (${NF})`, tour(ex).size === NF);
+  check(`..every friend is still on PRESETS (${NFP}, the secret one not yet)`, tour(ex).size === NFP);
   go(ex, 14);
   peak = 0; ex.web_keys(1 << 12); render(300); ex.web_keys(0); render(400);
   check(`..and the stand-in sings (the same sound, peak ${peak.toFixed(3)})`, peak > 0.02);
@@ -662,6 +665,50 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_enc(EN.K4, 2); render(300);
   check("KNOB 4 alone is still WIGGLE (no hat)", band() !== name && pink(ex) <= bare + 1);
   ex.web_enc(EN.K4, -2); render(300);
+}
+
+// STARS: each game won is a star (kept a few seconds after the last, so over a power-off); 10 give the STAR hat, 50 the
+// secret friend; HOME held 1 s, then KNOB 3, shows how far the next one is
+{
+  const win = () => { ex.web_kid_win(); render(300); };
+  const hatStep = (n) => { ex.web_buttons(1 << B.HOME); render(1300); for (let i = 0; i < n; i++) { ex.web_enc(EN.K4, 1); render(80); } ex.web_buttons(0); render(300); };
+  const tour = () => { const seen = new Set(); for (let i = 0; i < NF + 4; i++) { ex.web_enc(EN.PRESETS, 1); render(120); seen.add(ex.web_kid_friend()); } return seen; };
+  const f0 = ex.web_kid_friend();
+  ex.web_kid_stars_set(8); hatStep(11);                                       // (a full round of the hats: the STAR one is not there)
+  check("STARS: before 10, the STAR hat is not on KNOB 4's round (it ends on none)", ex.web_kid_hat() === 0);
+  render(2200);
+  let seen = tour();
+  check(`..and before 50 the secret friend is not on PRESETS (${seen.size} friends)`, seen.size === NFP && !seen.has(NF - 1));
+  const was = band();
+  win(); win();
+  check("two wins: 10 stars", ex.web_kid_stars() === 10);
+  check("..the STAR hat is on (a new hat!)", ex.web_kid_hat() === 11 && band() !== was);
+  shot("star_hat");
+  render(2500);
+  ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.K3, 1); render(200);
+  const meter = band();
+  ex.web_buttons(0); render(2200);
+  check("HOME held 1 s, KNOB 3: STARS shows in the band (then the friend's name again)", meter !== band());
+  shot("stars");
+  ex.web_kid_stars_set(49); render(2200);
+  win();
+  check("one more win: 50 stars, and the secret friend is there", ex.web_kid_stars() === 50 && ex.web_kid_friend() === NF - 1);
+  shot("star_friend");
+  render(2500);
+  seen = tour();
+  check(`..now it is on PRESETS (${seen.size} friends)`, seen.size === NF);
+  const nor = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
+  render(6500);                                                               // (written 5 s after the last win)
+  const nor2 = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
+  const e5 = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
+  e5._initialize();
+  new Uint8Array(e5.memory.buffer, e5.web_nor(), e5.web_nor_size()).set(nor2);
+  e5.web_boot();
+  for (let k = 0; k < 400; k++) e5.web_render(128);
+  check(`..kept over a power-off (${e5.web_kid_stars()} stars)`, e5.web_kid_stars() === 50);
+  ex.web_kid_stars_set(0); hatStep(11);                                       // (back as the other tests left it: no hat, no stars)
+  while (ex.web_kid_friend() !== f0) { ex.web_enc(EN.PRESETS, 1); render(120); }
+  render(1500);
 }
 
 for (const r of [EN.K1, EN.K2, EN.K3, EN.K4, EN.ALGO, EN.SELECT]) { ex.web_enc(r, 3); render(200); }

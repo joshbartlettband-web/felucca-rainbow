@@ -486,6 +486,10 @@ EXPORT uint32_t web_kid_guess(void) { return kid.g_target; }
 EXPORT uint32_t web_kid_copy_len(void) { return kid.m_len; }                      /* (kid_test.mjs: COPY ME's pattern) */
 EXPORT uint32_t web_kid_copy_key(uint32_t i) { return kid.m_seq[i & 7u]; }
 EXPORT uint32_t web_kid_copy_state(void) { return kid.m_state; }                  /* 0 pause, 1 the friend plays, 2 your turn */
+EXPORT uint32_t web_kid_stars(void) { return kid_stars(); }                         /* (kid_test.mjs: the STARS) */
+EXPORT void web_kid_stars_set(uint32_t n) { kid_stars_set(n); }
+EXPORT void web_kid_win(void) { kid_win(0); }                                         /* (kid_test.mjs: a game won) */
+EXPORT uint32_t web_kid_hat(void) { return KID_HAT; }
 EXPORT uint32_t web_kid_cheer(void) { return kid.cheer_n | ((uint32_t)kid.cheer_on << 8); }   /* (kid_test.mjs: the cheer's notes left, and sounding) */
 EXPORT uint32_t web_kid_friend(void) { return kid.fr; }
 EXPORT uint32_t web_voices(uint32_t t)                  /* (kid_test.mjs: a track's sounding voices) */

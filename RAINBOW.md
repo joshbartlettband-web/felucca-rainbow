@@ -35,6 +35,7 @@ at the next power-on.
 | HOME held 1 s, then OCT- / OCT+ | The grown-ups' VOLUME: the most the MASTER knob can give (below). |
 | HOME held 1 s, then ALGORITHM | The grown-ups' NAME: the name the hello greets (below). |
 | HOME held 1 s, then KNOB 4 | The HAT: ten hats (party, crown, top hat, rainbow bucket, wizard, beanie, western, chef, propeller, flowers) any friend can wear, or none; the band names it. Kept over power-off. (On the SMK-37: not yet.) |
+| HOME held 1 s, then KNOB 3 | The STARS (below): how far the next secret is. |
 | HOME held 1 s, then PRESETS | The grown-ups' LOOK-ALIKES: left swaps the friends drawn after TV and film characters for original stand-ins, right brings them back (below). |
 | MASTER | Volume, up to the VOLUME the grown-ups chose (about half, unless changed). |
 
@@ -61,6 +62,21 @@ SEVEN, DIM, SUS), whatever their order (u/nutty_cartoon). GUESS and FOLLOW keep 
 A win has a sound too: when GUESS is right, a COPY ME round is played back, a FOLLOW song or a CHORDS lesson is finished, the
 friend plays a little cheer up the C chord (two notes for a small win, four for a whole song, lesson or STAR!). A new friend (a
 surprise from HOME) or a new sky (REC) gets the small one. The drum, bass and noise friends stay quiet, as their notes are no tune.
+
+## Stars and secrets
+
+Every game won earns a star: a right GUESS, a COPY ME round played back, a FOLLOW song or a CHORDS lesson finished. The count
+is kept over power-off (it is written about five seconds after the last win, or when leaving Rainbow mode). Some things wait
+for stars:
+
+| Stars | What opens |
+| --- | --- |
+| 10 | An eleventh hat, the STAR hat. It goes on at once; it joins the round on HOME held 1 s, then KNOB 4. |
+| 50 | A secret friend, GOLD DUCKY (a crown and sparkles; a rock organ). It is there at once, and joins PRESETS from then on. |
+
+The band says NEW HAT! or NEW FRIEND! and the friend plays the four-note cheer. HOME held 1 s, then KNOB 3, shows STARS and a
+meter of how far the next secret is (there are no digits in the band's font). To start over, the grown-ups can erase the
+FM-1's settings (the same as for the name and the hat). The SMK-37 counts stars too, but cannot show them yet.
 
 ## Drum friends
 
