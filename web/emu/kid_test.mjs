@@ -41,7 +41,7 @@ const shot = (name) => {
   fs.writeFileSync(`${outDir}/kid_${name}.ppm`, Buffer.concat([Buffer.from("P6 240 240 255\n"), b]));
 };
 const WHITE = 0xFFFF;
-const NF = 77;                                                               // the friends (kid_art.h KID_N), the secret one last
+const NF = 95;                                                               // the friends (kid_art.h KID_N), the secret one last
 const NFP = NF - 1;                                                          // (the ones PRESETS shows before the 50 stars)
 const KID_Y = (step) => 54 - 3 * step;
 const FXB = [B.FX, B.SCL, B.ENV, B.LFO, B.EDIT, B.GLO];
@@ -157,7 +157,7 @@ check(`all ${NF} friends sound, alike to the ear (within ${(hi - lo).toFixed(1)}
 check("MASTER all the way up stays at about half (no friend peaks over 0.3)", pmax < 0.3);
 
 // 3 FRIENDS: every friend sings the whole chord, the mono ones too (their legato is for 1 FRIEND); a drum friend, one drum
-const DRUMS = new Set([12, 46, 47, 48, 49]), thin = [], chordLv = [];
+const DRUMS = new Set([12, 46, 47, 48, 49, 90]), thin = [], chordLv = [];
 ex.web_enc(EN.ALGO, 3); render(100);
 for (let f = 0; f < NF; f++) {
   const fr = ex.web_kid_friend();

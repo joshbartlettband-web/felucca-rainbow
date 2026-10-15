@@ -488,6 +488,9 @@ EXPORT uint32_t web_kid_copy_key(uint32_t i) { return kid.m_seq[i & 7u]; }
 EXPORT uint32_t web_kid_copy_state(void) { return kid.m_state; }                  /* 0 pause, 1 the friend plays, 2 your turn */
 EXPORT uint32_t web_kid_stars(void) { return kid_stars(); }                         /* (kid_test.mjs: the STARS) */
 EXPORT void web_kid_stars_set(uint32_t n) { kid_stars_set(n); }
+EXPORT void web_kid_set_param(uint32_t i, int32_t v) { if (i < P_COUNT) trk[0].p[i] = (int16_t)v; }   /* (tools: trying a sound's knobs) */
+EXPORT uint32_t web_p_idx(uint32_t w) { static const uint8_t T[] = {P_E0, P_ATK, P_DEC, P_SUS, P_REL, P_DIST, P_CHOR, P_DLY, P_REV, P_LD_PIT, P_GLIDE}; return w < sizeof T ? T[w] : 0u; }   /* (tools) */
+EXPORT void web_kid_set_level(uint32_t v) { trk[0].p[P_LEVEL] = (int16_t)v; }          /* (tools: leveling a friend) */
 EXPORT uint32_t web_kid_beat(void) { return kid.beat; }
 EXPORT uint32_t web_kid_wbeat(void) { return kw.beat; }                             /* (kid_test.mjs: WRITE's beat) */
 EXPORT void web_kid_win(void) { kid_win(0); }                                         /* (kid_test.mjs: a game won) */

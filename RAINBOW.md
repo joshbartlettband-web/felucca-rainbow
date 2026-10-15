@@ -12,7 +12,7 @@ at the next power-on.
 | Control | What happens |
 | --- | --- |
 | Keys | Play the friend's sound. The note's letter shows big in the band at the bottom, in its own color, and the friend hops. A music staff drops in at the top and writes the note (see below). |
-| PRESETS | Next or previous friend (76 of them, each with its own picture, sound, home sky and favorite beat). |
+| PRESETS | Next or previous friend (94 of them, and a secret one; each with its own picture, sound, home sky and favorite beat). |
 | ALGORITHM | How the keys play, one step per turn (below): 1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW, CHORDS, COPY ME. |
 | SELECT | The beat slower or faster (SLOW, WALK, FAST). |
 | KNOB 1 | Big and small. Low notes make a big friend, high notes a small one. OCT- and OCT+ do the same. |
@@ -229,6 +229,18 @@ Raccoon are look-alikes, with Alley Cat, Lion Cub and Squirrel as their stand-in
 And three that play real recordings: Piano Pal, Flute Bird and Sax Cat use SAMPLE, the piano, flute and sax sets Felucca carries
 (about 104 KB of its flash, which no friend used before). The drum break of SLICE (22 KB) is the one piece left over.
 
+And a fourth, in sets. The farm: Cow (PHYS's DRONE STRING, a low moo of a drone), Pig (FM6's ORGAN) and Sheep (ANALOG's PWM STR,
+fluffy strings). The sea: Shark (FM6's FM BASS), Seahorse (FM6's BELL with its modulators' ratio up: glassy) and Starfish (PHYS's
+BOWED METAL, a singing bowl). Bugs: Snail (a slow, soft sine), Caterpillar (ANALOG's PLUCK on a square wave: a boop) and Firefly
+(FM6's TINE EP, brighter and short: a ping). Dinosaurs: Triceratops (ANALOG's BRASS on a driven square: a tuba's honk) and
+Stegosaurus (FM6's BRASS through another algorithm: gritty). Food: Pizza (FM6's MARIMBA through another algorithm), Donut (a wide
+FM6 PAD) and Banana (a slow, boingy FM6 PLUCK). Things that go: Train (the last of Felucca's drum kits, 77, every key another drum),
+Fire Truck (a square-wave siren: a wide vibrato and a glide), School Bus (PHYS's TOMS, a marching band) and Helicopter (NOISE's
+WIND, a rotor's whoosh). The vehicles have no faces: a driver, a pilot or a bus full of friends smiles from the windows. Only the
+Train, the Helicopter and Shark play no cheer, as their notes are no tune; the rest do. Every one is leveled with the others
+(`web/emu/kid_test.mjs`, and by a K-weighted loudness over a phrase), and none is closer in sound to an older friend than the older
+friends are to each other.
+
 Each one uses one of Felucca's own factory sounds (listed in `firmware/src/kid.c`, `KID_SOUND`), with its
 level set so they all play at about the same loudness. Each also has a home sky and a favorite beat
 (Ghost and Slimy: SPOOKY, a ghost-hunting funk; Frog and Axolotl: REGGAE; Butterfly and Rainbow: LULLABY). Scissors
@@ -237,7 +249,7 @@ plays the drum kit: every key is a different drum.
 The pictures are drawn on a roomy canvas, then trimmed, centred and stood on the bottom of a 48 x 48 grid;
 a picture that would not fit stops the build, so none is ever cut off. On the screen they are drawn at 1x,
 1.5x, 2x, 2.5x or 3x (KNOB 1) and kept inside the screen even at their biggest, hopping and wiggling.
-They are stored a row at a time as runs of one colour (`KID_RLE`: 35 KB for the 75 pictures, from 86 KB), and
+They are stored a row at a time as runs of one colour (`KID_RLE`: 54 KB for all 112 pictures, friends and stand-ins, from 129 KB), and
 `kid_row` in `kid.c` decodes a row as the screen is drawn, keeping the last 16 rows (about 800 B of RAM).
 
 The characters are original drawings in the spirit of the ones children love, not copies, because this
@@ -245,7 +257,7 @@ repository and its website are public.
 
 ## Where it lives
 
-- `tools/gen_kid_art.py`: the 76 pictures, drawn from shapes on a 48 x 48 grid and outlined
+- `tools/gen_kid_art.py`: the 95 pictures (94 and a secret), drawn from shapes on a 48 x 48 grid and outlined
   automatically. `python3 tools/gen_kid_art.py /tmp/kid_art.h --png /tmp/sheet.png` writes a contact
   sheet to look at. The build runs it (`tools/build.py` generate).
 - `firmware/src/kid.c`: everything else (sounds, knobs, buttons, the screen). It takes over the main

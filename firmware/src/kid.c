@@ -119,6 +119,18 @@ static const int16_t TW_FLYTRAP[] = {P_E0, 1, P_E4, 34, P_E5, 112, P_E6, 70, P_E
                                                   * driven: a chomp) */
 static const int16_t TW_SUNFLOWER[] = {P_E4, 58, P_E5, 92, P_ED_FLT, 36, P_DEC, 75, P_SUS, 40, P_REL, 50, P_DLY, 70,
                                        P_VOICE, V_MONO, -1};
+/* friends in sets (the farm, the sea, bugs, dinosaurs, food, things that go): where a sound is a plain preset of an engine
+ * no friend used, no tweak; the rest are FM6, ANALOG and PHYS patches set apart (their knobs, TW_*) */
+static const int16_t TW_SEAHORSE[] = {P_E3, 5, P_E4, 30, -1};                    /* (FM6 BELL: the modulators' ratio up, slower) */
+static const int16_t TW_SNAIL[] = {P_ATK, 70, P_REL, 95, P_REV, 60, -1};         /* (a slow, soft sine) */
+static const int16_t TW_CATERPILLAR[] = {P_E0, 1, P_E4, 64, P_E5, 40, -1};       /* (ANALOG PLUCK, a square: a boop) */
+static const int16_t TW_FIREFLY[] = {P_E2, 18, P_E3, 5, P_E4, -30, -1};          /* (FM6 TINE EP: brighter, a short ping) */
+static const int16_t TW_TRICERATOPS[] = {P_E0, 1, P_E4, 38, P_E6, 50, -1};       /* (ANALOG BRASS, a square driven: a tuba's honk) */
+static const int16_t TW_STEGO[] = {P_E0, 30, P_E1, 0, P_E2, -8, -1};             /* (FM6 BRASS through another algorithm: a gritty one) */
+static const int16_t TW_PIZZA[] = {P_E0, 7, P_E1, 2, P_E3, 2, -1};               /* (FM6 MARIMBA through another algorithm) */
+static const int16_t TW_DONUT[] = {P_E3, 3, P_E6, 70, P_E4, -10, -1};            /* (FM6 PAD: a wide, swimming one) */
+static const int16_t TW_BANANA[] = {P_E4, 40, P_E2, 10, P_E3, -2, -1};           /* (FM6 PLUCK: a slow, boingy one) */
+static const int16_t TW_FIRETRUCK[] = {P_E0, 1, P_E4, 100, P_E5, 20, -1};        /* (ANALOG SAW LEAD as a square, wide vibrato and a glide: a siren) */
 static const kid_sound_t KID_SOUND[KID_N] = {
     {12, "TINE EP", 97, KS_BUBBLES, KB_DANCE},       /* DUCKY: FM6 */
     {7, "SOFT FLUTE", 104, KS_HEARTS, KB_DISCO},      /* PINK DUCKY: WHEEL */
@@ -204,7 +216,26 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {4, "PIANO", 96, KS_STARS, KB_BOSSA},          /* PIANO PAL: a real piano recording (SAMPLE) */
     {4, "FLUTE", 95, KS_CLOUDS, KB_SAMBA},           /* FLUTE BIRD: a real flute (SAMPLE) */
     {4, "SAX", 93, KS_BUBBLES, KB_SHUFFLE},           /* SAX CAT: a real saxophone (SAMPLE) */
-    {7, "ROCK DRIVE", 95, KS_STARS, KB_ROCK},      /* GOLD DUCKY (the secret friend): a rock star's organ */
+    /* friends in sets */
+    {9, "DRONE STRING", 109, KS_LEAVES, KB_HOEDOWN},   /* COW: a low drone string */
+    {12, "ORGAN", 109, KS_LEAVES, KB_POLKA},           /* PIG: FM6's organ */
+    {0, "PWM STR", 94, KS_CLOUDS, KB_LULLABY},        /* SHEEP: soft, fluffy strings */
+    {12, "FM BASS", 111, KS_BUBBLES, KB_FUNK},         /* SHARK: a deep FM bass */
+    {12, "BELL", 109, KS_BUBBLES, KB_BOSSA, 0, 0, 0, 0, TW_SEAHORSE},    /* SEAHORSE: a glassy bell */
+    {9, "BOWED METAL", 127, KS_BUBBLES, KB_SAMBA},     /* STARFISH: a singing bowl */
+    {0, "SINE KEY", 104, KS_LEAVES, KB_REGGAE, 0, 0, 0, 0, TW_SNAIL},     /* SNAIL: slow and soft */
+    {0, "PLUCK", 114, KS_FLOWERS, KB_SKA, 0, 0, 0, 0, TW_CATERPILLAR},   /* CATERPILLAR: a boop */
+    {12, "TINE EP", 96, KS_STARS, KB_LULLABY, 0, 0, 0, 0, TW_FIREFLY},  /* FIREFLY: a ping */
+    {0, "BRASS", 96, KS_DESERT, KB_MARCH, 0, 0, 0, 0, TW_TRICERATOPS},  /* TRICERATOPS: a tuba's honk */
+    {12, "BRASS", 101, KS_DESERT, KB_SHUFFLE, 0, 0, 0, 0, TW_STEGO},     /* STEGOSAURUS: a raspy FM brass */
+    {12, "MARIMBA", 125, KS_CONFETTI, KB_DISCO, 0, 0, 0, 0, TW_PIZZA},   /* PIZZA: a hard FM marimba */
+    {12, "PAD", 107, KS_HEARTS, KB_DANCE, 0, 0, 0, 0, TW_DONUT},         /* DONUT: a wide pad */
+    {12, "PLUCK", 118, KS_CONFETTI, KB_SKA, 0, 0, 0, 0, TW_BANANA},      /* BANANA: a boingy pluck */
+    {10, "DRUM KIT", 107, KS_LEAVES, KB_TRAIN, 0, 0, 0, 9},              /* TRAIN: the 77 kit, a chug */
+    {0, "SAW LEAD", 99, KS_STREET, KB_MARCH, 3, 50, 0, 0, TW_FIRETRUCK},   /* FIRE TRUCK: a siren */
+    {9, "TOMS", 110, KS_STREET, KB_HIPHOP},            /* SCHOOL BUS: toms, a marching band */
+    {11, "WIND", 116, KS_CLOUDS, KB_FUNK},             /* HELICOPTER: a rotor's whoosh */
+    {7, "ROCK DRIVE", 93, KS_STARS, KB_ROCK},      /* GOLD DUCKY (the secret friend): a rock star's organ */
 };
 
 /* the beats: drums on track 4 (DRUM), a bass line on track 2, 16 steps of 1/16. Drums: a string per lane
