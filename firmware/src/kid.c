@@ -68,7 +68,7 @@ static const uint16_t KID_VOL_CAP[8] = {362, 512, 724, 1024, 1448, 2048, 2896, 4
 enum { KS_RAINBOW, KS_STARS, KS_HEARTS, KS_BUBBLES, KS_FLOWERS, KS_CONFETTI, KS_CLOUDS, KS_SNOW, KS_LEAVES, KS_DESERT,
        KS_STREET, KS_COUNT };
 enum { KB_DANCE, KB_MARCH, KB_SPOOKY, KB_ROCK, KB_DISCO, KB_HIPHOP, KB_TRAIN, KB_SAMBA, KB_REGGAE, KB_LULLABY,
-       KB_HOEDOWN, KB_LOFI, KB_ACID, KB_POLKA, KB_BOSSA, KB_FUNK, KB_SKA, KB_TRAP, KB_SALSA, KB_SHUFFLE, KB_COUNT };
+       KB_HOEDOWN, KB_LOFI, KB_ACID, KB_POLKA, KB_BOSSA, KB_FUNK, KB_SKA, KB_TRAP, KB_SALSA, KB_SHUFFLE, KB_BREAK, KB_COUNT };
 
 /* each friend's sound, in the order of KID_NAME: an engine and one of its factory presets (by name), its level
  * (P_LEVEL, 1/2 dB steps: the friends measured alike, about 0.14 peak with MASTER up), its home sky and its
@@ -168,7 +168,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {0, "RAVE", 95, KS_CONFETTI, KB_DANCE},          /* VACUUM: the rave "hoover", a joke for the grown-ups */
     {6, "SAW3", 113, KS_STARS, KB_DISCO, 1, 32, 0, 0, TW_SWOOP},      /* SPACE HERO: buzzy saws that swoop (a glide) and shimmer */
     /* more drum kits: every key another drum, as SCISSORS (Felucca's model kits) */
-    {10, "DRUM KIT", 103, KS_CONFETTI, KB_HIPHOP, 0, 0, 0, 5},    /* BEAT BOT: the 80 kit, a classic drum machine */
+    {10, "DRUM KIT", 103, KS_CONFETTI, KB_BREAK, 0, 0, 0, 5},    /* BEAT BOT: the 80 kit, a classic drum machine */
     {10, "DRUM KIT", 105, KS_FLOWERS, KB_MARCH, 0, 0, 0, 8},     /* TOY DRUM: the 55 kit, small and tight */
     {10, "DRUM KIT", 101, KS_HEARTS, KB_SALSA, 0, 0, 0, 7},       /* BONGO: the 66 kit, congas */
     {10, "DRUM KIT", 106, KS_STARS, KB_SKA, 0, 0, 0, 6},        /* MONKEY: the 10 kit, a cymbal on the bell */
@@ -220,6 +220,7 @@ typedef struct {
     uint8_t bfl[16];                    /* its steps' SF_ACCENT (1) and SF_SLIDE (2) */
     uint8_t acid;                       /* the bass plays ANALOG's ACID (a 303's squelch), not SQR BASS */
     uint8_t swing;                      /* G_SWING, 0 straight */
+    uint8_t brk;                        /* the drums are Felucca's own break (SLICE's BREAK, its 16 slices in order), not a kit */
 } kid_beat_t;
 static const kid_beat_t KID_BEATS[KB_COUNT] = {
     {"DANCE", 112, KD_HOP, 92, 100,
@@ -284,6 +285,8 @@ static const kid_beat_t KID_BEATS[KB_COUNT] = {
      {36, 0, 0, 43, 0, 0, 0, 36, 0, 0, 43, 0, 36, 0, 0, 0}},
     {"SHUFFLE", 100, KD_SWAY, 92, 102, {"x.....x...x.....", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0},   /* swung, a walking bass */
      {36, 0, 0, 0, 36, 0, 40, 0, 43, 0, 0, 0, 45, 0, 43, 0}, {0}, 0, 33},
+    {"BREAK", 120, KD_BOTH, 104, 96,                 /* a drum loop, played back as it was made (one bar at 120 BPM) */
+     {0}, {36, 0, 0, 36, 0, 0, 43, 0, 36, 0, 0, 36, 0, 41, 43, 0}, {0}, 0, 0, 1},
 };
 
 /* the top row, tapped on and off: Felucca's performance effects (perform.c), and what the friend does meanwhile */
@@ -641,16 +644,33 @@ static void kid_beat_load(void)
     track_t *t = &trk[3], *bt = &trk[1];
     uint8_t note[16], flags[16];
     uint32_t i, l;
-    if (t->eng_req != ENGI_DRUM)
-        set_engine_of(t, ENGI_DRUM);
-    song.g[G_SWING] = b->swing;                   /* (LOFI, SHUFFLE: swung) */
-    track_defaults_steps(t);
-    t->p[P_SLEN] = 16;
-    t->p[P_LEVEL] = b->dlvl;                      /* (the kit alone peaks about twice a friend) */
-    for (l = 0; l < NLANE; l++)
-        for (i = 0; b->lane[l] && i < 16u && b->lane[l][i]; i++)
-            if (b->lane[l][i] == 'x')
-                grid_hit(t, i, l, 1);
+#if FELUCCA_SLICE
+    if (b->brk) {                                 /* the break: SLICE's BREAK, a slice a step, in order (CHOP's sound) */
+        if (t->eng_req != 13u) {
+            set_engine_of(t, 13u);
+            apply_preset_to(t, 0);
+        }
+        song.g[G_SWING] = 0;
+        for (i = 0; i < 16u; i++) {
+            note[i] = (uint8_t)(60u + i);
+            flags[i] = 0;
+        }
+        load_pat16(t, note, flags);
+        t->p[P_LEVEL] = b->dlvl;
+    } else
+#endif
+    {
+        if (t->eng_req != ENGI_DRUM)
+            set_engine_of(t, ENGI_DRUM);
+        song.g[G_SWING] = b->swing;               /* (LOFI, SHUFFLE: swung) */
+        track_defaults_steps(t);
+        t->p[P_SLEN] = 16;
+        t->p[P_LEVEL] = b->dlvl;                  /* (the kit alone peaks about twice a friend) */
+        for (l = 0; l < NLANE; l++)
+            for (i = 0; b->lane[l] && i < 16u && b->lane[l][i]; i++)
+                if (b->lane[l][i] == 'x')
+                    grid_hit(t, i, l, 1);
+    }
     if (kw.on) {                                  /* WRITE: the drums only (tracks 1 and 2 are the band's), and */
         t->p[P_MUTE] = !kw.beat;                  /* the song's tempo */
         return;

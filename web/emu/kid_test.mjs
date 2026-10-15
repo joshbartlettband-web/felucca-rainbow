@@ -4,7 +4,7 @@
 // Checks: it is on from power-up (the hello, then the friend's name in the band), a key sounds and shows its letter in the bubble,
 // PRESETS changes the friend (the band), every friend sounds at about the same level, MASTER is capped, PLAY starts
 // the beat, the top row's tapped effects (and that a key after the tap still sounds), the staff, the grown-ups' VOLUME and the limiter,
-// ten beats on SEQ, REC's skies, and HOME + SAVE held 3 s leaves for the full Felucca. With OUT_DIR, a screenshot of each step (.ppm).
+// 21 beats on SEQ, REC's skies, and HOME + SAVE held 3 s leaves for the full Felucca. With OUT_DIR, a screenshot of each step (.ppm).
 import fs from "fs";
 
 const wasmPath = process.argv[2] || "build/emu/felucca.wasm", outDir = process.argv[3];
@@ -592,6 +592,21 @@ check("PLAY again stops it", ex.web_playing() === 0);
   const seen = new Set();
   for (let i = 0; i < 11; i++) { ex.web_buttons(1 << B.SEQ); render(60); ex.web_buttons(0); render(200); seen.add(band()); }
   check(`SEQ steps through eleven beats (${seen.size} different names)`, seen.size === 11);
+}
+
+// BREAK: Felucca's own drum loop (SLICE's BREAK, its 16 slices in order, one a step) as a beat; and back to a kit after it
+{
+  const tapb = (b) => { ex.web_buttons(1 << b); render(60); ex.web_buttons(0); render(250); };
+  for (let i = 0; i < 25 && ex.web_kid_beat() !== 20; i++) tapb(B.SEQ);
+  check("SEQ: the BREAK beat (the last of 21)", ex.web_kid_beat() === 20);
+  peak = 0; tapb(B.PLAY); render(4000);
+  check(`..PLAY: the break plays (peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.05);
+  tapb(B.PLAY); render(1500);
+  tapb(B.SEQ); render(300);
+  check("..the next beat is the first again, and its kit plays", ex.web_kid_beat() === 0);
+  peak = 0; tapb(B.PLAY); render(3000);
+  check(`..(peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.05);
+  tapb(B.PLAY); render(1500);
 }
 
 // REC: the next sky

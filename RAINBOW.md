@@ -27,7 +27,7 @@ at the next power-on.
 | GLO | Tap: FREEZE. The sound freezes in place and the friend turns to ice. |
 | | The top row's effects turn on with a tap and off with another (one at a time; the lit button shows which). HICCUP, BACKWARDS, SLEEPY and FREEZE start again on every new note, so a key pressed after the tap always sounds. |
 | PLAY | Starts and stops the beat: drums and a bass line that is always in key, so anything played fits. The friend dances. |
-| SEQ | The next beat (20): DANCE, MARCH, SPOOKY, ROCK, DISCO, HIP HOP, TRAIN, SAMBA, REGGAE, LULLABY, HOEDOWN, LOFI, ACID, POLKA, BOSSA, FUNK, SKA, TRAP, SALSA, SHUFFLE. |
+| SEQ | The next beat (21): DANCE, MARCH, SPOOKY, ROCK, DISCO, HIP HOP, TRAIN, SAMBA, REGGAE, LULLABY, HOEDOWN, LOFI, ACID, POLKA, BOSSA, FUNK, SKA, TRAP, SALSA, SHUFFLE, BREAK (Felucca's own drum loop, played back as it was made, at 120 BPM). |
 | ARP | Sparkle: a held key plays up and down by itself. In ACCORDION it has three settings, one a press: SPARKLE TUNE (the white keys sparkle while the black keys' chords hold steady), SPARKLE ALL (the chords sparkle too) and off. |
 | REC | The next sky (rainbow, stars, hearts, bubbles, flowers, confetti, clouds, snow, autumn leaves, desert, the street), with confetti. |
 | HOME | A surprise friend, with confetti. Held for 1 second it opens the grown-ups' VOLUME instead (below). |

@@ -488,6 +488,7 @@ EXPORT uint32_t web_kid_copy_key(uint32_t i) { return kid.m_seq[i & 7u]; }
 EXPORT uint32_t web_kid_copy_state(void) { return kid.m_state; }                  /* 0 pause, 1 the friend plays, 2 your turn */
 EXPORT uint32_t web_kid_stars(void) { return kid_stars(); }                         /* (kid_test.mjs: the STARS) */
 EXPORT void web_kid_stars_set(uint32_t n) { kid_stars_set(n); }
+EXPORT uint32_t web_kid_beat(void) { return kid.beat; }
 EXPORT uint32_t web_kid_wbeat(void) { return kw.beat; }                             /* (kid_test.mjs: WRITE's beat) */
 EXPORT void web_kid_win(void) { kid_win(0); }                                         /* (kid_test.mjs: a game won) */
 EXPORT uint32_t web_kid_hat(void) { return KID_HAT; }
