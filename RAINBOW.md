@@ -52,7 +52,7 @@ at the next power-on.
 | COPY ME | A memory game. The friend plays two notes (the band says LISTEN and each key lights as it plays), then the band says YOUR TURN and the child plays them back on the five keys C D E G A. Right: YES! and a party, and the friend adds a note. A wrong key says TRY AGAIN and the friend plays it again; after three misses in a row the pattern gets one shorter. Eight notes in a row earns a STAR! and a fresh start. PLAY hears the pattern again. |
 
 Each setting has a picture, for children who do not read yet: a smiling face, three singing friends, a harp, an accordion, a
-speech bubble with a note and a question mark, and piano keys with one lit. It shows beside the setting's name when ALGORITHM turns,
+speech bubble with a note and a question mark, piano keys with one lit, and two bubbles trading notes. It shows beside the setting's name when ALGORITHM turns,
 and stays at the left of the band while any setting but 1 FRIEND is on.
 
 In every setting, keys held together show their letters in their colors and, when it has one, the chord's name (MAJOR, MINOR,
