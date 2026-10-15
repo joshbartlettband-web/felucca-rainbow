@@ -8,20 +8,20 @@ Read it with `RAINBOW.md` (how Rainbow mode works) and `CREDITS.md` (who suggest
 
 ---
 
-## 1. Working with Josh
+## 1. Working with the maintainer
 
 - **Writing:** plain and human, American spelling, few em dashes. Short paragraphs, real numbers, no hype.
 - **Talk before building** anything open-ended (a new mode, a new character set, a new project direction). Small, clear fixes
   can just be built, then reported.
-- **Privacy:** his daughter's name never goes in the repo, commits, public site or public installer. It lives only in a
+- **Privacy:** the child's name never goes in the repo, commits, public site or public installer. It lives only in a
   repository secret (`KID_NAME`) and comes out only in a private build at a private address (`PRIVATE_PATH`, also a secret).
   Never print either value. Do the same in the new project from day one.
 - **Credit the community.** Every idea from r/MVaveFM1 gets the person's username in `CREDITS.md`, on the website and on the
   installer page. People notice and come back.
 - **Characters:** original drawings only. If someone asks for a known character, draw an original in its spirit, and keep a
   grown-ups' switch that swaps look-alikes for unrelated originals (see section 6).
-- **He tests on a real FM-1 and an Android phone.** He can hear things the tests can't. Ask him to listen when the change is
-  about sound, and believe him when he says something sounds wrong (the vibrato bug below was his catch).
+- **The maintainer tests on a real FM-1 and an Android phone** and can hear things the tests can't. Ask them to listen when the
+  change is about sound, and believe them when something sounds wrong (the vibrato bug below was their catch).
 - **Video sells it.** Reddit posts with a short demo video got far more engagement than text posts.
 
 ## 2. The hardware and its limits
@@ -51,7 +51,7 @@ Read it with `RAINBOW.md` (how Rainbow mode works) and `CREDITS.md` (who suggest
   Leo Kuroshita, Hügelton Instruments" everywhere Rainbow mode credits Felucca.
 - **Sequential's Prophet-5 factory programs** (`assets/prophet5-factory/prophet5-v1.03.syx`, 200 programs) are in Melodee's
   tree with **no license granted** (Melodee's own LICENSING.md says the rights stay with Sequential). A public fork inherits
-  that file. Decide with Josh before the first push: keep it as Melodee does, or strip it and ship our own programs. Either
+  that file. Decide with the maintainer before the first push: keep it as Melodee does, or strip it and ship our own programs. Either
   way, do not make new copies of Sequential's sounds.
 - **Engines:** PROPHET replaces ANALOG in browsing (ANALOG still renders old sounds). **TRIO, WHEEL and PHYS are retired and
   silent.** 18 of Rainbow mode's 58 friends used them (Goo, Goobert, Kitty, Cowboy, Space Hero and more), so any port of
@@ -141,14 +141,14 @@ Read it with `RAINBOW.md` (how Rainbow mode works) and `CREDITS.md` (who suggest
 
 ## 8. Ideas for B Double Rainbow (from the planning chat, not yet agreed)
 
-For a kid of about eight, roughly in order of delight per effort:
+For older kids (about eight), roughly in order of delight per effort:
 
-1. **Sound Lab:** knobs with pictures (wave shape, a mouth for the filter, a hill for the envelope) to build her own
-   creature's sound, name it on the keys, and keep it as her friend. Real synthesis in disguise. On Melodee, PROPHET's
+1. **Sound Lab:** knobs with pictures (wave shape, a mouth for the filter, a hill for the envelope) to build their own
+   creature's sound, name it on the keys, and keep it as their friend. Real synthesis in disguise. On Melodee, PROPHET's
    two oscillators, filter and envelopes are a natural fit, if the voice budget allows.
 2. **Beat Maker:** a 16-step drum grid on the keys with lights, then jam over the loop.
 3. **Band Builder:** record a tune, it loops, add a bass, add chords.
-4. **Copy-Me:** a friend plays a short melody or rhythm, she repeats it; it grows each round and earns stars.
+4. **Copy-Me:** a friend plays a short melody or rhythm, the player repeats it; it grows each round and earns stars.
 5. **Unlocks:** new friends, skies or chord rows earned by playing.
 6. **Theory in color:** major and minor as happy and sad skies, a scale picker, measures and note values (already in Rainbow
    mode's staff).
@@ -159,17 +159,17 @@ For a kid of about eight, roughly in order of delight per effort:
    chords played in time, voice-leading hints (which finger moves), inversions as their own lessons, and a "find this
    chord" quiz. Adults asked for this too, so keep it usable without the kid layer.
 
-Questions still open for Josh: what the girls like (songs, characters, games), whether each has her own FM-1, and which two
+Questions still open for the maintainer: what the kids like (songs, characters, games), whether each has their own FM-1, and which two
 or three ideas to build first.
 
 ## 9. Suggested first steps
 
 1. Fork Melodee. Decide about Sequential's `.syx` before the first public push.
-2. Port the CI workflow and get an unmodified Melodee build installing from the website. Confirm Josh can flash it.
+2. Port the CI workflow and get an unmodified Melodee build installing from the website. Confirm the maintainer can flash it.
 3. Port the browser emulator and a first test. Check the installer finds the new port name.
 4. Measure Melodee's image size against its 540,604 B slot. Decide what the new project can spend.
 5. Audit spare settings bytes. Write the privacy-safe `KID_NAME` hello.
-6. Only then start on the first feature, after talking it through with Josh.
+6. Only then start on the first feature, after talking it through with the maintainer.
 
 ## 10. Community and outreach notes
 
@@ -178,6 +178,6 @@ or three ideas to build first.
 - Good places for news: r/MVaveFM1, the Elektronauts FM-1 thread, Felucca's GitHub Discussions, Synthtopia's submit-a-story
   page, MatrixSynth, Sonicstate (news@sonicstate.com), Hackaday tips.
 - Music teachers: Midnight Music (Katie Wardrobe, Amy Burns), the Elementary Music Teachers Facebook group, r/MusicEd, Orff
-  (AOSA and the Great Plains chapter), Kodály (OAKE), the Bob Moog Foundation's Dr. Bob's SoundSchool, and the Nebraska Music
-  Educators Association conference (proposals usually January to March).
+  (AOSA and its local chapters), Kodály (OAKE), the Bob Moog Foundation's Dr. Bob's SoundSchool, and state music educators'
+  association conferences (proposals usually January to March).
 - A video, the browser link (no FM-1 needed to try it) and a one-page lesson idea get teachers' attention.

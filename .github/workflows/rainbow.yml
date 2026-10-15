@@ -3,7 +3,7 @@
 #   browser:   the same firmware compiled to WebAssembly (Felucca in the browser)
 #   publish:   the site: /webapp/installer/ flashes the FM-1, /webapp/try/ runs it in the browser
 # Two firmware packages: the public one (a plain "HI!" at power-up) goes on the site's installer; with the secrets
-# KID_NAME (her name) and PRIVATE_PATH (a long random word) set, a second one that greets her by name goes to a
+# KID_NAME (a child's name) and PRIVATE_PATH (a long random word) set, a second one that greets them by name goes to a
 # private address on the same site: https://USER.github.io/REPO/PRIVATE_PATH/ (not listed anywhere, not indexed;
 # anyone who learns the address can open it, so it is not for posting).
 # The browser version needs nothing from JieLi, so it is published even if the firmware job fails. It is tested

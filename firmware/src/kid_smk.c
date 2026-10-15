@@ -38,7 +38,7 @@ static void kid_smk_master_cap(int32_t cap)
         smk_master--;
 }
 
-/* the spare buttons, the faders, the mod wheel and the outer keys; pressed: this frame's button edges. 1 if she
+/* the spare buttons, the faders, the mod wheel and the outer keys; pressed: this frame's button edges. 1 if the child
  * touched something (the hello makes way) */
 static int kid_smk_input(uint32_t pressed)
 {
@@ -55,7 +55,7 @@ static int kid_smk_input(uint32_t pressed)
         kid_smk_lr = -1;
     if (((pressed >> SMK_BTN_KNOB_BANK) & 1u) && smk_btn_free(SMK_BTN_KNOB_BANK)) {   /* a surprise friend */
         any = 1;
-        if (kw.on) {                              /* (WRITE: the friend she writes with) */
+        if (kw.on) {                              /* (WRITE: the friend to write with) */
             kid.fr = (uint8_t)((kid.fr + 1u + rng() % (KID_N - 1u)) % KID_N);
             kw_stamp(kid.fr);
         } else {

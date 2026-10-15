@@ -30,7 +30,7 @@ for another model.
 | FX, SCALE, CHORD, NOTE REPEAT, PARA, GLOBE | HICCUP, BACKWARDS, SLEEPY, SQUEAKY, GIANT, FREEZE |
 | ARP / SEQ / SEQ PLAY / SEQ REC | sparkle / next beat (or song, lesson) / beat on-off / next sky |
 | PATCH (HOME) | a surprise friend |
-| BT (SAVE) | WRITE her own song, and back |
+| BT (SAVE) | WRITE your own song, and back |
 | OCTAVE- / OCTAVE+ | bigger / smaller |
 | KNOB BANK | a surprise friend |
 | FADER BANK | the next sky |

@@ -1,8 +1,8 @@
 # Rainbow mode
 
-This fork of Felucca turns the FM-1 into a music toy for a four-year-old. It starts in Rainbow mode every
-time it powers on, with a hello in bouncing rainbow letters and confetti that greets her by name, for a few
-seconds or until she presses something. A grown-up can get back to the full Felucca by holding **HOME and
+This fork of Felucca turns the FM-1 into a music toy for young children. It starts in Rainbow mode every
+time it powers on, with a hello in bouncing rainbow letters and confetti that greets the child by name, for a few
+seconds or until a button or key is pressed. A grown-up can get back to the full Felucca by holding **HOME and
 SAVE together for 3 seconds**. That brings back the music of your last session: Rainbow mode never
 writes Felucca's autosave, so playing with the toy can't overwrite your own work. Rainbow mode comes back
 at the next power-on.
@@ -21,17 +21,17 @@ at the next power-on.
 | KNOB 4 | Wiggle. The sound wobbles (vibrato) and so does the friend. |
 | FX | Tap: HICCUP. The sound stutters and the friend shakes. |
 | SCL | Tap: BACKWARDS. The sound plays in reverse and the friend turns round. |
-| ENV | Tap: SLEEPY. The sound winds down like a record player each time she plays a note, and the friend droops and dozes. It wakes up by itself after 3 seconds. |
+| ENV | Tap: SLEEPY. The sound winds down like a record player each time a note is played, and the friend droops and dozes. It wakes up by itself after 3 seconds. |
 | LFO | Tap: SQUEAKY. Everything an octave up, and the friend shrinks. |
 | EDIT | Tap: GIANT. Everything an octave down, and the friend grows. |
 | GLO | Tap: FREEZE. The sound freezes in place and the friend turns to ice. |
 | | The top row's effects turn on with a tap and off with another (one at a time; the lit button shows which). HICCUP, BACKWARDS, SLEEPY and FREEZE start again on every new note, so a key pressed after the tap always sounds. |
-| PLAY | Starts and stops the beat: drums and a bass line that is always in key, so anything she plays fits. The friend dances. |
+| PLAY | Starts and stops the beat: drums and a bass line that is always in key, so anything played fits. The friend dances. |
 | SEQ | The next beat: DANCE, MARCH, SPOOKY, ROCK, DISCO, HIP HOP, TRAIN, SAMBA, REGGAE, LULLABY, HOEDOWN. |
 | ARP | Sparkle: a held key plays up and down by itself. In ACCORDION it has three settings, one a press: SPARKLE TUNE (the white keys sparkle while the black keys' chords hold steady), SPARKLE ALL (the chords sparkle too) and off. |
 | REC | The next sky (rainbow, stars, hearts, bubbles, flowers, confetti, clouds, snow, autumn leaves, desert, the street), with confetti. |
 | HOME | A surprise friend, with confetti. Held for 1 second it opens the grown-ups' VOLUME instead (below). |
-| SAVE | WRITE: she writes her own song (below). SAVE again goes back to playing. |
+| SAVE | WRITE: write your own song (below). SAVE again goes back to playing. |
 | HOME held 1 s, then OCT- / OCT+ | The grown-ups' VOLUME: the most the MASTER knob can give (below). |
 | HOME held 1 s, then ALGORITHM | The grown-ups' NAME: the name the hello greets (below). |
 | HOME held 1 s, then PRESETS | The grown-ups' LOOK-ALIKES: left swaps the friends drawn after TV and film characters for original stand-ins, right brings them back (below). |
@@ -46,7 +46,7 @@ at the next power-on.
 | STRUM | Like an Omnichord (an idea from u/veecheech, after dxsloop's arp mode). A black key picks a chord, the one on the white key just below it: F#: F, G#: G, A#: A minor, C#: C, D#: D minor (C to begin with), and plays its root low. The white keys, left to right, play that chord's notes upward, so a hand drawn across them strums it. The band shows the chord. (Not with the drum friends, whose keys are drums.) |
 | ACCORDION | A black key plays a whole chord while it is held (the same chords as STRUM: F, G, A minor, C, D minor), and the white keys play their own notes, so one hand can play a tune over the chords. Each row of black keys voices them differently: the lowest (F#3 to D#4) plays plain triads, the next (F#4 to D#5) jazz ninths (Fmaj9, G9, Am9, Cmaj9, Dm9: root, 3rd, 7th and 9th), and the top key (F#5) a stack of fourths on F (F B E A, the "So What" sound). On friends whose engine plays three notes at a time (PHYS, GRAIN) the ninths become jazz shells (root, 3rd, 7th). The band shows the chord's letters and name and the staff writes it. |
 | GUESS | An ear game (an idea from u/nutty_cartoon). A friend sings a note and the band shows ?. The right key: YES! and confetti. Another key: TRY AGAIN, with no sound of its own, and the friend sings the note again; after two tries the right key blinks. It starts with C and G and adds a note after three right in a row (C G E D A F B, then high C). PLAY: hear it again. |
-| FOLLOW | Songs to learn (u/nutty_cartoon). The next note's key lights and the band shows its letter; she plays the song at her own pace, and a wrong key changes nothing. At the end, a party, and it starts again. SEQ picks the song: Twinkle Twinkle, Mary Had a Little Lamb, Hot Cross Buns, Row Your Boat, Old MacDonald, Frere Jacques, London Bridge, Ode to Joy (all old and free). |
+| FOLLOW | Songs to learn (u/nutty_cartoon). The next note's key lights and the band shows its letter; the song is played at the child's own pace, and a wrong key changes nothing. At the end, a party, and it starts again. SEQ picks the song: Twinkle Twinkle, Mary Had a Little Lamb, Hot Cross Buns, Row Your Boat, Old MacDonald, Frere Jacques, London Bridge, Ode to Joy (all old and free). |
 | CHORDS | Chord lessons (u/Yablan on r/MVaveFM1). The next chord's keys light up and the band shows its letters and name; holding exactly those keys plays it, says YES! and lights the next. Four chords make a lesson, and a party comes at the end of each round. SEQ picks the lesson: FIRST CHORDS (C F G C), POP FOUR (C G Am F), SEVENTHS (Cmaj7 Am7 Dm7 G7), LOFI (Fmaj7 Em7 Dm7 Cmaj7) and LOFI JAZZ (Dm9 G13 Cmaj9, rootless, the way lofi keys are played). Each is voiced so the hand barely moves. PLAY starts the slow, swung LOFI beat: each chord gets a bar, the bass plays its root, and the next chord blinks a beat early. |
 
 Each setting has a picture, for children who do not read yet: a smiling face, three singing friends, a harp, an accordion, a
@@ -74,38 +74,38 @@ singing (3 FRIENDS) play 2.5 dB softer and the ACCORDION's chords softer too, so
 
 ## The staff
 
-When she plays, a treble clef and five lines drop in at the top of the screen and write her notes as colored heads (the color of the
+When the child plays, a treble clef and five lines drop in at the top of the screen and write the notes as colored heads (the color of the
 letter in the band), left to right, up to 8 of them; the oldest drops off. Keys played together, or a key with ALGORITHM on (three friends), stack as a chord. A
 black key gets a sharp sign, notes below the staff get their ledger lines, and **8VA / 8VB** (or 15MA / 15MB) shows over or under the
-staff when OCT or KNOB 1 has moved her an octave or two up or down. Each note also shows how long it was held, against the beat: a quick tap is a sixteenth (a stem and two flags), then an eighth, a
+staff when OCT or KNOB 1 has moved the keys an octave or two up or down. Each note also shows how long it was held, against the beat: a quick tap is a sixteenth (a stem and two flags), then an eighth, a
 quarter (about one beat), a half (an open head, about two beats) and a whole (an open head with no stem). The note grows through them
-while she holds the key, so she can see a long sound become a long note (suggested by u/theskyisfalling1 on r/MVaveFM1). The staff is
+while the key is held, so a long sound can be seen to become a long note (suggested by u/theskyisfalling1 on r/MVaveFM1). The staff is
 in 4/4 (shown after the clef) and draws a barline each time the written notes fill four beats; a note that runs past the bar gets the
 line after it (a toy's staff writes no ties). WRITE's big staff has barlines too, every four columns (a column is a beat). It goes
 after 6 seconds of quiet and starts again from the left. The big
 letter stays in the band. The clef is the treble clef of the FreeSerif font (GNU FreeFont, GPL-3.0 or later), scaled down to a bitmap in
 `tools/gen_kid_art.py`.
 
-## WRITE: her own song
+## WRITE: your own song
 
-An idea from u/lastapoc on r/MVaveFM1 ("Mario Paint music mode"): SAVE opens a big staff where she writes a song with her
+An idea from u/lastapoc on r/MVaveFM1 ("Mario Paint music mode"): SAVE opens a big staff for writing a song with the
 friends, the way Mario Paint's composer did, and plays it back.
 
 | In WRITE | What happens |
 | --- | --- |
-| Keys | Write a note in the yellow column (a drum friend's keys write its drums, as they play them): the friend she is writing with, in a ball of the note's color. It plays as it lands, and the column moves on when she lets go. Two keys together make a chord (two notes in a column). The same key again takes its note out. |
-| PRESETS | The friend she writes with (shown in the band). A song has a band of up to three friends; a fourth takes the place of the one used least (its notes become the new friend's). |
+| Keys | Write a note in the yellow column (a drum friend's keys write its drums, as they play them): the friend being written with, in a ball of the note's color. It plays as it lands, and the column moves on when the key is let go. Two keys together make a chord (two notes in a column). The same key again takes its note out. |
+| PRESETS | The friend to write with (shown in the band). A song has a band of up to three friends; a fourth takes the place of the one used least (its notes become the new friend's). |
 | OCT- / OCT+ | The yellow column back and forward (32 columns, 4 pages of 8: the dots). |
 | HOME | Wipes the column (held 1 s it is the grown-ups' VOLUME, as always). |
-| PLAY | Plays her song from the start, in a loop: the column turns green and the friend of each note hops along over it. PLAY again stops. |
+| PLAY | Plays the song from the start, in a loop: the column turns green and the friend of each note hops along over it. PLAY again stops. |
 | SEQ | A beat under it: none, then each of the thirteen (drums only). |
 | SELECT | Slower or faster. |
 | REC held 2 s | A new, empty song. |
 | SAVE | Back to playing. |
 
 The song is kept when the FM-1 is switched off: in 58 bytes of the settings that no engine uses (`favorites.factory[14]` and
-`[15][0..25]`), so it never touches your projects or the autosave. It is written about 4 seconds after her last change (while
-stopped) and when she leaves WRITE. A column is a beat (a quarter note); each friend plays on its own track (tracks 1 to 3, the
+`[15][0..25]`), so it never touches your projects or the autosave. It is written about 4 seconds after the last change (while
+stopped) and when WRITE is left. A column is a beat (a quarter note); each friend plays on its own track (tracks 1 to 3, the
 drums on 4), through Felucca's own sequencer.
 
 ## Volume, for grown-ups
@@ -118,7 +118,11 @@ Two guards, both in `kid.c` (`kid_master`):
   friend). A shorter HOME press, and OCT- / OCT+ without HOME, do what they always did.
 - **A limiter that follows it.** The FM-1 already had a peak limiter; in Rainbow mode its ceiling now moves with the volume (15 times the
   MASTER level it is at, never above the old fixed ceiling, and it catches every peak at once), a little above what a plain chord over a beat peaks at. So an effect that makes the sound louder
-  (GIANT, FREEZE, echo, a chord on a beat) is held to the level she was already hearing. Outside Rainbow mode the limiter is as it was.
+  (GIANT, FREEZE, echo, a chord on a beat) is held to the level already heard. Outside Rainbow mode the limiter is as it was.
+- **Warmer for small speakers and headphones.** In Rainbow mode the highs are softened about 4 dB above ~3.3 kHz (the
+  2.5 to 8 kHz band is the sharp one on a small speaker), each key also plays a quiet sub octave on track 3 (a soft
+  triangle an octave under its lowest note, following the friend's envelope; not for the bass, drum and noise friends,
+  STRUM, ACCORDION's chords apart or WRITE), the brightest friends are toned down, and the driest get a little reverb.
 
 ## Look-alikes, for grown-ups
 
@@ -137,9 +141,9 @@ LOOK-ALIKES OFF, and each of them is replaced by an original stand-in with the s
 | Yellow Bird | Chick |
 | Skeleton | Bat |
 | Cowboy | Horse |
-| Cowgirl | Cactus (in a cowboy hat) |
+| Cowgirl | Cactus (in a western hat) |
 | Space Hero | Alien |
-| Spider Mom | Rainbow Mom (a mom with a rainbow headband) |
+| Spider Mom | Rainbow Mom (long hair and a rainbow headband) |
 | Spider Grandma | Green Granny (silver curls, round glasses, a green cardigan) |
 | Fairy Monster | Pixie (a leaf hat and lilac wings) |
 | Grouch | Alley Cat (smiling out of a can) |
@@ -156,7 +160,7 @@ E yellow, F green, G teal, A purple, B pink. Sharps get the color in between.
 ## The friends
 
 Ducky, Pink Ducky, Cool Ducky, Axolotl, Unicorn, Giraffe, Goo, Goobert, Blue Pup, Red Monster,
-Blue Monster, April (the family dog), Scissors, Ghost, Web Hero, Butterfly, Kitty, Frog, Robot, Rainbow,
+Blue Monster, April (a dog), Scissors, Ghost, Web Hero, Butterfly, Kitty, Frog, Robot, Rainbow,
 Princess Ducky, Red Pup, Yellow Bird, Slimy, Bunny, Panda, Penguin, Owl, Bee, Ladybug, Dino, Whale,
 Octopus, Fish, Turtle, Ice Cream, Cupcake, Rocket, Strawberry, Star, and six suggested by u/veecheech on r/MVaveFM1:
 T-Rex (a growly bass), Skeleton (a theremin: a sine with a wide vibrato that slides between notes), Cowboy and Cowgirl (twangy
@@ -176,28 +180,28 @@ same way) and Sunflower (a softer acid line with an echo; every note slides from
 favorite beat is ACID: four on the floor, and Felucca's own acid line (A minor, with accents and slides of about 60 ms) played on
 the ACID sound. All the friends' slides use Felucca's TIME glide (a slide takes the same time whatever the interval); its RATE
 glide at small values slides in a few milliseconds, too fast to hear.
-And two of her own, drawn up with her dad: Spider Mom (the classic web hero's mask in rainbow stripes, with a mom's long dark brown
-hair; PHASE's RESO, ringing on) and Dragon Duck (a duck with horns, a bat wing and a puff of fire; VOICE's VOX LEAD with a growl). She also asked for
-Goobert to be blue and squishy (ANALOG's PLUCK on a square wave through a ringing filter that pops open and
-settles, with a little wobble), and a sky with all the monster friends: the street, after a famous one on children's TV.
+And some designed at home: Spider Mom (the classic web hero's mask in rainbow stripes, with long dark brown
+hair; PHASE's RESO, ringing on) and Dragon Duck (a duck with horns, a bat wing and a puff of fire; VOICE's VOX LEAD with a growl). Then
+Goobert went blue and squishy (ANALOG's PLUCK on a square wave through a ringing filter that pops open and
+settles, with a little wobble), and a sky came with all the monster friends: the street, after a famous one on children's TV.
 Two brick houses, a stoop, a lamp post and a trash can, with Blue Monster, Yellow Bird and Red Monster in the windows,
-Goobert in the doorway, Goo on the steps and Slimy peeking out of the can. The friend she is playing is out on the
+Goobert in the doorway, Goo on the steps and Slimy peeking out of the can. The friend being played is out on the
 sidewalk, so its own spot is empty; at night the windows and the lamp light up. It is Red Monster's, Blue Monster's and
 Yellow Bird's home sky, and with LOOK-ALIKES off the stand-ins move in instead. And Cool Ducky went green, in a rainbow bucket hat and
 shades.
 
-Her second batch: Spider Grandma (a green web-hero mask with silver curls, a bun and pearls; WHEEL's GOSPEL organ),
-Night Light (drawn from her own axolotl night light: white, with mint gills, hugging a mint egg; ANALOG's SOFT PAD, a
+A second batch: Spider Grandma (a green web-hero mask with silver curls, a bun and pearls; WHEEL's GOSPEL organ),
+Night Light (drawn from an axolotl night light: white, with mint gills, hugging a mint egg; ANALOG's SOFT PAD, a
 soft glow), Green Queen (the night light as a green queen in a gold crown and a rainbow cape; PHASE's STRING), King
 Axolotl (green, on a rainbow throne in red and green robes; FM6's BRASS fanfare), Fairy Monster (a pink fairy monster
 with pigtails, little wings and a star wand, who moved in next door on the street; TRIO's RING BELL pitched up into a twinkle) and Morning Glory (a
 vine with heart-shaped leaves and purple trumpet flowers; ANALOG's WIND, a breathy flute). Spider Grandma and Fairy Monster are
 look-alikes, with Green Granny and Pixie as their stand-ins.
 
-And her third: Grouch (a grumpy green monster in a trash can, lid on his head; TRIO's FAT BASS with a growl; he lives in
+And a third: Grouch (a grumpy green monster in a trash can, lid on its head; TRIO's FAT BASS with a growl; it lives in
 the street's can now, and Slimy moved into a window), Tiger Cub (in a red zip-up sweater; PHASE's ORGAN, bright and reedy, and the TRAIN
-beat, for the trolley), Raccoon (with a box of treasures he collected; PHASE's WIRE, under the stars) and Goldenrod
-(Nebraska's state flower: golden plumes on tall stems; ANALOG's STRINGS and HOEDOWN, for the prairie). Grouch, Tiger Cub and
+beat, for the trolley), Raccoon (with a box of collected treasures; PHASE's WIRE, under the stars) and Goldenrod
+(a prairie flower: golden plumes on tall stems; ANALOG's STRINGS and HOEDOWN, for the prairie). Grouch, Tiger Cub and
 Raccoon are look-alikes, with Alley Cat, Lion Cub and Squirrel as their stand-ins.
 
 Each one uses one of Felucca's own factory sounds (listed in `firmware/src/kid.c`, `KID_SOUND`), with its
@@ -211,7 +215,7 @@ a picture that would not fit stops the build, so none is ever cut off. On the sc
 They are stored a row at a time as runs of one colour (`KID_RLE`: 35 KB for the 75 pictures, from 86 KB), and
 `kid_row` in `kid.c` decodes a row as the screen is drawn, keeping the last 16 rows (about 800 B of RAM).
 
-The characters are original drawings in the spirit of the ones she loves, not copies, because this
+The characters are original drawings in the spirit of the ones children love, not copies, because this
 repository and its website are public.
 
 ## Where it lives

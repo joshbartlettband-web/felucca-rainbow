@@ -9,7 +9,7 @@
  *   ALGORITHM   how the keys play, a step a turn, each with a picture: 1 FRIEND, 3 FRIENDS (a key plays a chord in
  *               key), STRUM (an Omnichord: black keys pick a chord, white keys strum it), ACCORDION (a black key plays
  *               its chord, white keys their own notes), GUESS (an ear game: a friend sings a note,
- *               she finds it), FOLLOW (songs to learn: the next key lights, SEQ the next song). Keys held together
+ *               the child finds it), FOLLOW (songs to learn: the next key lights, SEQ the next song). Keys held together
  *               show their letters in their colours and the chord's name
  *   SELECT      the beat slower / faster
  *   KNOB 1      big / small: the octave (low notes, a big friend; high notes, a small one); OCT- / OCT+ too
@@ -26,8 +26,8 @@
  *   REC         the next sky (rainbow, stars, hearts, bubbles, flowers, confetti, clouds, snow, leaves, desert), with
  *               confetti
  *   HOME        a surprise friend
- *   SAVE        WRITE: she writes her own song on a big staff, each note a friend (kw_*, below); SAVE again, back
- *   THE STAFF   a treble clef drops in at the top when she plays, and writes her notes as coloured noteheads, up to 8,
+ *   SAVE        WRITE: the child writes a song on a big staff, each note a friend (kw_*, below); SAVE again, back
+ *   THE STAFF   a treble clef drops in at the top when the child plays, and writes the notes as coloured noteheads, up to 8,
  *               chords stacked, sharps with a #, ledger lines, 8VA / 8VB over the staff for the octave (OCT); each
  *               note's value by how long it was held against the beat (a sixteenth .. a whole, growing while held);
  *               it goes after 6 s of quiet. The big letter stays in the band
@@ -109,7 +109,7 @@ static const int16_t TW_ROCKET[] = {P_E2, 88, -1};               /* (NOISE ARCAD
 static const int16_t TW_GOOBERT[] = {P_E0, 1, P_E1, 6, P_E2, 50, P_E4, 26, P_E5, 96, P_E6, 0, P_ED_FLT, 48, P_ATK, 2,
                                      P_DEC, 62, P_SUS, 56, P_REL, 45, P_LD_FLT, 10, -1};   /* (a rubbery bloop: a
                                      * ringing filter that pops open and settles, with a little jelly wobble) */
-static const int16_t TW_SPIDERMOM[] = {P_DEC, 85, P_SUS, 80, P_REL, 55, -1};   /* (RESO rings on: a hero holds her notes) */
+static const int16_t TW_SPIDERMOM[] = {P_DEC, 85, P_SUS, 80, P_REL, 55, -1};   /* (RESO rings on: a hero holds the notes) */
 static const int16_t TW_SWOOP[] = {P_VOICE, V_MONO, -1};   /* (a poly sound's new note starts on a fresh voice, with nothing to
                                                   * slide from: MONO, so every note swoops in from the last) */
 /* the acid friends, on ANALOG's ACID (a 303's squelch; their beat is ACID). The Scientist is set as a TD-3 often is: saw,
@@ -127,7 +127,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {8, "SHIMMER", 108, KS_RAINBOW, KB_DISCO},        /* UNICORN: GRAIN */
     {12, "MARIMBA", 122, KS_FLOWERS, KB_SAMBA},       /* GIRAFFE */
     {5, "WOW BASS", 94, KS_HEARTS, KB_DANCE},        /* GOO: VOICE */
-    {0, "PLUCK", 106, KS_CONFETTI, KB_HIPHOP, 0, 0, 0, 0, TW_GOOBERT},   /* GOOBERT: squishy (she asked) */
+    {0, "PLUCK", 106, KS_CONFETTI, KB_HIPHOP, 0, 0, 0, 0, TW_GOOBERT},   /* GOOBERT: squishy (asked for at home) */
     {3, "PULSE LD", 95, KS_FLOWERS, KB_ROCK},        /* BLUE PUP: LOFI */
     {5, "VOX LEAD", 89, KS_STREET, KB_MARCH},         /* RED MONSTER */
     {7, "FULL ORGAN", 98, KS_STREET, KB_DISCO},      /* BLUE MONSTER */
@@ -188,11 +188,11 @@ static const kid_sound_t KID_SOUND[KID_N] = {
                                                   * as the Scientist) */
     {0, "ACID", 103, KS_CLOUDS, KB_ACID, 0, 30, 0, 0, TW_SUNFLOWER},   /* SUNFLOWER: a softer acid line, echoing; every
                                                   * note slides from the last (MONO), no need to hold keys over */
-    /* hers: she drew them up with her dad */
+    /* designed at home */
     {2, "RESO", 100, KS_RAINBOW, KB_DISCO, 0, 0, 0, 0, TW_SPIDERMOM},           /* SPIDER MOM: a zappy, resonant hero (a look-alike: RAINBOW MOM) */
     {5, "VOX LEAD", 89, KS_CLOUDS, KB_ROCK, 0, 0, 70},   /* DRAGON DUCK: a quacky vowel with a dragon's growl (DIST) */
     {7, "GOSPEL", 98, KS_STARS, KB_ROCK},            /* SPIDER GRANDMA: a gospel organ (a look-alike: GREEN GRANNY) */
-    {0, "SOFT PAD", 95, KS_STARS, KB_LULLABY},       /* NIGHT LIGHT: a soft, glowing pad, after her night light */
+    {0, "SOFT PAD", 95, KS_STARS, KB_LULLABY},       /* NIGHT LIGHT: a soft, glowing pad, after a night light */
     {2, "STRING", 89, KS_RAINBOW, KB_DANCE},         /* GREEN QUEEN: royal strings */
     {12, "BRASS", 104, KS_BUBBLES, KB_MARCH},         /* KING AXOLOTL: a fanfare */
     {6, "RING BELL", 116, KS_STREET, KB_DISCO, 0, 0, 0, 0, TW_FAIRY},     /* FAIRY MONSTER: a twinkly magic bell (a look-alike: PIXIE) */
@@ -200,7 +200,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {6, "FAT BASS", 107, KS_STREET, KB_HIPHOP, 0, 0, 40},   /* GROUCH: a grumpy, growly bass (a look-alike: ALLEY CAT) */
     {2, "ORGAN", 79, KS_LEAVES, KB_TRAIN},           /* TIGER CUB: a bright, reedy organ, and a trolley's beat (a look-alike: LION CUB) */
     {2, "WIRE", 100, KS_STARS, KB_DISCO},             /* RACCOON: a plucky wire, out at night (a look-alike: SQUIRREL) */
-    {0, "STRINGS", 93, KS_LEAVES, KB_HOEDOWN},       /* GOLDENROD: prairie strings (Nebraska's state flower) */
+    {0, "STRINGS", 93, KS_LEAVES, KB_HOEDOWN},       /* GOLDENROD: prairie strings (a prairie flower) */
 };
 
 /* the beats: drums on track 4 (DRUM), a bass line on track 2, 16 steps of 1/16. Drums: a string per lane
@@ -248,7 +248,7 @@ static const kid_beat_t KID_BEATS[KB_COUNT] = {
     {"LULLABY", 70, KD_SLOW, 92, 106,
      {"x.......x.......", 0, 0, 0, 0, 0, "....x.......x...", 0},
      {36, 1, 1, 1, 1, 1, 1, 1, 31, 1, 1, 1, 1, 1, 1, 1}},
-    {"HOEDOWN", 126, KD_HOP, 93, 105,                 /* boom-chick, a walking bass (the cowboy and cowgirl's) */
+    {"HOEDOWN", 126, KD_HOP, 93, 105,                 /* boom-chick, a walking bass (COWBOY's and COWGIRL's) */
      {"x.......x.......", "....x.......x...", 0, "..x...x...x...x.", 0, 0, "..x...x...x...x.", 0},
      {36, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 40, 0, 41, 0}},
     {"LOFI", 80, KD_SWAY, 95, 104,                    /* slow and swung (CHORDS: the bass plays each chord's root) */
@@ -324,7 +324,7 @@ static const char *const KID_MODE_NAME[KM_COUNT] = {"1 FRIEND", "3 FRIENDS", "ST
 static uint32_t kid_lesson_chord(uint32_t lesson, uint32_t i, uint32_t *root, char *name, uint32_t cap);
 _Static_assert(KID_ICON_N == KM_COUNT, "a picture for each of ALGORITHM's modes (tools/gen_kid_art.py ICONS)");
 
-/* the staff: what she played, as the heads of one entry (a key, or the keys of a chord pressed together) */
+/* the staff: what was played, as the heads of one entry (a key, or the keys of a chord pressed together) */
 #define KID_ST_N 8                      /* entries on the staff at most */
 #define KID_ST_MS 6000u                 /* it goes after this long without a note */
 #define KID_ST_X0 9                     /* its panel */
@@ -346,10 +346,10 @@ enum { KT_16TH, KT_8TH, KT_4TH, KT_HALF, KT_WHOLE };
 static struct {
     uint8_t on, ready, fr, scene, beat, chord, arp, night, echo, wiggle;
     uint8_t mode;                       /* KM_* (chord: mode is CHOIR) */
-    uint32_t chord_keys, chord_ms;      /* the keys of the last chord she held (2 or more), when */
+    uint32_t chord_keys, chord_ms;      /* the keys of the last chord held (2 or more), when */
     uint8_t g_level, g_target, g_wrong, g_streak, g_state, g_again, g_note;   /* GUESS */
     uint32_t g_ms, g_yes_ms, g_try_ms;
-    uint8_t f_song, f_pos;              /* FOLLOW: the song, the note she is on */
+    uint8_t f_song, f_pos;              /* FOLLOW: the song, the note the child is on */
     uint32_t f_done_ms;
     uint8_t c_lesson, c_pos, c_ok, c_beat;   /* CHORDS: the lesson, its chord, played this bar, the bass is the lesson's */
     uint32_t c_held, c_yes_ms;          /* .. the keys held when last looked, the last YES */
@@ -386,9 +386,9 @@ static struct {
     int16_t bx0, by0, bx1, by1;         /* the area the friends covered last frame */
 } kid = {1};
 
-/* WRITE (SAVE): her own song, as Mario Paint's composer did it. A column a beat, 32 of them (4 pages of 8), at most two
+/* WRITE (SAVE): the child's own song, as Mario Paint's composer did it. A column a beat, 32 of them (4 pages of 8), at most two
  * notes a column; each note is one of the band's three friends (a friend a track: trk[0..2], the drums on trk[3]),
- * the one PRESETS picked when she wrote it. PLAY plays the song in a loop (Felucca's own sequencer, a step a beat).
+ * the one PRESETS picked when it was written. PLAY plays the song in a loop (Felucca's own sequencer, a step a beat).
  * Kept in bytes of the settings no engine uses (kw_pack: favorites.factory[14][0..31], [15][0..25]) */
 #define KW_COLS 32u
 #define KW_PAGE 8u
@@ -519,7 +519,7 @@ static void kid_knobs(void)                       /* the knobs' state into the f
 {
     track_t *t = &trk[0];
     perf_k[0] = (int8_t)-(kid.night * 8);         /* the FX filter: night closes it to ~700 Hz */
-    if (kw.on) {                                  /* (WRITE: track 1 is the band's, as she wrote it) */
+    if (kw.on) {                                  /* (WRITE: track 1 is the band's, as written) */
         kb_sub_on = 0;
         kid.sub_ready = 0;
         return;
@@ -619,7 +619,7 @@ static void kid_beat_load(void)
             if (b->lane[l][i] == 'x')
                 grid_hit(t, i, l, 1);
     if (kw.on) {                                  /* WRITE: the drums only (tracks 1 and 2 are the band's), and */
-        t->p[P_MUTE] = !kw.beat;                  /* her song's tempo */
+        t->p[P_MUTE] = !kw.beat;                  /* the song's tempo */
         return;
     }
     t->p[P_MUTE] = 0;
@@ -972,7 +972,7 @@ static void kid_staff_add(uint32_t keys, uint32_t now)
     kid.st_ms = now;
 }
 
-/* ---------------------------------------------------------------- WRITE: her song */
+/* ---------------------------------------------------------------- WRITE: the child's song */
 static int32_t kw_step(uint32_t key, uint32_t *sharp)          /* a key's staff step (C4 = 0), sharp or not */
 {
     static const uint8_t IDX[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
@@ -1154,7 +1154,7 @@ static void kw_enter(void)
         int16_t bpm = song.g[G_BPM];
         kw_unpack();
         if (kw.band[0] == 0xFFu && kw.band[1] == 0xFFu && kw.band[2] == 0xFFu)
-            song.g[G_BPM] = bpm;                                  /* (a new song: the tempo she had) */
+            song.g[G_BPM] = bpm;                                  /* (a new song: the tempo it had) */
         kw.loaded = 1;
     }
     kw.on = 1;
@@ -1164,7 +1164,7 @@ static void kw_enter(void)
     kw.sig = 0;
     kid.key = -1;
     kid.st_n = 0;
-    song.octave = 0;                                              /* (written as she hears it) */
+    song.octave = 0;                                              /* (written as it is heard) */
     for (s = 0; s < 3u; s++)
         kw_track_sound(s);
     kw_stamp(kid.fr);
@@ -1418,7 +1418,7 @@ static void kid_game(int32_t lo)
                 kid.hop_ms = now;
                 if (beat) {
                     kid.c_ok = 1;
-                } else {                                          /* at her own pace: the next, a party at the end */
+                } else {                                          /* at the child's own pace: the next, a party at the end */
                     kid.c_pos = (uint8_t)((kid.c_pos + 1u) % KID_LESSON_LEN);
                     if (!kid.c_pos)
                         kid.party_ms = now | 1u;
@@ -1560,7 +1560,7 @@ static void kid_input(void)
             kid.party_ms = fm1_ms | 1u;
             kid.hop_ms = fm1_ms;
             break;
-        case B_SAVE:                              /* WRITE: her song, and back (not with HOME: that leaves) */
+        case B_SAVE:                              /* WRITE: the child's song, and back (not with HOME: that leaves) */
             if (held & home)
                 break;
             if (kw.on)
@@ -1589,7 +1589,7 @@ static void kid_input(void)
         }
     }
     if (kid.sleep_ms && (fm1_ms | 1u) - kid.sleep_ms > KID_SLEEP_MS) {   /* SLEEPY wakes up by itself (its tape */
-        kid.sleep_ms = 0;                                                  /* stop would leave her keys silent) */
+        kid.sleep_ms = 0;                                                  /* stop would leave the keys silent) */
         kid_fx_set(0);
         kid.hop_ms = fm1_ms;
     }
@@ -1658,7 +1658,7 @@ static void kid_input(void)
                 }
             kid.rearm = (uint8_t)loop;
         }
-        if (!kw.on) {                             /* (WRITE: the big staff is hers already) */
+        if (!kw.on) {                             /* (WRITE: the big staff is the child's already) */
             for (k = 26u; notes >> k == 0u; k--)
                 ;
             kid.key = (int8_t)k;
@@ -1699,7 +1699,7 @@ static void kid_input(void)
         kid_look_set(s < 0);
     } else if (s != 0) {
         any = 1u;
-        if (kw.on) {                              /* WRITE: the friend she writes with */
+        if (kw.on) {                              /* WRITE: the friend to write with */
             kid.fr = (uint8_t)(((int32_t)kid.fr + (s > 0 ? 1 : (int32_t)KID_N - 1)) % (int32_t)KID_N);
             kw_stamp(kid.fr);
         } else {
@@ -1750,7 +1750,7 @@ static void kid_input(void)
         kid_knobs();
         kid_hint(KH_WIGGLE);
     }
-    if (any && kid.hello_ms) {                    /* she is playing: the hello makes way */
+    if (any && kid.hello_ms) {                    /* the child is playing: the hello makes way */
         kid.hello_ms = 0;
         kid.full = 1;
     }
@@ -2087,7 +2087,7 @@ static uint32_t kid_play_band(uint32_t now)
                 pcs[n++] = (uint8_t)((53u + k) % 12u);
         return kid_chord_band_n(pcs, n, kf.cname, r) ^ (uint32_t)kid.c_pos << 28;
     }
-    if (kid.mode == KM_STRUM && keyed && !ENGINES[eng_idx(trk[0].eng_req)]->keys) {   /* the chord she strums */
+    if (kid.mode == KM_STRUM && keyed && !ENGINES[eng_idx(trk[0].eng_req)]->keys) {   /* the chord strummed */
         uint32_t r = kb_strum_root;
         pcs[0] = (uint8_t)r;
         pcs[1] = (uint8_t)((r + (kb_strum_minor ? 3u : 4u)) % 12u);
@@ -2149,7 +2149,7 @@ static uint32_t kid_band_setup(uint32_t now)
     kf.meter = -1;
     kf.ol = 2;
     if (kw.on && !(hint && (kid.hint == KH_SPEED || kid.hint == KH_NIGHT || kid.hint == KH_VOLUME || kid.hint == KH_LOOK))) {
-        /* WRITE: the friend she writes with, and a word */
+        /* WRITE: the friend to write with, and a word */
         kf.band = KB_NAME;
         kf.txt = hint && kid.hint == KH_BEAT ? (kw.beat ? KID_BEATS[(kw.beat - 1u) % KB_COUNT].name : "NO BEAT") :
                  hint && kid.hint == KH_NEWSONG ? "NEW SONG" : song.playing ? "LISTEN" : "WRITE";
@@ -2360,9 +2360,9 @@ static uint16_t kid_band_px(int32_t x, int32_t y)
     return kf.bg;
 }
 
-/* the street (her idea: a street like a famous one on children's TV, and all the monster friends): two brick
+/* the street (an idea from home: a street like a famous one on children's TV, and all the monster friends): two brick
  * houses, one with a stoop, a lamp post and a trash can on the sidewalk, and the monsters at home in the windows, on
- * the stoop and Grouch in the can (Fairy Monster and Slimy next door). The friend she plays is out on the
+ * the stoop and Grouch in the can (Fairy Monster and Slimy next door). The friend being played is out on the
  * sidewalk, so its spot is empty. At night the windows and the lamp light up */
 static int32_t kid_street_who(uint32_t fr, int32_t x, int32_t y, int32_t x0, int32_t y0, int32_t sz)
 {
@@ -2390,10 +2390,10 @@ static int32_t kid_street_px(int32_t x, int32_t y)
             return kid_mix(RGB(40, 84, 62), dusk, nt);
         return lit ? RGB(255, 236, 150) : RGB(220, 232, 236);
     }
-    if (kid_art(69) != kid_art(kid.fr)) {                        /* GROUCH in his can (his picture has it), bobbing */
+    if (kid_art(69) != kid_art(kid.fr)) {                        /* GROUCH in its can (its picture has it), bobbing */
         if (x >= 166 && x < 206 && y >= 140 && (c = kid_street_who(69, x, y, 167, 146 + (bob > 0), 36)) >= 0)
             return c;
-    } else if (x >= 174 && x <= 198 && y >= 154 && y < 182) {    /* .. or, while she plays him, his can, empty */
+    } else if (x >= 174 && x <= 198 && y >= 154 && y < 182) {    /* .. or, while GROUCH is the friend, its can, empty */
         if (y < 158)
             return kid_mix(RGB(118, 124, 132), dusk, nt);
         return kid_mix((x - 174) % 5 == 0 ? RGB(128, 134, 142) : RGB(168, 174, 180), dusk, nt);

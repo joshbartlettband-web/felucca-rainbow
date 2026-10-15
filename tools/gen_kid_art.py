@@ -135,7 +135,7 @@ def bow(p):
     p.ell(18, 10, 2, 2, "red")
 
 
-def bucket_shades(p):                  # shades, and a rainbow bucket hat (she asked)
+def bucket_shades(p):                  # shades, and a rainbow bucket hat (asked for at home)
     p.rect(11, 14, 25, 15, "black")
     p.ell(15, 17, 4, 3, "black"); p.ell(23, 17, 3, 3, "black")
     p.px(13, 16, "lblue"); p.px(21, 16, "lblue")
@@ -658,7 +658,7 @@ def star():
     return p.done()
 
 
-# friends suggested by r/MVaveFM1's u/veecheech (CREDITS.md): a T-Rex, a skeleton, a cowboy and a cowgirl, a vacuum
+# friends suggested by r/MVaveFM1's u/veecheech (CREDITS.md): a T-Rex, a skeleton, COWBOY and COWGIRL, a vacuum
 def trex():                                                      # a T-Rex, side on (original design)
     p = Pic()
     p.poly([(34, 26), (45, 37), (44, 41), (32, 38)], "dorange")  # tail
@@ -704,7 +704,7 @@ def skeleton():                                                  # a dapper skel
 
 
 def cowkid(hat, hatd, hair, scarf, shirt, spots=False, braid=False):
-    def f():                                                     # a cowboy or cowgirl (original designs)
+    def f():                                                     # COWBOY or COWGIRL (original designs)
         p = Pic()
         p.rect(8, 38, 40, 47, shirt)                             # shoulders
         if spots:
@@ -1117,9 +1117,9 @@ def sunflower():                                                 # a sunflower, 
     return p.done()
 
 
-# her own: Spider Mom and Dragon Duck (her ideas)
-def spidermom():                                                 # a masked web hero, rainbow instead of red, and a mom's long
-    import math                                                  # dark brown hair (her idea)
+# designed at home: Spider Mom and Dragon Duck
+def spidermom():                                                 # a masked web hero, rainbow instead of red, and long
+    import math                                                  # dark brown hair (an idea from home)
     p = Pic()
     p.ball(24, 21, 21, 19, "dbrown", "black")                    # long hair behind the head, down to the shoulders
     p.rect(3, 21, 13, 45, "dbrown"); p.rect(35, 21, 45, 45, "dbrown")
@@ -1127,7 +1127,7 @@ def spidermom():                                                 # a masked web 
     m = Pic()                                                    # the mask, drawn on its own and kept round
     rain = ["red", "orange", "yellow", "green", "blue", "purple"]
     for i, c in enumerate(rain):
-        m.rect(4, 2 if i == 0 else 8 + round(i * 6.3), 44, 7 + round((i + 1) * 6.3), c)   # (red starts under her bangs)
+        m.rect(4, 2 if i == 0 else 8 + round(i * 6.3), 44, 7 + round((i + 1) * 6.3), c)   # (red starts under the bangs)
     for a in range(0, 360, 45):                                  # the web: lines out from the middle, and rings
         m.line([(24, 24), (24 + 22 * math.cos(math.radians(a)), 24 + 24 * math.sin(math.radians(a)))], "black", 1)
     for r in (8, 15):
@@ -1141,7 +1141,7 @@ def spidermom():                                                 # a masked web 
             if ((x - 24 - OFF) / 17.5) ** 2 + ((y - 24 - OFF) / 20.5) ** 2 > 1:
                 m.im.putpixel((x, y), (0, 0, 0, 0))
     p.im.alpha_composite(m.im)
-    p.pie(24, 11, 11, 205, 335, "dbrown")                        # her hair over the top of the mask
+    p.pie(24, 11, 11, 205, 335, "dbrown")                        # the hair over the top of the mask
     return p.done()
 
 
@@ -1289,7 +1289,7 @@ def horse():                                                     # a horse's hea
     return p.done()
 
 
-def cactus():                                                    # a cactus in a cowboy hat
+def cactus():                                                    # a cactus in a western hat
     p = Pic()
     p.ball(24, 32, 8, 15, "green", "dgreen")                     # trunk
     p.rect(7, 22, 12, 34, "green"); p.ell(9, 22, 3, 3, "green"); p.rect(10, 31, 18, 35, "green")   # arms
@@ -1305,14 +1305,14 @@ def cactus():                                                    # a cactus in a
     return p.done()
 
 
-def rainbowmom():                                                # Spider Mom's stand-in: a mom with a rainbow headband
+def rainbowmom():                                                # Spider Mom's stand-in: long hair and a rainbow headband
     p = Pic()
-    p.ball(24, 22, 19, 19, "brown", "dbrown")                    # hair, down to her shoulders
+    p.ball(24, 22, 19, 19, "brown", "dbrown")                    # hair, down to the shoulders
     p.rect(5, 22, 43, 42, "brown"); p.rect(39, 22, 43, 42, "dbrown")
     p.ball(24, 26, 13, 14, "tan", "dtan")                        # face
     p.pie(24, 18, 13, 180, 360, "brown")                         # a side-swept fringe
     rain = ["red", "orange", "yellow", "green", "blue", "purple"]
-    for i, c in enumerate(rain):                                 # the rainbow headband, an arch over her head
+    for i, c in enumerate(rain):                                 # the rainbow headband, an arch over the head
         r = 19 - i
         p.d.arc([24 - r + OFF, 18 - r + OFF, 24 + r + OFF, 18 + r + OFF], 195, 345, fill=C[c] + (255,), width=1)
     p.eye(19, 26, 3); p.eye(29, 26, 3)
@@ -1335,7 +1335,7 @@ def alien():                                                     # a little gree
     return p.done()
 
 
-# her second batch (her ideas): Spider Grandma, Night Light (after her night light), Green Queen, King Axolotl,
+# a second batch designed at home: Spider Grandma, Night Light (after a night light), Green Queen, King Axolotl,
 # Fairy Monster and Morning Glory
 def web_face(p, cx, cy, rx, ry, colour):                         # a web hero's mask in one colour, its web and big eyes
     import math
@@ -1356,21 +1356,21 @@ def web_face(p, cx, cy, rx, ry, colour):                         # a web hero's 
     p.im.alpha_composite(m.im)
 
 
-def spidergrandma():                                             # a web hero grandma: a green mask, silver curls, a bun, pearls
+def spidergrandma():                                             # a web hero with silver curls: a green mask, a bun, pearls
     p = Pic()
     for x, y in ((9, 16), (7, 23), (8, 30), (39, 16), (41, 23), (40, 30), (14, 11), (34, 11)):   # curls round the mask
         p.ball(x, y, 5, 5, "silver", "grey")
     p.ball(24, 6, 7, 5, "silver", "grey")                       # the bun on top
     web_face(p, 24, 25, 15, 17, "green")
-    p.pie(24, 14, 9, 200, 340, "silver")                         # her curls over the top of the mask
+    p.pie(24, 14, 9, 200, 340, "silver")                         # the curls over the top of the mask
     for i, x in enumerate(range(13, 36, 3)):                      # pearls
         p.ell(x, 43 + (1 if 16 < x < 32 else 0), 1, 1, "white")
     return p.done()
 
 
-def axo_sit(body, shade, gill, gill_dark, frills=False):         # a round sitting axolotl, as her night light
+def axo_sit(body, shade, gill, gill_dark, frills=False):         # a round sitting axolotl, as the night light
     def gills(p):
-        if frills:                                               # feathery gills (the king)
+        if frills:                                               # feathery gills (KING AXOLOTL)
             for (ax, ay), (tx, ty) in (((14, 10), (8, 4)), ((11, 14), (5, 10)), ((11, 19), (5, 19))):
                 for sgn in (1, -1):
                     a, t = (ax if sgn > 0 else 48 - ax, ay), (tx if sgn > 0 else 48 - tx, ty)
@@ -1397,7 +1397,7 @@ def axo_sit(body, shade, gill, gill_dark, frills=False):         # a round sitti
     return f
 
 
-def nightlight():                                                # her night light: white, mint gills, hugging a mint egg
+def nightlight():                                                # the night light: white, mint gills, hugging a mint egg
     p = Pic()
     def egg(p):
         p.ball(24, 37, 6, 8, "mint", "dmint")
@@ -1405,7 +1405,7 @@ def nightlight():                                                # her night lig
     return axo_sit("white", "dwhite", "mint", "dmint")(p, over=egg)
 
 
-def greenqueen():                                                # the night light as a green queen: a gold crown, a rainbow cape
+def greenqueen():                                                # the night light as GREEN QUEEN: a gold crown, a rainbow cape
     p = Pic()
     def cape(p):
         for i, c in enumerate(["red", "orange", "yellow", "green", "blue", "purple"]):
@@ -1420,7 +1420,7 @@ def greenqueen():                                                # the night lig
     return axo_sit("green", "dgreen", "lime", "dlime")(p, under=cape, over=crown)
 
 
-def kingaxolotl():                                               # a green axolotl king on a rainbow throne, in green and red robes
+def kingaxolotl():                                               # a green axolotl on a rainbow throne, in a crown and green and red robes
     p = Pic()
     def throne(p):
         for i, c in enumerate(["red", "orange", "yellow", "green", "blue", "purple"]):
@@ -1429,10 +1429,10 @@ def kingaxolotl():                                               # a green axolo
         p.pie(24, 26, 11, 180, 360, None)
         p.rect(5, 30, 43, 33, "gold"); p.rect(7, 34, 41, 45, "dyellow")   # the seat
     def robe(p):
-        p.ball(24, 37, 12, 9, "red", "dred")                      # a red robe, round over him
+        p.ball(24, 37, 12, 9, "red", "dred")                      # a red robe, round over the body
         p.poly([(21, 29), (27, 29), (29, 45), (19, 45)], "green")  # green down the front
         p.ell(24, 29, 9, 2, "white")                              # a fur collar
-        p.ell(14, 37, 3, 2, "green"); p.ell(34, 37, 3, 2, "green")   # his hands
+        p.ell(14, 37, 3, 2, "green"); p.ell(34, 37, 3, 2, "green")   # the hands
         p.poly([(17, 9), (17, 3), (20, 6), (24, 1), (28, 6), (31, 3), (31, 9)], "gold")   # crown
         p.px(20, 7, "red"); p.px(28, 7, "red")
     return axo_sit("green", "dgreen", "red", "dred", frills=True)(p, under=throne, over=robe)
@@ -1446,7 +1446,7 @@ def fairymonster():                                              # a pink fairy 
     for x, y in ((10, 26), (38, 26), (12, 36), (36, 36), (18, 41), (30, 41), (24, 42)):   # fluff
         p.ell(x, y, 4, 4, "pink")
     p.ball(24, 27, 15, 16, "pink", "dpink")
-    p.pie(24, 18, 12, 180, 360, "lpurple")                       # her hair
+    p.pie(24, 18, 12, 180, 360, "lpurple")                       # the hair
     p.ell(24, 13, 5, 3, "lpurple")
     p.eye(19, 25, 4); p.eye(29, 25, 4)
     p.ell(24, 30, 2, 2, "hpink")                                 # a round nose
@@ -1484,7 +1484,7 @@ def morningglory():                                              # a morning glo
     return p.done()
 
 
-def greengranny():                                               # Spider Grandma's stand-in: a grandma in a green cardigan
+def greengranny():                                               # Spider Grandma's stand-in: silver curls, glasses, a green cardigan
     p = Pic()
     p.rect(10, 38, 38, 45, "green"); p.poly([(20, 38), (28, 38), (24, 45)], "white")   # cardigan, a white blouse
     for x, y in ((10, 18), (9, 26), (38, 18), (39, 26), (14, 11), (34, 11), (24, 8)):   # silver curls
@@ -1518,7 +1518,7 @@ def pixie():                                                     # Fairy Monster
     return p.done()
 
 
-# her third batch (her ideas): Grouch, Tiger Cub, Raccoon and Goldenrod
+# a third batch designed at home: Grouch, Tiger Cub, Raccoon and Goldenrod
 def trash_can(p, y0=27):                                         # a ridged silver can, its rim at y0
     p.rect(10, y0 + 3, 38, 45, "silver")
     for x in range(13, 37, 5):
@@ -1526,12 +1526,12 @@ def trash_can(p, y0=27):                                         # a ridged silv
     p.rect(8, y0, 40, y0 + 3, "grey")
 
 
-def grouch():                                                    # a grumpy green furry monster in a can, its lid on his head
+def grouch():                                                    # a grumpy green furry monster in a can, its lid on its head
     p = Pic()
     for x, y in ((12, 18), (36, 18), (14, 26), (34, 26), (18, 10), (30, 10)):   # fur
         p.ell(x, y, 4, 4, "green")
     p.ball(24, 19, 12, 11, "green", "dgreen")
-    p.poly([(9, 8), (30, 2), (39, 6), (16, 11)], "grey")         # the lid, tipped up on his head
+    p.poly([(9, 8), (30, 2), (39, 6), (16, 11)], "grey")         # the lid, tipped up on its head
     p.rect(22, 2, 26, 4, "silver")
     p.line([(13, 13), (24, 17), (35, 13)], "dbrown", 3)          # one big, cross eyebrow
     p.ell(19, 19, 3, 3, "white"); p.ell(29, 19, 3, 3, "white")
@@ -1559,7 +1559,7 @@ def tigercub():                                                  # a tiger cub i
     return p.done()
 
 
-def raccoon():                                                   # a raccoon with his collection, a box of treasures
+def raccoon():                                                   # a raccoon with a collection, a box of treasures
     p = Pic()
     for i, c in enumerate(["grey", "black", "grey", "black", "grey"]):   # a ringed tail
         p.ell(40, 40 - i * 4, 4, 3, c)
@@ -1572,14 +1572,14 @@ def raccoon():                                                   # a raccoon wit
     p.ell(24, 24, 6, 4, "white")                                 # muzzle
     p.ell(24, 22, 2, 1, "black")
     p.smile(24, 25, 2)
-    p.rect(13, 34, 33, 45, "tan"); p.rect(13, 34, 33, 35, "dtan")   # his box of treasures
+    p.rect(13, 34, 33, 45, "tan"); p.rect(13, 34, 33, 35, "dtan")   # its box of treasures
     for x, y, c in ((16, 32, "blue"), (20, 31, "red"), (25, 32, "yellow"), (30, 31, "green"), (18, 33, "purple"), (27, 33, "pink")):
         p.ell(x, y, 2, 2, c)
     p.ell(11, 38, 3, 2, "dgrey"); p.ell(35, 38, 3, 2, "dgrey")   # paws holding it
     return p.done()
 
 
-def goldenrod():                                                 # goldenrod (Nebraska's state flower): golden plumes on tall stems
+def goldenrod():                                                 # goldenrod (a prairie flower): golden plumes on tall stems
     import math
     p = Pic()
     for x0, x1, top in ((24, 24, 14), (24, 12, 22), (24, 37, 20)):   # three stems

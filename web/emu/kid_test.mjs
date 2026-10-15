@@ -69,7 +69,7 @@ render(1700);
 shot("friend2");
 check("PRESETS: another friend (the band shows its name)", band() !== name0);
 
-// the staff: a clef and five lines come in when she plays, her notes are coloured heads, a chord is stacked, the octave
+// the staff: a clef and five lines come in when the child plays, the notes are coloured heads, a chord is stacked, the octave
 // is marked (8VA), and it goes after about 6 s of quiet
 {
   const INK = ((52 >> 3) << 11) | ((26 >> 2) << 5) | (58 >> 3);               // kid.c KID_INK
@@ -78,7 +78,7 @@ check("PRESETS: another friend (the band shows its name)", band() !== name0);
   const lines = () => px(150, 24) === INK && px(150, 36) === INK && px(150, 48) === INK;
   const press = (k, ms = 120) => { ex.web_keys(1 << k); render(ms); ex.web_keys(0); render(250); };
   render(7000);
-  check("no staff while she is not playing", !lines());
+  check("no staff while nobody is playing", !lines());
   press(12);                                                                   // F4: step 3, on the second space
   shot("staff1");
   check("a key: the staff comes in (five lines)", lines() && px(14 + 6, 40) !== 0);
@@ -102,7 +102,7 @@ check("PRESETS: another friend (the band shows its name)", band() !== name0);
   render(6500);
   check("after about 6 s of quiet the staff goes", !lines());
   press(14);
-  check("and starts again from the left when she plays again", lines() && px(56, KID_Y(4)) === G_TEAL && px(77, KID_Y(4)) !== G_TEAL);
+  check("and starts again from the left when playing again", lines() && px(56, KID_Y(4)) === G_TEAL && px(77, KID_Y(4)) !== G_TEAL);
   render(6500);
 }
 
@@ -126,7 +126,7 @@ check("PRESETS: another friend (the band shows its name)", band() !== name0);
   ex.web_keys(1 << 14); render(700);
   const q = px(140, KID_Y(4)) !== WHITE;
   render(800);
-  check("held, the note grows as she holds it (a quarter, then a half)", q && px(140, KID_Y(4)) === WHITE);
+  check("held, the note grows as it is held (a quarter, then a half)", q && px(140, KID_Y(4)) === WHITE);
   ex.web_keys(0); render(7000);
 }
 
@@ -496,7 +496,7 @@ check("PLAY again stops it", ex.web_playing() === 0);
   algo(-1); algo(-1); algo(-1); algo(-1); algo(-1); algo(-1); render(1500);
 }
 
-// WRITE (SAVE): her own song. A key writes a note (a friend in a ball of the note's color) and the column moves on, the
+// WRITE (SAVE): the child's own song. A key writes a note (a friend in a ball of the note's color) and the column moves on, the
 // same key again takes it out, HOME wipes the column, PLAY plays it back, it is kept over a power-off, REC held 2 s
 // starts a new one, and SAVE goes back to playing
 {
@@ -526,7 +526,7 @@ check("PLAY again stops it", ex.web_playing() === 0);
   peak = 0;
   tapb(B.PLAY); render(2200);
   shot("write2");
-  check(`PLAY: her song plays (peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.05);
+  check(`PLAY: the song plays (peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.05);
   tapb(B.PLAY); render(5000);
   const nor = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
   const e2 = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
@@ -536,7 +536,7 @@ check("PLAY again stops it", ex.web_playing() === 0);
   const r2 = (ms) => { for (let k = 0; k < Math.round(ms * 44.1); k += 128) e2.web_render(128); };
   r2(1500); e2.web_keys(1 << 20); r2(100); e2.web_keys(0); r2(1500); e2.web_buttons(1 << B.SAVE); r2(60); e2.web_buttons(0); r2(600);
   const p2 = (x, y) => { const v = new Uint16Array(e2.memory.buffer, e2.web_screen(), 240 * 240)[y * 240 + x]; return ((v & 255) << 8) | (v >> 8); };
-  check("kept over a power-off: the next start's WRITE has her song", p2(46 + 10, 128 + 9) === C_RED && p2(46 + 2 * 23 + 10, 128 - 24 + 9) === G_TEAL);
+  check("kept over a power-off: the next start's WRITE has the song", p2(46 + 10, 128 + 9) === C_RED && p2(46 + 2 * 23 + 10, 128 - 24 + 9) === G_TEAL);
   tapb(B.REC, 2300);
   check("REC held 2 s: a new, empty song", ball(0, 0) !== C_RED && ball(2, 4) !== G_TEAL);
   while (ex.web_kid_friend() !== 12) { ex.web_enc(EN.PRESETS, 1); render(150); }   // SCISSORS, a drum friend

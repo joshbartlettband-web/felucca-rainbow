@@ -67,7 +67,7 @@ at(t + 2600, () => setKeys(1 << ex.web_kid_guess())); at(t + 2900, () => setKeys
 C(t + 2700, "4. Games for the ears", "found it!");
 t += 4200;
 turn(t, EN.ALGO, 1);                                               // FOLLOW
-C(t, "4. Games for the ears", "FOLLOW: the next key lights up, at her own pace");
+C(t, "4. Games for the ears", "FOLLOW: the next key lights up, at your own pace");
 tune(t + 900, [K.C, K.C, K.G, K.G, K.A, K.A, K.G, null], 380);
 t += 4300;
 // 5. write a song
