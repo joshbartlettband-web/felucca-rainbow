@@ -29,7 +29,7 @@ at the next power-on.
 | PLAY | Starts and stops the beat: drums and a bass line that is always in key, so anything played fits. The friend dances. |
 | SEQ | The next beat (21): DANCE, MARCH, SPOOKY, ROCK, DISCO, HIP HOP, TRAIN, SAMBA, REGGAE, LULLABY, HOEDOWN, LOFI, ACID, POLKA, BOSSA, FUNK, SKA, TRAP, SALSA, SHUFFLE, BREAK (Felucca's own drum loop, played back as it was made, at 120 BPM). |
 | ARP | Sparkle: a held key plays up and down by itself. In ACCORDION it has three settings, one a press: SPARKLE TUNE (the white keys sparkle while the black keys' chords hold steady), SPARKLE ALL (the chords sparkle too) and off. |
-| REC | The next sky (rainbow, stars, hearts, bubbles, flowers, confetti, clouds, snow, autumn leaves, desert, the street), with confetti. |
+| REC | The next sky (rainbow, stars, hearts, bubbles, flowers, confetti, clouds, snow, autumn leaves, desert, the street, under the sea, rain, fireworks, and the secret northern lights), with confetti. |
 | HOME | A surprise friend, with confetti. Held for 1 second it opens the grown-ups' VOLUME instead (below). |
 | SAVE | WRITE: write your own song (below). SAVE again goes back to playing. |
 | HOME held 1 s, then OCT- / OCT+ | The grown-ups' VOLUME: the most the MASTER knob can give (below). |
@@ -72,9 +72,10 @@ for stars:
 | Stars | What opens |
 | --- | --- |
 | 10 | An eleventh hat, the STAR hat. It goes on at once; it joins the round on HOME held 1 s, then KNOB 4. |
+| 25 | A secret sky, the northern lights (green and violet ribbons waving over stars). It is the sky at once, and joins REC's round from then on. |
 | 50 | A secret friend, GOLD DUCKY (a crown and sparkles; a rock organ). It is there at once, and joins PRESETS from then on. |
 
-The band says NEW HAT! or NEW FRIEND! and the friend plays the four-note cheer. HOME held 1 s, then KNOB 3, shows STARS and a
+The band says NEW HAT!, NEW SKY! or NEW FRIEND! and the friend plays the four-note cheer. HOME held 1 s, then KNOB 3, shows STARS and a
 meter of how far the next secret is (there are no digits in the band's font). To start over, the grown-ups can erase the
 FM-1's settings (the same as for the name and the hat). The SMK-37 counts stars too, but cannot show them yet.
 
@@ -195,7 +196,9 @@ engine, another Felucca fork; none of Sequential's own programs are used): Eleph
 TRIO's SYNC with the envelope moving the second oscillator), Jellyfish (strings), Bear (a punchy saw bass), Snowman (glassy ring-mod
 bells, like the Prophet's Poly-Mod), Crab (a snappy clav), Wolf (a howl that swells and slides) and Camel (a big, loping lead). Their
 tweaks on top of the presets are the `TW_*` lists in `kid.c`. Four new skies came with them: clouds, snow, autumn leaves and a
-desert at sunset.
+desert at sunset. Four more came later, all drawn from a formula, so they use no memory for pictures: under the sea (light from above,
+bubbles rising, swaying seaweed and a sandy floor; the sea friends' home), rain (a grey sky, streaks falling, ripples in the puddles;
+Frog's home), fireworks (bursts of sparks in turn over a night sky; Rocket's home) and the secret northern lights.
 Then three acid friends (u/litomanu asked for 303 sounds) on ANALOG's ACID, the squelchy resonant bass of a Roland TB-303:
 Scientist (set as a TD-3, the 303 clone, often is: saw, cutoff low, resonance high, a strong envelope, a short decay; hold a key
 while pressing the next and it slides into it in about 60 ms, as a 303 does), Flytrap (a driven square wave: a chomp, sliding the

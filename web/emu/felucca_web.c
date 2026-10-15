@@ -491,6 +491,7 @@ EXPORT void web_kid_stars_set(uint32_t n) { kid_stars_set(n); }
 EXPORT void web_kid_set_param(uint32_t i, int32_t v) { if (i < P_COUNT) trk[0].p[i] = (int16_t)v; }   /* (tools: trying a sound's knobs) */
 EXPORT uint32_t web_p_idx(uint32_t w) { static const uint8_t T[] = {P_E0, P_ATK, P_DEC, P_SUS, P_REL, P_DIST, P_CHOR, P_DLY, P_REV, P_LD_PIT, P_GLIDE}; return w < sizeof T ? T[w] : 0u; }   /* (tools) */
 EXPORT void web_kid_set_level(uint32_t v) { trk[0].p[P_LEVEL] = (int16_t)v; }          /* (tools: leveling a friend) */
+EXPORT uint32_t web_kid_scene(void) { return kid.scene; }
 EXPORT uint32_t web_kid_beat(void) { return kid.beat; }
 EXPORT uint32_t web_kid_wat(void) { return (uint32_t)kw_at(); }
 EXPORT uint32_t web_kid_wlen(void) { return kw_len(); }                               /* (kid_test.mjs: WRITE's loop, in columns) */

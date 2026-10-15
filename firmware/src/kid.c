@@ -66,7 +66,7 @@ static const uint16_t KID_VOL_CAP[8] = {362, 512, 724, 1024, 1448, 2048, 2896, 4
 #define KID_SLEEP_MS 3000u              /* SLEEPY: winds down, dozes, then wakes up by itself after this */
 
 enum { KS_RAINBOW, KS_STARS, KS_HEARTS, KS_BUBBLES, KS_FLOWERS, KS_CONFETTI, KS_CLOUDS, KS_SNOW, KS_LEAVES, KS_DESERT,
-       KS_STREET, KS_COUNT };
+       KS_STREET, KS_SEA, KS_RAIN, KS_FIREWORKS, KS_AURORA, KS_COUNT };         /* (KS_AURORA is the secret sky: 25 stars) */
 enum { KB_DANCE, KB_MARCH, KB_SPOOKY, KB_ROCK, KB_DISCO, KB_HIPHOP, KB_TRAIN, KB_SAMBA, KB_REGGAE, KB_LULLABY,
        KB_HOEDOWN, KB_LOFI, KB_ACID, KB_POLKA, KB_BOSSA, KB_FUNK, KB_SKA, KB_TRAP, KB_SALSA, KB_SHUFFLE, KB_BREAK, KB_COUNT };
 
@@ -149,7 +149,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {6, "SYNC LEAD", 96, KS_STARS, KB_ROCK},         /* WEB HERO */
     {12, "BELL", 107, KS_FLOWERS, KB_LULLABY},        /* BUTTERFLY */
     {9, "HARP", 121, KS_HEARTS, KB_SAMBA},            /* KITTY */
-    {3, "WAVE BASS", 110, KS_BUBBLES, KB_REGGAE},     /* FROG */
+    {3, "WAVE BASS", 110, KS_RAIN, KB_REGGAE},     /* FROG */
     {3, "ARP 8BIT", 96, KS_STARS, KB_HIPHOP},        /* ROBOT */
     {8, "CLOUD PAD", 100, KS_RAINBOW, KB_LULLABY},    /* RAINBOW */
     {6, "CHIP CHOIR", 96, KS_HEARTS, KB_DISCO, 0, 0, 0, 0, TW_PRINCESS},   /* PRINCESS DUCKY: TRIO */
@@ -163,13 +163,13 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {6, "ARP LEAD", 96, KS_FLOWERS, KB_SAMBA},       /* BEE: TRIO, bzz */
     {9, "BELL TREE", 105, KS_FLOWERS, KB_DANCE, 0, 0, 0, 0, TW_LADYBUG},   /* LADYBUG: PHYS */
     {0, "ACID", 110, KS_CONFETTI, KB_ROCK},           /* DINO: ANALOG */
-    {8, "FROZEN", 117, KS_BUBBLES, KB_LULLABY},       /* WHALE: GRAIN */
-    {9, "MARIMBA", 127, KS_BUBBLES, KB_REGGAE},       /* OCTOPUS: PHYS */
-    {12, "PLUCK", 118, KS_BUBBLES, KB_REGGAE},        /* FISH: FM6 */
+    {8, "FROZEN", 117, KS_SEA, KB_LULLABY},       /* WHALE: GRAIN */
+    {9, "MARIMBA", 127, KS_SEA, KB_REGGAE},       /* OCTOPUS: PHYS */
+    {12, "PLUCK", 118, KS_SEA, KB_REGGAE},        /* FISH: FM6 */
     {9, "HAND DRUM", 113, KS_BUBBLES, KB_LULLABY},    /* TURTLE: PHYS */
     {6, "RING BELL", 110, KS_CONFETTI, KB_DISCO, 0, 0, 0, 0, TW_ICECREAM},   /* ICE CREAM: TRIO */
     {7, "JAZZ PERC", 101, KS_HEARTS, KB_DANCE},       /* CUPCAKE: WHEEL */
-    {11, "ARCADE", 119, KS_STARS, KB_HIPHOP, 0, 0, 0, 0, TW_ROCKET},   /* ROCKET: NOISE */
+    {11, "ARCADE", 119, KS_FIREWORKS, KB_HIPHOP, 0, 0, 0, 0, TW_ROCKET},   /* ROCKET: NOISE */
     {0, "PLUCK", 113, KS_HEARTS, KB_SAMBA},           /* STRAWBERRY: ANALOG */
     {2, "BELL", 108, KS_STARS, KB_LULLABY},           /* STAR: PHASE */
     /* suggested by r/MVaveFM1's u/veecheech (CREDITS.md) */
@@ -187,10 +187,10 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     /* Prophet-style (TW_*) */
     {0, "BRASS", 100, KS_DESERT, KB_POLKA, 0, 0, 0, 0, TW_ELEPHANT},      /* ELEPHANT: poly brass, a trumpet */
     {6, "SYNC LEAD", 96, KS_CLOUDS, KB_ROCK, 0, 22, 0, 0, TW_RACECAR},    /* RACE CAR: the sync sweep, zoom */
-    {0, "STRINGS", 93, KS_BUBBLES, KB_LULLABY, 1, 0, 0, 0, TW_JELLYFISH},   /* JELLYFISH: strings, floating */
+    {0, "STRINGS", 93, KS_SEA, KB_LULLABY, 1, 0, 0, 0, TW_JELLYFISH},   /* JELLYFISH: strings, floating */
     {0, "SQR BASS", 118, KS_LEAVES, KB_TRAP, 0, 0, 0, 0, TW_BEAR},     /* BEAR: a punchy saw bass */
     {6, "RING BELL", 101, KS_SNOW, KB_DISCO, 0, 0, 0, 0, TW_SNOWMAN},    /* SNOWMAN: glassy bells (ring, like poly-mod) */
-    {0, "PLUCK", 117, KS_BUBBLES, KB_FUNK, 0, 0, 0, 0, TW_CRAB},       /* CRAB: a snappy clav */
+    {0, "PLUCK", 117, KS_SEA, KB_FUNK, 0, 0, 0, 0, TW_CRAB},       /* CRAB: a snappy clav */
     {0, "SAW LEAD", 97, KS_STARS, KB_SPOOKY, 2, 40, 0, 0, TW_WOLF},     /* WOLF: a howl, swelling and sliding */
     {0, "SAW LEAD", 96, KS_DESERT, KB_TRAIN, 1, 33, 0, 0, TW_CAMEL},     /* CAMEL: a big, loping lead */
     /* acid (TW_*) */
@@ -220,9 +220,9 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {9, "DRONE STRING", 109, KS_LEAVES, KB_HOEDOWN},   /* COW: a low drone string */
     {12, "ORGAN", 109, KS_LEAVES, KB_POLKA},           /* PIG: FM6's organ */
     {0, "PWM STR", 94, KS_CLOUDS, KB_LULLABY},        /* SHEEP: soft, fluffy strings */
-    {12, "FM BASS", 111, KS_BUBBLES, KB_FUNK},         /* SHARK: a deep FM bass */
-    {12, "BELL", 109, KS_BUBBLES, KB_BOSSA, 0, 0, 0, 0, TW_SEAHORSE},    /* SEAHORSE: a glassy bell */
-    {9, "BOWED METAL", 127, KS_BUBBLES, KB_SAMBA},     /* STARFISH: a singing bowl */
+    {12, "FM BASS", 111, KS_SEA, KB_FUNK},         /* SHARK: a deep FM bass */
+    {12, "BELL", 109, KS_SEA, KB_BOSSA, 0, 0, 0, 0, TW_SEAHORSE},    /* SEAHORSE: a glassy bell */
+    {9, "BOWED METAL", 127, KS_SEA, KB_SAMBA},     /* STARFISH: a singing bowl */
     {0, "SINE KEY", 104, KS_LEAVES, KB_REGGAE, 0, 0, 0, 0, TW_SNAIL},     /* SNAIL: slow and soft */
     {0, "PLUCK", 114, KS_FLOWERS, KB_SKA, 0, 0, 0, 0, TW_CATERPILLAR},   /* CATERPILLAR: a boop */
     {12, "TINE EP", 96, KS_STARS, KB_LULLABY, 0, 0, 0, 0, TW_FIREFLY},  /* FIREFLY: a ping */
@@ -235,7 +235,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {0, "SAW LEAD", 99, KS_STREET, KB_MARCH, 3, 50, 0, 0, TW_FIRETRUCK},   /* FIRE TRUCK: a siren */
     {9, "TOMS", 110, KS_STREET, KB_HIPHOP},            /* SCHOOL BUS: toms, a marching band */
     {11, "WIND", 116, KS_CLOUDS, KB_FUNK},             /* HELICOPTER: a rotor's whoosh */
-    {7, "ROCK DRIVE", 93, KS_STARS, KB_ROCK},      /* GOLD DUCKY (the secret friend): a rock star's organ */
+    {7, "ROCK DRIVE", 93, KS_AURORA, KB_ROCK},     /* GOLD DUCKY (the secret friend): a rock star's organ */
 };
 
 /* the beats: drums on track 4 (DRUM), a bass line on track 2, 16 steps of 1/16. Drums: a string per lane
@@ -372,7 +372,7 @@ static const int8_t KID_SIN[32] = {0, 25, 49, 71, 90, 106, 117, 125, 127, 125, 1
                                    0, -25, -49, -71, -90, -106, -117, -125, -127, -125, -117, -106, -90, -71, -49, -25};
 
 enum { KH_NONE, KH_SIZE, KH_NIGHT, KH_ECHO, KH_WIGGLE, KH_SPEED, KH_CHORD, KH_SPARKLE, KH_BEAT, KH_VOLUME, KH_NEWSONG, KH_SONG,
-       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND };
+       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND, KH_NEWSKY };
 enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 /* ALGORITHM: how the keys play (kid_mode_set). CHOIR: three friends sing a chord; STRUM: an Omnichord (seq.c
  * kb_strum_map); GUESS: an ear game; FOLLOW: songs to learn, the next key lit */
@@ -752,10 +752,11 @@ static void kid_beat_load(void)
 #define KID_HAT_BYTE (favorites.factory[13][19])
 
 /* STARS and secrets: each game won (the cheer's) is a star, kept over power-off (favorites.factory[13][15..17]: the
- * count, low and high, and a check byte). 10 stars: the STAR hat; 50: the secret friend (KID_SECRET_FR). HOME held 1 s,
+ * count, low and high, and a check byte). 10 stars: the STAR hat; 25: the secret sky, AURORA; 50: the secret friend (KID_SECRET_FR). HOME held 1 s,
  * then KNOB 3, shows how far the next one is. The count is written a few seconds after the last win */
 #define KID_STAR_AT (&favorites.factory[13][15])
 #define KID_STAR_HAT 10u
+#define KID_STAR_SKY 25u
 #define KID_STAR_FRIEND 50u
 #define KID_STAR_MAX 9999u
 static uint32_t kid_stars(void)
@@ -776,6 +777,7 @@ static void kid_stars_set(uint32_t n)
 #define KID_HATS_OPEN (KID_HAT_N - (kid_stars() < KID_STAR_HAT))     /* (the last hat is the secret one) */
 #define KID_HAT (KID_HAT_BYTE > KID_HATS_OPEN ? 0u : (uint32_t)KID_HAT_BYTE)
 #define KID_FRIEND_LOCKED(f) ((f) == KID_SECRET_FR && kid_stars() < KID_STAR_FRIEND)
+#define KID_SCENE_LOCKED(sc) ((sc) == KS_AURORA && kid_stars() < KID_STAR_SKY)
 static void kid_cheer_stop(void);
 static uint32_t kid_next_friend(int32_t d)                        /* the friend after (d > 0) or before this one, a secret one left out */
 {
@@ -1555,13 +1557,17 @@ static void kid_win(uint32_t big)
         KID_HAT_BYTE = KID_HAT_N;
         kid.full = 1;
         kid_hint(KH_NEWHAT);
+    } else if (n == KID_STAR_SKY) {                               /* the secret sky, on at once */
+        kid.scene = KS_AURORA;
+        kid.full = 1;
+        kid_hint(KH_NEWSKY);
     } else if (n == KID_STAR_FRIEND) {                            /* the secret friend, there at once */
         kid_friend(KID_SECRET_FR);
         kid_hint(KH_NEWFRIEND);
     }
-    if (n == KID_STAR_HAT || n == KID_STAR_FRIEND)
+    if (n == KID_STAR_HAT || n == KID_STAR_SKY || n == KID_STAR_FRIEND)
         kid.party_ms = fm1_ms | 1u;
-    kid_cheer(big || n == KID_STAR_HAT || n == KID_STAR_FRIEND);
+    kid_cheer(big || n == KID_STAR_HAT || n == KID_STAR_SKY || n == KID_STAR_FRIEND);
 }
 
 /* COPY ME (Double Rainbow's idea, here first): the friend plays a pattern of notes, lighting each key; the child plays
@@ -1912,7 +1918,9 @@ static void kid_input(void)
                 kw.clear_ms = fm1_ms | 1u;
                 break;
             }
-            kid.scene = (uint8_t)((kid.scene + 1u) % KS_COUNT);
+            do
+                kid.scene = (uint8_t)((kid.scene + 1u) % KS_COUNT);
+            while (KID_SCENE_LOCKED(kid.scene));
             kid.full = 1;
             kid.party_ms = fm1_ms | 1u;
             kid.hop_ms = fm1_ms;
@@ -2274,8 +2282,11 @@ static void kid_frame_setup(uint32_t now)
     static const uint16_t NIGHT_T = RGB(18, 22, 70), NIGHT_B = RGB(96, 60, 150);
     uint32_t y, k, ne = kid.echo ? 1u + (kid.echo - 1u) / 3u : 0u, n = 0, fx = kid.fx;
     int32_t s = KID_SIZES[clamp(kid.oct + 2, 0, 4)], h, jx = 0, sway = kid_sway(now);
-    uint16_t dt = kid.scene == KS_DESERT ? RGB(255, 156, 110) : kid.scene == KS_SNOW ? RGB(168, 204, 240) : DAY_T;
-    uint16_t db = kid.scene == KS_DESERT ? RGB(255, 222, 150) : kid.scene == KS_SNOW ? RGB(236, 242, 252) : DAY_B;
+    static const uint16_t SKY_T[4] = {RGB(70, 190, 220), RGB(120, 132, 156), RGB(14, 12, 54), RGB(4, 8, 36)};
+    static const uint16_t SKY_B[4] = {RGB(18, 86, 170), RGB(188, 198, 214), RGB(86, 44, 112), RGB(22, 56, 78)};
+    uint32_t ns = kid.scene >= KS_SEA ? kid.scene - KS_SEA : 0u;          /* (the sea, the rain, fireworks, the aurora: their own sky) */
+    uint16_t dt = kid.scene >= KS_SEA ? SKY_T[ns] : kid.scene == KS_DESERT ? RGB(255, 156, 110) : kid.scene == KS_SNOW ? RGB(168, 204, 240) : DAY_T;
+    uint16_t db = kid.scene >= KS_SEA ? SKY_B[ns] : kid.scene == KS_DESERT ? RGB(255, 222, 150) : kid.scene == KS_SNOW ? RGB(236, 242, 252) : DAY_B;
     uint16_t top = kid_mix(dt, NIGHT_T, kid.night * 32u), bot = kid_mix(db, NIGHT_B, kid.night * 32u);   /* (the desert:
                                                   * a sunset sky; snow: a pale one) */
     const uint16_t *pal = KID_PAL[kid_art(kid.fr)];
@@ -2533,7 +2544,7 @@ static uint32_t kid_band_setup(uint32_t now)
 {
     uint32_t sig, len, w;
     int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
-               kid.hint == KH_NEWFRIEND) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
+               kid.hint == KH_NEWFRIEND || kid.hint == KH_NEWSKY) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
     int hint = kid.hint != KH_NONE && now - kid.hint_ms < 1500u;
     kf.meter = -1;
     kf.ol = 2;
@@ -2585,7 +2596,7 @@ static uint32_t kid_band_setup(uint32_t now)
         sig = 0x400u | kid.fxk;
     } else if (kid.hint != KH_NONE && now - kid.hint_ms < 1500u) {
         static const char *const WORD[] = {"", "", "DAY", "ECHO", "WIGGLE", "", "", "SPARKLE", "", "VOLUME", "", "", "", "", "STARS",
-                                           "NEW HAT!", "NEW FRIEND!"};
+                                           "NEW HAT!", "NEW FRIEND!", "NEW SKY!"};
         int32_t v = 0;
         kf.band = KB_HINT;
         kf.txt = WORD[kid.hint];
@@ -2612,9 +2623,9 @@ static uint32_t kid_band_setup(uint32_t now)
             break;
         case KH_LOOK: kf.txt = KID_VOL_BYTE & KID_HIDE_BIT ? "LOOK-ALIKES OFF" : "LOOK-ALIKES ON"; v = -1; break;
         case KH_HAT: kf.txt = KID_HAT ? KID_HAT_NAME[KID_HAT - 1u] : "NO HAT"; v = -1; break;
-        case KH_NEWHAT: case KH_NEWFRIEND: v = -1; break;
+        case KH_NEWHAT: case KH_NEWFRIEND: case KH_NEWSKY: v = -1; break;
         case KH_STARS: {                                  /* how far the next secret is (no digits in the band's font) */
-            uint32_t n = kid_stars(), next = n < KID_STAR_HAT ? KID_STAR_HAT : KID_STAR_FRIEND;
+            uint32_t n = kid_stars(), next = n < KID_STAR_HAT ? KID_STAR_HAT : n < KID_STAR_SKY ? KID_STAR_SKY : KID_STAR_FRIEND;
             v = n >= KID_STAR_FRIEND ? 8 : (int32_t)(n * 8u / next);
             break;
         }
@@ -3035,6 +3046,106 @@ static int32_t kid_scene_px(uint32_t scene, int32_t x, int32_t y)   /* the scene
     }
     case KS_STREET:
         return kid_street_px(x, y);
+    case KS_SEA: {                                                /* underwater: light from above, bubbles, seaweed, a sandy floor */
+        int32_t fl = 170 + KID_SIN[((x + 10) / 11) & 31] * 4 / 127, cx, cy, sx, sh, sw, yy, r, bx, by, d;
+        uint32_t nt = kid.night * 18u;
+        if (y >= fl)
+            return kid_mix(y < fl + 3 ? RGB(240, 218, 150) : kid_mix(RGB(228, 202, 142), RGB(170, 146, 98), (uint32_t)(y - fl) * 8u),
+                           RGB(8, 14, 50), nt);
+        cx = x / 34;                                              /* seaweed on some of the floor, swaying */
+        h = kid_hash((uint32_t)cx + 83u, 5u);
+        sx = cx * 34 + 8 + (int32_t)(h % 18u);
+        sh = 22 + (int32_t)((h >> 6) % 26u);
+        if ((h >> 3) % 3u != 0u && y > fl - sh) {
+            sw = sx + KID_SIN[(((fl - y) / 5) * 3 + (int32_t)(t / 110u) + cx * 5) & 31] * 3 / 127;
+            if (x - sw <= 2 && sw - x <= 2)
+                return kid_mix(x == sw ? RGB(36, 150, 80) : RGB(60, 190, 100), RGB(8, 14, 50), nt);
+        }
+        yy = y + (int32_t)(t / 40u);                              /* bubbles rise: the field moves up */
+        cx = x / 38;
+        cy = yy / 38;
+        h = kid_hash((uint32_t)cx + 89u, (uint32_t)cy);
+        if ((h & 3u) != 0u) {
+            r = 2 + (int32_t)(h % 4u);
+            bx = cx * 38 + 8 + (int32_t)((h >> 4) % 20u) + KID_SIN[(cy * 5 + (int32_t)(t / 100u)) & 31] * 3 / 127;
+            by = cy * 38 + 8 + (int32_t)((h >> 8) % 20u);
+            d = (x - bx) * (x - bx) + (yy - by) * (yy - by);
+            if (d <= r * r + r && d >= (r - 1) * (r - 1))
+                return KID_WHITE;
+        }
+        if ((x + y / 3 + (int32_t)(t / 90u)) % 64 < 6)            /* light rays from the surface */
+            return kid_mix(kf.sky[y], KID_WHITE, 36u);
+        break;
+    }
+    case KS_RAIN: {                                               /* a grey sky, rain, ripples in the puddles */
+        int32_t yy = y - (int32_t)(t / 5u) + (1 << 26), xs = x + yy / 5, cx = xs / 11, cy = yy / 40, px, py, bx, by, ph, d, R;
+        if (y >= 168) {
+            cx = x / 60;
+            h = kid_hash((uint32_t)cx + 101u, 7u);
+            bx = cx * 60 + 12 + (int32_t)(h % 36u);
+            by = 173 + (int32_t)((h >> 6) % 7u);
+            ph = (int32_t)((t / 70u + (h >> 12)) % 14u);
+            R = ph + 2;
+            d = (x - bx) * (x - bx) + (y - by) * (y - by) * 9;
+            if (d >= R * R - R * 2 && d <= R * R + R * 2 && ph < 12)
+                return kid_mix(kf.sky[y], KID_WHITE, 200u - (uint32_t)ph * 12u);
+            break;
+        }
+        h = kid_hash((uint32_t)cx + 91u, (uint32_t)cy);
+        if (h % 3u == 0u)
+            break;
+        px = xs - cx * 11 - (int32_t)(h % 9u);
+        py = yy - cy * 40 - (int32_t)((h >> 5) % 36u);
+        if (px == 0 && py >= 0 && py < 5)
+            return kid_mix(kf.sky[y], RGB(200, 224, 255), 170u);
+        break;
+    }
+    case KS_FIREWORKS: {                                          /* bursts of sparks, one in each cell in turn, a few stars */
+        static const int8_t DIR[12][2] = {{16, 0}, {14, 8}, {8, 14}, {0, 16}, {-8, 14}, {-14, 8},
+                                          {-16, 0}, {-14, -8}, {-8, -14}, {0, -16}, {8, -14}, {14, -8}};
+        int32_t cx = x / 120, cy = y / 96, bx, by, ph, R, fall, k, dx, dy;
+        h = kid_hash((uint32_t)cx + 111u, (uint32_t)cy);
+        bx = cx * 120 + 38 + (int32_t)(h % 44u);
+        by = cy * 96 + 36 + (int32_t)((h >> 6) % 28u);
+        ph = (int32_t)((t + (h >> 12) % 2200u) % 2200u);
+        if (ph < 1700) {
+            R = 4 + ph * 32 / 1700;
+            fall = ph > 1000 ? (ph - 1000) * (ph - 1000) / 18000 : 0;
+            dx = x - bx;
+            dy = y - by - fall;
+            if (dx <= R + 2 && -dx <= R + 2 && dy <= R + 2 && -dy <= R + 2) {
+                for (k = 0; k < 12; k++) {
+                    int32_t ex = dx - DIR[k][0] * R / 16, ey = dy - DIR[k][1] * R / 16;
+                    if (ex >= -1 && ex <= 1 && ey >= -1 && ey <= 1)
+                        return kid_mix(KID_RAINBOW[(h >> 17) % 6u], kf.sky[y], ph > 1000 ? 60u + (uint32_t)(ph - 1000) / 4u : 0u);
+                    ex = dx - DIR[k][0] * R * 5 / 128;                                     /* an inner ring, paler */
+                    ey = dy - DIR[k][1] * R * 5 / 128;
+                    if (ex == 0 && ey == 0 && ph < 1300)
+                        return kid_mix(KID_WHITE, kf.sky[y], ph > 800 ? (uint32_t)(ph - 800) / 3u : 0u);
+                }
+            }
+        }
+        if ((kid_hash((uint32_t)x, (uint32_t)y) & 255u) == 0u && (kid_hash((uint32_t)x / 7u, (uint32_t)y / 7u) + t / 400u) % 3u)
+            return KID_WHITE;
+        break;
+    }
+    case KS_AURORA: {                                             /* northern lights: green and violet ribbons, waving, over stars */
+        int32_t w1 = KID_SIN[((x / 9) + (int32_t)(t / 170u)) & 31], w2 = KID_SIN[((x / 6) - (int32_t)(t / 230u) + 9) & 31];
+        int32_t d1 = y - (62 + w1 * 20 / 127), d2 = y - (104 + w2 * 16 / 127), a;
+        if (d1 >= -3 && d1 < 44) {
+            a = d1 < 0 ? 120 + d1 * 30 : 200 - d1 * 4;
+            a = a * (10 + (int32_t)(kid_hash((uint32_t)x / 3u, 17u) & 7u)) / 17;
+            return kid_mix(kf.sky[y], RGB(70, 240, 150), a > 0 ? (uint32_t)a : 0u);
+        }
+        if (d2 >= -3 && d2 < 36) {
+            a = d2 < 0 ? 100 + d2 * 30 : 160 - d2 * 4;
+            a = a * (10 + (int32_t)(kid_hash((uint32_t)x / 3u, 29u) & 7u)) / 17;
+            return kid_mix(kf.sky[y], RGB(170, 110, 255), a > 0 ? (uint32_t)a : 0u);
+        }
+        if ((kid_hash((uint32_t)x, (uint32_t)y) & 127u) == 0u && (kid_hash((uint32_t)x / 5u, (uint32_t)y / 5u) + t / 500u) % 4u)
+            return KID_WHITE;
+        break;
+    }
     default:
         break;
     }
@@ -3160,7 +3271,8 @@ static uint16_t kid_pic_px(int32_t x, int32_t y)
         return c == 1 ? KID_WHITE : KID_INK;
     if ((c = kid_friends_px(x, y)) >= 0)
         return (uint16_t)c;
-    if (kid.night >= 3u || kid.scene == KS_RAINBOW || kid.scene == KS_FLOWERS) {   /* the sun or the moon */
+    if (kid.scene >= KS_SEA) {                                    /* (no sun: underwater, in the rain, a night sky) */
+    } else if (kid.night >= 3u || kid.scene == KS_RAINBOW || kid.scene == KS_FLOWERS) {   /* the sun or the moon */
         int32_t dx = x - 206, dy = y - 32, d = dx * dx + dy * dy;
         if (kid.night < 5u) {
             int32_t ax = dx < 0 ? -dx : dx, ay = dy < 0 ? -dy : dy;
@@ -3517,7 +3629,7 @@ static void kid_draw(void)
 {
     uint32_t now = fm1_ms, i, band = kid_band_icon(kid_band_setup(now)), sig = 0, ssig, top = 0;
     int32_t x0 = 240, y0 = 240, x1 = 0, y1 = 0;
-    int anim = kid.scene == KS_STARS || kid.scene == KS_HEARTS || kid.scene == KS_BUBBLES || kid.scene == KS_CONFETTI;
+    int anim = kid.scene == KS_STARS || kid.scene == KS_HEARTS || kid.scene == KS_BUBBLES || kid.scene == KS_CONFETTI || kid.scene >= KS_SEA;
     kid_frame_setup(now);
     if (kid.name_on) {                                            /* the grown-ups' NAME: all of it, when it changes */
         uint32_t ns = kid_name_sig(now);
