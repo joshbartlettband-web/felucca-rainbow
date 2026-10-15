@@ -54,7 +54,7 @@ Read it with `RAINBOW.md` (how Rainbow mode works) and `CREDITS.md` (who suggest
   that file. Decide with the maintainer before the first push: keep it as Melodee does, or strip it and ship our own programs. Either
   way, do not make new copies of Sequential's sounds.
 - **Engines:** PROPHET replaces ANALOG in browsing (ANALOG still renders old sounds). **TRIO, WHEEL and PHYS are retired and
-  silent.** 18 of Rainbow mode's 58 friends used them (Goo, Goobert, Kitty, Cowboy, Space Hero and more), so any port of
+  silent.** 18 of Rainbow mode's 58 friends used them (Goo, Goobert, Kitty, Rancher, Space Hero and more), so any port of
   Rainbow sounds needs new voicings.
 - **Voices:** a shared budget of 16 units (`VBUDGET`). A PROPHET voice costs 3 units, so five PROPHET voices use 15. Three-note
   chords plus a bass and drums will steal voices. Plan chord features around this.
@@ -116,8 +116,8 @@ Read it with `RAINBOW.md` (how Rainbow mode works) and `CREDITS.md` (who suggest
 
 ## 6. Characters and the look-alike rule
 
-- Draw originals. Rainbow mode's look-alikes (two pups, two monsters, Web Hero, Slimy, Yellow Bird, Skeleton, Cowboy,
-  Cowgirl, Space Hero) are "in the spirit of" characters kids love, and a parent asked for a way to turn that off.
+- Draw originals. Rainbow mode's look-alikes (two pups, two monsters, Web Hero, Slimy, Yellow Bird, Skeleton, Rancher,
+  Rodeo, Space Hero) are "in the spirit of" characters kids love, and a parent asked for a way to turn that off.
 - The answer that worked: a grown-ups' switch that **swaps** each look-alike for an unrelated original with the same sound,
   sky and beat (Spotty Pup, Fox, Fuzzy, Big Blue, Spider, Pumpkin, Chick, Bat, Horse, Cactus, Alien). Hiding them instead
   lost sounds people liked. Build the swap in from the start.

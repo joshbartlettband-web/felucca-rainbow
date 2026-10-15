@@ -658,7 +658,7 @@ def star():
     return p.done()
 
 
-# friends suggested by r/MVaveFM1's u/veecheech (CREDITS.md): a T-Rex, a skeleton, COWBOY and COWGIRL, a vacuum
+# friends suggested by r/MVaveFM1's u/veecheech (CREDITS.md): a T-Rex, a skeleton, RANCHER and RODEO, a vacuum
 def trex():                                                      # a T-Rex, side on (original design)
     p = Pic()
     p.poly([(34, 26), (45, 37), (44, 41), (32, 38)], "dorange")  # tail
@@ -704,7 +704,7 @@ def skeleton():                                                  # a dapper skel
 
 
 def cowkid(hat, hatd, hair, scarf, shirt, spots=False, braid=False):
-    def f():                                                     # COWBOY or COWGIRL (original designs)
+    def f():                                                     # RANCHER or RODEO (original designs)
         p = Pic()
         p.rect(8, 38, 40, 47, shirt)                             # shoulders
         if spots:
@@ -1655,8 +1655,8 @@ STAND_INS = {                    # the look-alike's name: the stand-in's name an
     "SLIMY": ("PUMPKIN", pumpkin),
     "YELLOW BIRD": ("CHICK", chick),
     "SKELETON": ("BAT", bat),
-    "COWBOY": ("HORSE", horse),
-    "COWGIRL": ("CACTUS", cactus),
+    "RANCHER": ("HORSE", horse),
+    "RODEO": ("CACTUS", cactus),
     "SPACE HERO": ("ALIEN", alien),
     "SPIDER MOM": ("RAINBOW MOM", rainbowmom),
     "SPIDER GRANDMA": ("GREEN GRANNY", greengranny),
@@ -1713,8 +1713,8 @@ FRIENDS = [
     ("STAR", star),
     ("T-REX", trex),
     ("SKELETON", skeleton),
-    ("COWBOY", cowkid("brown", "dbrown", "dbrown", "red", "yellow")),
-    ("COWGIRL", cowkid("red", "dred", "orange", "yellow", "white", spots=True, braid=True)),
+    ("RANCHER", cowkid("brown", "dbrown", "dbrown", "red", "yellow")),
+    ("RODEO", cowkid("red", "dred", "orange", "yellow", "white", spots=True, braid=True)),
     ("VACUUM", vacuum),
     ("SPACE HERO", spacehero),
     ("BEAT BOT", beatbot),

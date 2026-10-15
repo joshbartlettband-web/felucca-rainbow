@@ -102,7 +102,7 @@ static const int16_t TW_FAIRY[] = {P_E1, 12, P_E2, 19, P_E3, 14, P_E5, 74, P_E6,
                                                   * and a twelfth up, shimmering: a twinkle, not ICE CREAM's bell) */
 /* the sound pass (too sharp on a small speaker, measured: the 2.5 .. 8 kHz band): their brightness down */
 static const int16_t TW_LADYBUG[] = {P_E2, 56, P_E5, 72, -1};    /* (PHYS BELL TREE: BRIT, ACC) */
-static const int16_t TW_COWBOY[] = {P_E2, 58, -1};               /* (PHYS PLUCK: BRIT) */
+static const int16_t TW_RANCHER[] = {P_E2, 58, -1};               /* (PHYS PLUCK: BRIT) */
 static const int16_t TW_ICECREAM[] = {P_E5, 74, -1};             /* (TRIO RING BELL: CUT) */
 static const int16_t TW_PRINCESS[] = {P_E6, 50, -1};             /* (TRIO CHIP CHOIR: less RES, its peak) */
 static const int16_t TW_ROCKET[] = {P_E2, 88, -1};               /* (NOISE ARCADE: FREQ, its hiss) */
@@ -163,8 +163,8 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     /* suggested by r/MVaveFM1's u/veecheech (CREDITS.md) */
     {0, "SAW", 92, KS_FLOWERS, KB_ROCK, 0, 0, 80},   /* T-REX: a growly bass: a saw, driven hard (DIST) */
     {0, "SINE KEY", 103, KS_STARS, KB_SPOOKY, 3, 36, 0, 0, TW_SWOOP},  /* SKELETON: a theremin, a wide vibrato and a slide */
-    {9, "PLUCK", 127, KS_FLOWERS, KB_HOEDOWN, 0, 0, 0, 0, TW_COWBOY},   /* COWBOY: a twangy string */
-    {0, "PLUCK", 113, KS_HEARTS, KB_HOEDOWN},         /* COWGIRL: a twangy pluck */
+    {9, "PLUCK", 127, KS_FLOWERS, KB_HOEDOWN, 0, 0, 0, 0, TW_RANCHER},   /* RANCHER: a twangy string */
+    {0, "PLUCK", 113, KS_HEARTS, KB_HOEDOWN},         /* RODEO: a twangy pluck */
     {0, "RAVE", 95, KS_CONFETTI, KB_DANCE},          /* VACUUM: the rave "hoover", a joke for the grown-ups */
     {6, "SAW3", 113, KS_STARS, KB_DISCO, 1, 32, 0, 0, TW_SWOOP},      /* SPACE HERO: buzzy saws that swoop (a glide) and shimmer */
     /* more drum kits: every key another drum, as SCISSORS (Felucca's model kits) */
@@ -248,7 +248,7 @@ static const kid_beat_t KID_BEATS[KB_COUNT] = {
     {"LULLABY", 70, KD_SLOW, 92, 106,
      {"x.......x.......", 0, 0, 0, 0, 0, "....x.......x...", 0},
      {36, 1, 1, 1, 1, 1, 1, 1, 31, 1, 1, 1, 1, 1, 1, 1}},
-    {"HOEDOWN", 126, KD_HOP, 93, 105,                 /* boom-chick, a walking bass (COWBOY's and COWGIRL's) */
+    {"HOEDOWN", 126, KD_HOP, 93, 105,                 /* boom-chick, a walking bass (RANCHER's and RODEO's) */
      {"x.......x.......", "....x.......x...", 0, "..x...x...x...x.", 0, 0, "..x...x...x...x.", 0},
      {36, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 40, 0, 41, 0}},
     {"LOFI", 80, KD_SWAY, 95, 104,                    /* slow and swung (CHORDS: the bass plays each chord's root) */

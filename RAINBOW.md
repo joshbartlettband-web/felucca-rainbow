@@ -140,8 +140,8 @@ LOOK-ALIKES OFF, and each of them is replaced by an original stand-in with the s
 | Slimy | Pumpkin |
 | Yellow Bird | Chick |
 | Skeleton | Bat |
-| Cowboy | Horse |
-| Cowgirl | Cactus (in a western hat) |
+| Rancher | Horse |
+| Rodeo | Cactus (in a western hat) |
 | Space Hero | Alien |
 | Spider Mom | Rainbow Mom (long hair and a rainbow headband) |
 | Spider Grandma | Green Granny (silver curls, round glasses, a green cardigan) |
@@ -163,7 +163,7 @@ Ducky, Pink Ducky, Cool Ducky, Axolotl, Unicorn, Giraffe, Goo, Goobert, Blue Pup
 Blue Monster, April (a dog), Scissors, Ghost, Web Hero, Butterfly, Kitty, Frog, Robot, Rainbow,
 Princess Ducky, Red Pup, Yellow Bird, Slimy, Bunny, Panda, Penguin, Owl, Bee, Ladybug, Dino, Whale,
 Octopus, Fish, Turtle, Ice Cream, Cupcake, Rocket, Strawberry, Star, and six suggested by u/veecheech on r/MVaveFM1:
-T-Rex (a growly bass), Skeleton (a theremin: a sine with a wide vibrato that slides between notes), Cowboy and Cowgirl (twangy
+T-Rex (a growly bass), Skeleton (a theremin: a sine with a wide vibrato that slides between notes), Rancher and Rodeo (twangy
 plucks, and their own beat, HOEDOWN) Vacuum (the rave "hoover" sound, a joke for the grown-ups) and Space Hero (three buzzy saws that swoop into each note). See CREDITS.md.
 Then four more drum kits, every key a different drum like Scissors, each one of Felucca's model kits: Beat Bot (the 80 kit, a
 classic drum machine), Toy Drum (the 55 kit), Bongo (the 66 kit, congas) and Monkey (the 10 kit, a cymbal on the bell).
