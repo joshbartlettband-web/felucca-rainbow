@@ -574,6 +574,27 @@ check("PLAY again stops it", ex.web_playing() === 0);
   check(`..and its beat (${wb}, as written)`, wb >= 16 && e2.web_kid_wbeat() === wb);
   tapb(B.REC, 2300);
   check("REC held 2 s: a new, empty song", ball(0, 0) !== C_RED && ball(2, 4) !== G_TEAL);
+  // loop and layer: PLAY on an empty song is a loop of two bars; a key is written where the beat is, to be heard the next
+  // time round; PRESETS another friend for another layer; HOME wipes the column that is playing
+  tapb(B.PLAY); render(700);
+  check("WRITE, PLAY on an empty song: a loop of two bars (8 columns) to play into", ex.web_playing() === 1 && ex.web_kid_wlen() === 8);
+  key(7); render(200);
+  ex.web_enc(EN.PRESETS, 1); render(300);
+  key(14); render(300);
+  const notes = () => { const o = []; for (let c = 0; c < 32; c++) for (let j = 0; j < 2; j++) { const v = ex.web_kid_wnote(c, j); if (v) o.push(v); } return o; };
+  const wr = notes();
+  check(`..two keys played in are written (${wr.length} notes: C, then G with the next friend as another layer)`,
+        wr.length === 2 && (wr[0] & 31) === 8 && (wr[1] & 31) === 15 && (wr[0] >> 5) !== (wr[1] >> 5));
+  tapb(B.PLAY); render(300);
+  peak = 0; tapb(B.PLAY); render(5200);
+  check(`..and heard the next time round, with no key pressed (peak ${peak.toFixed(3)})`, peak > 0.02);
+  const col1 = [...Array(32).keys()].find((c) => ex.web_kid_wnote(c, 0) || ex.web_kid_wnote(c, 1));
+  for (let i = 0; i < 600 && ex.web_kid_wat() !== col1; i++) render(10);
+  tapb(B.HOME); render(100);
+  check("..HOME while it plays wipes the column that is playing (one of the two notes is left)", notes().length === 1);
+  tapb(B.PLAY); render(300);
+  tapb(B.REC, 2300);
+  check("..a new song: empty again, a loop of one bar", notes().length === 0 && ex.web_kid_wlen() === 4);
   while (ex.web_kid_friend() !== 12) { ex.web_enc(EN.PRESETS, 1); render(150); }   // SCISSORS, a drum friend
   render(300);
   key(7);                                                                     // its kick (GM 36), as the keys play it

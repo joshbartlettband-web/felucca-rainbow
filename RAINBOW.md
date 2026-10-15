@@ -118,9 +118,10 @@ friends, the way Mario Paint's composer did, and plays it back.
 | Keys | Write a note in the yellow column (a drum friend's keys write its drums, as they play them): the friend being written with, in a ball of the note's color. It plays as it lands, and the column moves on when the key is let go. Two keys together make a chord (two notes in a column). The same key again takes its note out. |
 | PRESETS | The friend to write with (shown in the band). A song has a band of up to three friends; a fourth takes the place of the one used least (its notes become the new friend's). |
 | OCT- / OCT+ | The yellow column back and forward (32 columns, 4 pages of 8: the dots). |
-| HOME | Wipes the column (held 1 s it is the grown-ups' VOLUME, as always). |
-| PLAY | Plays the song from the start, in a loop: the column turns green and the friend of each note hops along over it. PLAY again stops. |
-| SEQ | A beat under it: none, then each of the thirteen (drums only). |
+| HOME | Wipes the column (held 1 s it is the grown-ups' VOLUME, as always). While the song plays, it wipes the column that is playing. |
+| PLAY | Plays the song from the start, in a loop: the column turns green and the friend of each note hops along over it. PLAY again stops. On a song with nothing written yet, the loop is two bars, to play into (below). |
+| Keys, while it plays | Loop and layer: a key is written where the beat is (into the nearest column), and is heard the next time round. The band says LOOP. PRESETS picks another friend for the next layer (up to three friends, two notes a column). A note is only added while it plays; HOME wipes the column being played. |
+| SEQ | A beat under it: none, then each of the 21 (drums only). |
 | SELECT | Slower or faster. |
 | REC held 2 s | A new, empty song. |
 | SAVE | Back to playing. |

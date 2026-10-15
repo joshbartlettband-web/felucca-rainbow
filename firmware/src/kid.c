@@ -462,6 +462,7 @@ static struct {
 #define KW_SAVE_MS 4000u                /* saved this long after the last change (while stopped), and on leaving */
 static struct {
     uint8_t on, cur, stamp, adv, dirty, beat, loaded, clear_on;
+    uint8_t floor;                      /* the loop is at least this many columns (a new song played empty: two bars, to play into) */
     uint8_t band[3];                    /* the friend of each track 0..2, 0xFF none */
     uint8_t note[KW_COLS][2];           /* (track << 5) | (key + 1), 0 empty */
     uint32_t edit_ms, clear_ms;
@@ -862,6 +863,7 @@ static int autosave_boot(int allowed);           /* (project.c) */
 /* HOME + SAVE held: the full Felucca, with the music of the last session (the autosave, which the toy never
  * writes: main.c skips autosave_poll while Rainbow mode is on) */
 static void kw_leave(void);
+static int32_t kw_at(void);
 static void kid_mode_set(uint32_t m);
 
 static void kid_leave(void)
@@ -1170,6 +1172,7 @@ static void kw_unpack(void)
         kw.note[c][0] = kw.note[c][1] = 0;
     kw.band[0] = kw.band[1] = kw.band[2] = 0xFF;
     kw.beat = 0;
+    kw.floor = 0;
     ver = kw_bits_get(&at, 4);
     if (ver < 1u || ver > 3u)                                     /* none yet (or another version): an empty song */
         return;
@@ -1196,7 +1199,17 @@ static uint32_t kw_len(void)                                    /* the song's le
         if (kw.note[c][0] | kw.note[c][1])
             last = c + 1u;
     last = (last + 3u) & ~3u;
-    return last < 4u ? 4u : last;
+    last = last < 4u ? 4u : last;
+    return last < kw.floor ? kw.floor : last;
+}
+
+static int kw_empty(void)
+{
+    uint32_t c;
+    for (c = 0; c < KW_COLS; c++)
+        if (kw.note[c][0] | kw.note[c][1])
+            return 0;
+    return 1;
 }
 
 /* the song into the band's tracks: a step a beat (DIV 1/4), its notes as the keys play them (seq.c kb_map: a drum
@@ -1323,6 +1336,7 @@ static void kw_leave(void)
         transport_req = 2;
     kw_save();
     kw.on = 0;
+    kw.floor = 0;
     kb_strum = kid.mode == KM_STRUM;
     kb_accord = kid.mode == KM_ACCORD;
     for (s = 0; s < 3u; s++) {
@@ -1343,13 +1357,25 @@ static void kw_leave(void)
  * column is left when every key is up */
 static void kw_notes(uint32_t notes)
 {
-    uint32_t k, j;
-    if (song.playing)                                             /* (playing: the keys only play along) */
-        return;
+    uint32_t k, j, at = kw.cur;
+    if (song.playing) {                                           /* playing: a key is written where the beat is (the nearest
+                                                                   * column), to be heard the next time round: loop and layer */
+        uint32_t len = kw_len(), bm = kid_beat_ms(), ph = (fm1_ms - kw.col_ms) * 256u / (bm ? bm : 500u);
+        at = ((uint32_t)kw_at() + (ph >= 128u ? 1u : 0u)) % len;
+    }
     for (k = 0; k < 27u; k++) {
-        uint8_t *col = kw.note[kw.cur], n = (uint8_t)(kw.stamp << 5 | (k + 1u));
+        uint8_t *col = kw.note[at], n = (uint8_t)(kw.stamp << 5 | (k + 1u));
         if (!((notes >> k) & 1u))
             continue;
+        if (song.playing) {                                       /* (a note is added, never taken out, while it plays) */
+            for (j = 0; j < 2u && (col[j] & 31u) != k + 1u; j++)
+                ;
+            if (j < 2u && (col[j] >> 5) == kw.stamp)
+                continue;
+            col[col[0] ? 1 : 0] = n;
+            kw_changed();
+            continue;
+        }
         for (j = 0; j < 2u && (col[j] & 31u) != k + 1u; j++)
             ;
         if (j < 2u) {                                             /* there already: out */
@@ -1373,6 +1399,7 @@ static void kw_clear(void)
     for (c = 0; c < KW_COLS; c++)
         kw.note[c][0] = kw.note[c][1] = 0;
     kw.cur = 0;
+    kw.floor = 0;
     kw_changed();
 }
 
@@ -1832,6 +1859,10 @@ static void kid_input(void)
                     kid.beat = KB_LOFI;
                     kid_beat_load();
                 }
+                if (kw.on && kw_empty()) {            /* WRITE, nothing written yet: a loop of two bars to play into */
+                    kw.floor = 8;
+                    kw_commit();
+                }
                 transport_req = 1;
                 kid.play_ms = fm1_ms;
                 kid.c_pos = kid.c_ok = 0;
@@ -1950,8 +1981,9 @@ static void kid_input(void)
     }
     if (kid.home_down && !(held & home)) {        /* HOME let go: a surprise friend (WRITE: the column wiped) */
         kid.home_down = 0;
-        if (kw.on) {
-            kw.note[kw.cur][0] = kw.note[kw.cur][1] = 0;
+        if (kw.on) {                              /* (playing: the column being played) */
+            uint32_t c = song.playing ? (uint32_t)kw_at() % KW_COLS : kw.cur;
+            kw.note[c][0] = kw.note[c][1] = 0;
             kw_changed();
         } else {
             kid_friend(kid.fr + 1u + rng() % (KID_N - 1u));
@@ -2509,7 +2541,7 @@ static uint32_t kid_band_setup(uint32_t now)
         /* WRITE: the friend to write with, and a word */
         kf.band = KB_NAME;
         kf.txt = hint && kid.hint == KH_BEAT ? (kw.beat ? KID_BEATS[(kw.beat - 1u) % KB_COUNT].name : "NO BEAT") :
-                 hint && kid.hint == KH_NEWSONG ? "NEW SONG" : song.playing ? "LISTEN" : "WRITE";
+                 hint && kid.hint == KH_NEWSONG ? "NEW SONG" : song.playing ? "LOOP" : "WRITE";
         kf.bt.sc = str_len(kf.txt) * 24u - 4u <= 176u ? 4 : 3;
         kf.ink = KID_WHITE;
         kf.bg = RGB(150, 110, 230);
