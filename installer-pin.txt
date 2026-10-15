@@ -1,0 +1,8 @@
+# The public installer (the "Put it on an FM-1" page) serves the firmware of this workflow run instead of the newest build.
+# One run number, nothing else on its line. Every build stays: this only chooses which package the installer offers.
+# (The browser version, "Try it", and the private installer follow the newest build.)
+# To go back to the newest, delete the number (or this file's last line) and push.
+#
+# Pinned on 2026-10-15 to the build before this session's last batch (the stars, the cheer, the break beat, 18 friends in
+# sets, loop and layer and four new skies): run 38745022376 = commit 2539ec9, "RAINBOW.md: COPY ME's picture" (the COPY ME game).
+38745022376

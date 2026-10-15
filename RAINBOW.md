@@ -262,6 +262,9 @@ repository and its website are public.
 
 ## Where it lives
 
+- `installer-pin.txt`: a rollback switch for the public installer. A run number in it makes the site's installer offer that earlier
+  run's firmware instead of the newest build (nothing is deleted; the browser version and the private installer stay on the newest, and
+  the landing page says so while it is pinned). Empty it and push to follow the newest again.
 - `tools/gen_kid_art.py`: the 95 pictures (94 and a secret), drawn from shapes on a 48 x 48 grid and outlined
   automatically. `python3 tools/gen_kid_art.py /tmp/kid_art.h --png /tmp/sheet.png` writes a contact
   sheet to look at. The build runs it (`tools/build.py` generate).

@@ -8,6 +8,8 @@
 # anyone who learns the address can open it, so it is not for posting).
 # The browser version needs nothing from JieLi, so it is published even if the firmware job fails. It is tested
 # first (web/emu/emu_test.mjs, and web/emu/kid_test.mjs for Rainbow mode): a red test publishes nothing.
+# installer-pin.txt: the number of an earlier run whose firmware the public installer serves instead of the newest build
+# (a rollback that discards nothing: every build stays, only the installer's package is the older one). Empty: the newest.
 # Setup: Actions enabled on the fork, and Settings > Pages > Source set to "GitHub Actions".
 name: rainbow
 
@@ -20,6 +22,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read                            # (installer-pin.txt: the firmware of an earlier run)
 
 concurrency:
   group: pages
@@ -202,13 +205,42 @@ jobs:
           name: firmware
           path: fw
 
+      - name: The installer's pin (installer-pin.txt)
+        id: pin
+        run: |
+          run=$(sed -e 's/#.*//' installer-pin.txt 2>/dev/null | tr -d '[:space:]')
+          case "$run" in
+            "") echo "The public installer follows the newest build" ;;
+            *[!0-9]*) echo "::error::installer-pin.txt: a run number or nothing, not '$run'"; exit 1 ;;
+            *) echo "The public installer is pinned to the firmware of run $run" ;;
+          esac
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+
+      - name: Get the pinned firmware
+        if: steps.pin.outputs.run != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: firmware
+          run-id: ${{ steps.pin.outputs.run }}
+          github-token: ${{ github.token }}
+          path: fw-pinned
+
       - name: Make the site
         env:
           PRIVATE_PATH: ${{ secrets.PRIVATE_PATH }}
+          PIN: ${{ steps.pin.outputs.run }}
         run: |
           rel="${{ needs.firmware.outputs.release }}"
-          if [ -f "fw/public/felucca-$rel.fwsc" ]; then
-            python3 web/make_site.py "fw/public/felucca-$rel.fwsc" "$rel" site
+          pub="fw/public/felucca-$rel.fwsc"
+          prel="$rel"
+          if [ -n "$PIN" ]; then                    # (the public installer: an earlier build; the private one stays the newest)
+            pub=$(ls fw-pinned/public/felucca-*.fwsc 2>/dev/null | head -n 1)
+            [ -n "$pub" ] || { echo "::error::installer-pin.txt names run $PIN, but its firmware artifact has no public package"; exit 1; }
+            prel=$(basename "$pub" .fwsc); prel=${prel#felucca-}
+            echo "::warning::The public installer is PINNED to the firmware of run $PIN ($prel), not the newest build (installer-pin.txt)"
+          fi
+          if [ -f "$pub" ]; then
+            python3 web/make_site.py "$pub" "$prel" site
             if [ -f "fw/private/felucca-$rel.fwsc" ] && [ -n "$PRIVATE_PATH" ]; then
               python3 web/make_site.py "fw/private/felucca-$rel.fwsc" "$rel" private-site
               find private-site -name '*.html' -exec sed -i 's|<meta charset="utf-8">|<meta charset="utf-8"><meta name="robots" content="noindex">|' {} +
@@ -226,6 +258,7 @@ jobs:
 
       - name: The landing page (the one link to share)
         env:
+          PIN: ${{ steps.pin.outputs.run }}
           DONATE: ${{ vars.DONATE_URL || secrets.DONATE_URL }}   # the tip link (a repository variable or secret: Ko-fi,
                                                                  # Buy Me a Coffee ...); none, no tip card
         run: |
@@ -233,6 +266,9 @@ jobs:
           repo="${{ github.repository }}"
           sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" -e "s|@REPO@|$repo|g" site/index.html
           find site -name '*.html' -exec sed -i "s|@REPO@|$repo|g" {} +   # (the installers' credits)
+          if [ -z "$PIN" ]; then                      # (the note about a pinned installer is only there while it is pinned)
+            perl -0pi -e 's/\s*<!--PIN-->.*?<!--\/PIN-->//s' site/index.html
+          fi
           d=$(printf '%s' "$DONATE" | tr -d '[:space:]')   # (pasted on a phone: spaces, a line break, no https://)
           case "$d" in
             "") ;;
