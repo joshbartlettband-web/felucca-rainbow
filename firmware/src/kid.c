@@ -341,9 +341,9 @@ enum { KH_NONE, KH_SIZE, KH_NIGHT, KH_ECHO, KH_WIGGLE, KH_SPEED, KH_CHORD, KH_SP
 enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 /* ALGORITHM: how the keys play (kid_mode_set). CHOIR: three friends sing a chord; STRUM: an Omnichord (seq.c
  * kb_strum_map); GUESS: an ear game; FOLLOW: songs to learn, the next key lit */
-enum { KM_ONE, KM_CHOIR, KM_STRUM, KM_ACCORD, KM_GUESS, KM_FOLLOW, KM_CHORDS, KM_COUNT };
+enum { KM_ONE, KM_CHOIR, KM_STRUM, KM_ACCORD, KM_GUESS, KM_FOLLOW, KM_CHORDS, KM_COPY, KM_COUNT };
 static const char *const KID_MODE_NAME[KM_COUNT] = {"1 FRIEND", "3 FRIENDS", "STRUM", "ACCORDION", "GUESS", "FOLLOW",
-                                                    "CHORDS"};
+                                                    "CHORDS", "COPY ME"};
 #define KID_LESSON_LEN 4u                /* CHORDS: chords a lesson (kid_lesson_chord), a bar each with the beat */
 static uint32_t kid_lesson_chord(uint32_t lesson, uint32_t i, uint32_t *root, char *name, uint32_t cap);
 _Static_assert(KID_ICON_N == KM_COUNT, "a picture for each of ALGORITHM's modes (tools/gen_kid_art.py ICONS)");
@@ -374,6 +374,10 @@ static struct {
     uint8_t g_level, g_target, g_wrong, g_streak, g_state, g_again, g_note;   /* GUESS */
     uint32_t g_ms, g_yes_ms, g_try_ms;
     uint8_t f_song, f_pos;              /* FOLLOW: the song, the note the child is on */
+    uint8_t m_seq[8], m_len, m_pos, m_i, m_state, m_on, m_wrong, m_stars;   /* COPY ME: the pattern, its length, the child's place,
+                                                                             * the friend's place, the state, a note sounding, wrong
+                                                                             * tries, rounds won */
+    uint32_t m_ms, m_yes_ms, m_try_ms, m_done_ms;   /* .. the next step, the last YES, TRY AGAIN, the last full round */
     uint32_t f_done_ms;
     uint8_t c_lesson, c_pos, c_ok, c_beat;   /* CHORDS: the lesson, its chord, played this bar, the bass is the lesson's */
     uint32_t c_held, c_yes_ms;          /* .. the keys held when last looked, the last YES */
@@ -1369,11 +1373,102 @@ static void kid_sing(uint32_t key, int on)                       /* the friend s
     fm1_irq_on();
 }
 
+/* COPY ME (Double Rainbow's idea, here first): the friend plays a pattern of notes, lighting each key; the child plays
+ * it back. A round won adds a note (2 .. 8: then a party and it starts again); a wrong key and the friend plays it
+ * again, and after three wrong in a row the pattern gets a note shorter. PLAY: hear it again. The notes: C D E G A
+ * (a pentatonic scale, so any pattern sounds right) */
+static const uint8_t KID_COPY_KEY[5] = {7, 9, 11, 14, 16};      /* C4 D4 E4 G4 A4 */
+enum { MS_PAUSE, MS_SHOW, MS_WAIT };
+#define KID_COPY_MAX 8u
+
+static void kid_copy_extend(void)                                /* one more note, not the one before */
+{
+    uint32_t t = KID_COPY_KEY[rng() % 5u];
+    while (kid.m_len && t == kid.m_seq[kid.m_len - 1u])
+        t = KID_COPY_KEY[rng() % 5u];
+    kid.m_seq[kid.m_len++] = (uint8_t)t;
+}
+
+static void kid_copy_stop(void)
+{
+    if (kid.m_on) {
+        kid_sing(kid.m_seq[kid.m_i % KID_COPY_MAX], 0);
+        kid.m_on = 0;
+    }
+}
+
+static void kid_copy_again(uint32_t now, uint32_t in)           /* the friend plays the pattern, in ms */
+{
+    kid_copy_stop();
+    kid.m_state = MS_PAUSE;
+    kid.m_ms = now + in;
+    kid.m_i = kid.m_pos = 0;
+}
+
+static void kid_copy(int32_t lo, uint32_t now)
+{
+    if (kid.m_state == MS_PAUSE && (int32_t)(now - kid.m_ms) >= 0) {
+        if (!kid.m_len) {                                         /* a new game: two notes */
+            kid_copy_extend();
+            kid_copy_extend();
+        }
+        kid.m_state = MS_SHOW;
+        kid.m_i = 0;
+        kid.m_on = 0;
+        kid.m_ms = now;
+    } else if (kid.m_state == MS_SHOW) {
+        if (!kid.m_on && (int32_t)(now - kid.m_ms) >= 0) {
+            if (kid.m_i < kid.m_len) {
+                kid_sing(kid.m_seq[kid.m_i], 1);
+                kid.m_on = 1;
+                kid.hop_ms = now;
+                kid.m_ms = now + 420u;
+            } else {
+                kid.m_state = MS_WAIT;                            /* the child's turn */
+                kid.m_pos = 0;
+            }
+        } else if (kid.m_on && (int32_t)(now - kid.m_ms) >= 0) {
+            kid_sing(kid.m_seq[kid.m_i], 0);
+            kid.m_on = 0;
+            kid.m_i++;
+            kid.m_ms = now + 240u;
+        }
+    } else if (kid.m_state == MS_WAIT && lo >= 0) {
+        if ((uint32_t)lo == kid.m_seq[kid.m_pos]) {
+            if (++kid.m_pos >= kid.m_len) {                       /* the whole pattern: a party, and a note more */
+                kid.m_yes_ms = now | 1u;
+                kid.m_try_ms = 0;
+                kid.party_ms = now | 1u;
+                kid.m_stars++;
+                kid.m_wrong = 0;
+                if (kid.m_len >= KID_COPY_MAX) {                  /* the longest: all the way round, and again from two */
+                    kid.m_done_ms = now | 1u;
+                    kid.m_len = 0;
+                    kid_copy_again(now, 3200u);
+                } else {
+                    kid_copy_extend();
+                    kid_copy_again(now, 1900u);
+                }
+            }
+        } else {                                                  /* not that one: the friend plays it again */
+            kid.m_try_ms = now | 1u;
+            kid.m_yes_ms = kid.m_done_ms = 0;
+            if (++kid.m_wrong >= 3u && kid.m_len > 2u) {
+                kid.m_len--;
+                kid.m_wrong = 0;
+            }
+            kid_copy_again(now, 1400u);
+        }
+    }
+}
+
 static void kid_mode_set(uint32_t m)
 {
     uint32_t was = kid.mode;
     if (kid.mode == KM_GUESS && kid.g_state == KG_SING)
         kid_sing(kid.g_note, 0);
+    if (kid.mode == KM_COPY)
+        kid_copy_stop();
     kid.mode = (uint8_t)(m % KM_COUNT);
     kid.c_pos = kid.c_ok = 0;
     kid.c_held = fm1_in.notes;
@@ -1390,6 +1485,9 @@ static void kid_mode_set(uint32_t m)
     kid.g_level = kid.g_streak = kid.g_wrong = kid.g_again = 0;
     kid.f_pos = 0;
     kid.f_done_ms = 0;
+    kid.m_len = kid.m_stars = kid.m_wrong = 0;                    /* (COPY ME: a new game, the first pattern in a moment) */
+    kid.m_yes_ms = kid.m_try_ms = kid.m_done_ms = 0;
+    kid_copy_again(fm1_ms, 900u);
     kid_knobs();
 }
 
@@ -1439,6 +1537,8 @@ static void kid_game(int32_t lo)
             }
             kid.g_state = KG_IDLE;
         }
+    } else if (kid.mode == KM_COPY) {
+        kid_copy(lo, now);
     } else if (kid.mode == KM_FOLLOW) {
         if (kid.f_done_ms && now - kid.f_done_ms > 3000u) {      /* the song again from the start */
             kid.f_done_ms = 0;
@@ -1485,6 +1585,8 @@ static int32_t kid_lit_key(uint32_t now)                         /* the key to l
         return (int32_t)kid_song_key(kid.f_song, kid.f_pos);
     if (kid.mode == KM_GUESS && kid.g_wrong >= 2u && (now / 250u) & 1u)
         return kid.g_target;
+    if (kid.mode == KM_COPY && kid.m_state == MS_SHOW && kid.m_on)   /* COPY ME: the key the friend is playing */
+        return kid.m_seq[kid.m_i];
     return -1;
 }
 
@@ -1540,6 +1642,10 @@ static void kid_input(void)
             }
         switch (b) {
         case B_PLAY:
+            if (kid.mode == KM_COPY && !kw.on) {  /* COPY ME: the pattern again */
+                kid_copy_again(fm1_ms, 100u);
+                break;
+            }
             if (kid.mode == KM_GUESS && !kw.on) { /* GUESS: the note again */
                 if (kid.g_state == KG_SING)
                     kid_sing(kid.g_note, 0);
@@ -2132,6 +2238,16 @@ static uint32_t kid_play_band(uint32_t now)
             return kid_band_word("TRY AGAIN", 4, RGB(236, 120, 40), 0x702u);
         if (!keyed)
             return kid_band_word("?", 7, RGB(150, 110, 230), 0x703u);
+        return 0;
+    }
+    if (kid.mode == KM_COPY) {                                    /* COPY ME: listen, then your turn */
+        if (kid.m_yes_ms && (now | 1u) - kid.m_yes_ms < 1500u)
+            return kid_band_word(kid.m_done_ms ? "STAR!" : "YES!", 6, RGB(56, 170, 80), kid.m_done_ms ? 0x70Au : 0x705u);
+        if (kid.m_try_ms && (now | 1u) - kid.m_try_ms < 1300u)
+            return kid_band_word("TRY AGAIN", 4, RGB(236, 120, 40), 0x706u);
+        if (!keyed)
+            return kid.m_state == MS_WAIT ? kid_band_word("YOUR TURN", 4, RGB(56, 128, 244), 0x707u) :
+                                            kid_band_word("LISTEN", 5, RGB(150, 110, 230), 0x708u);
         return 0;
     }
     if (kid.mode == KM_CHORDS) {                                  /* CHORDS: the chord to play, its letters and name */

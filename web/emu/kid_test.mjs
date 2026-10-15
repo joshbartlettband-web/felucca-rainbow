@@ -493,7 +493,31 @@ check("PLAY again stops it", ex.web_playing() === 0);
   check("..played in its bar: YES!", seen && bandHas(col(56, 170, 80)));
   ex.web_keys(0);
   tapb(B.PLAY); render(400);
-  algo(-1); algo(-1); algo(-1); algo(-1); algo(-1); algo(-1); render(1500);
+  // COPY ME: the friend plays a pattern of two notes, the child plays it back, each round the friend adds a note, a wrong
+  // key plays it again, PLAY too, and eight notes is a star and a fresh start
+  algo(1);
+  const cs = () => ex.web_kid_copy_state(), cl = () => ex.web_kid_copy_len();
+  const until = (st, max = 12000) => { let t = 0; while (cs() !== st && t < max) { render(20); t += 20; } return cs() === st; };
+  const press = (k) => { ex.web_keys(1 << k); render(120); ex.web_keys(0); render(120); };
+  const pat = () => [...Array(cl()).keys()].map((i) => ex.web_kid_copy_key(i));
+  shot("copy");
+  check("COPY ME: a new game, the friend plays two notes (LISTEN in the band, then YOUR TURN)", until(1, 4000) && until(2) && cl() === 2);
+  const p1 = pat();
+  const nope = [7, 9, 11, 14, 16].find((k) => k !== p1[0]);
+  press(nope); render(300);
+  check("..a wrong key: TRY AGAIN, then the same pattern again", bandHas(col(236, 120, 40)) && until(1, 3000) && until(2) && pat().join() === p1.join());
+  for (const k of p1) press(k);
+  check("..the whole pattern: YES! and confetti", bandHas(col(56, 170, 80)));
+  check("..and the next round is one note longer, the same start", until(1, 4000) && until(2) && cl() === 3 && pat().slice(0, 2).join() === p1.join());
+  tapb(B.PLAY); render(300);
+  check("PLAY: the friend plays the pattern again", cs() <= 1 && until(2) && cl() === 3);
+  for (let r = 0; r < 8 && cl() < 8; r++) { until(2); for (const k of pat()) press(k); until(1, 4000); }
+  until(2);
+  check("..eight notes is as long as it gets", cl() === 8);
+  for (const k of pat()) press(k);
+  render(300);
+  check("..played back: STAR! and a fresh start from two notes", until(2, 9000) && cl() === 2);
+  algo(-1); algo(-1); algo(-1); algo(-1); algo(-1); algo(-1); algo(-1); render(1500);
 }
 
 // WRITE (SAVE): the child's own song. A key writes a note (a friend in a ball of the note's color) and the column moves on, the

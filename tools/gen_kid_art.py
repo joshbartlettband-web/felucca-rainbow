@@ -918,6 +918,18 @@ def icon_chords():                                               # piano keys, a
     return p.done()
 
 
+def icon_copy():                                                 # two bubbles with the same notes, one answering the other
+    p = Pic()
+    def note(x, y, c):
+        p.ell(x, y, 3, 2, c); p.rect(x + 2, y - 8, x + 3, y, c)
+        p.rect(x + 2, y - 8, x + 6, y - 7, c)
+    p.ball(15, 14, 13, 11, "lpurple", "purple")                  # the friend's bubble, up and left
+    note(8, 17, "red"); note(17, 16, "dblue")
+    p.ball(33, 34, 13, 11, "lgreen", "green")                    # the answer, down and right
+    note(26, 37, "red"); note(35, 36, "dblue")
+    return p.done()
+
+
 # the Prophet-style friends (sounds after the Sequential Prophet-5's classic patches, made on Felucca's engines)
 def elephant():                                                  # brass: an elephant's trumpet
     p = Pic()
@@ -1716,7 +1728,7 @@ STAND_INS = {                    # the look-alike's name: the stand-in's name an
     "RACCOON": ("SQUIRREL", squirrel),
 }
 
-ICONS = [icon_one, icon_choir, icon_strum, icon_accordion, icon_guess, icon_follow, icon_chords]
+ICONS = [icon_one, icon_choir, icon_strum, icon_accordion, icon_guess, icon_follow, icon_chords, icon_copy]
 
 
 # order = the firmware's (kid.c KID_SOUND)

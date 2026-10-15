@@ -483,6 +483,9 @@ EXPORT uint32_t web_now_ms(void) { return fm1_ms; }
 EXPORT uint32_t web_playing(void) { return song.playing; }
 EXPORT int32_t web_lim_t(void) { return lim_t; }
 EXPORT uint32_t web_kid_guess(void) { return kid.g_target; }
+EXPORT uint32_t web_kid_copy_len(void) { return kid.m_len; }                      /* (kid_test.mjs: COPY ME's pattern) */
+EXPORT uint32_t web_kid_copy_key(uint32_t i) { return kid.m_seq[i & 7u]; }
+EXPORT uint32_t web_kid_copy_state(void) { return kid.m_state; }                  /* 0 pause, 1 the friend plays, 2 your turn */
 EXPORT uint32_t web_kid_friend(void) { return kid.fr; }
 EXPORT uint32_t web_voices(uint32_t t)                  /* (kid_test.mjs: a track's sounding voices) */
 {

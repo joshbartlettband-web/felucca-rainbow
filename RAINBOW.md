@@ -13,7 +13,7 @@ at the next power-on.
 | --- | --- |
 | Keys | Play the friend's sound. The note's letter shows big in the band at the bottom, in its own color, and the friend hops. A music staff drops in at the top and writes the note (see below). |
 | PRESETS | Next or previous friend (76 of them, each with its own picture, sound, home sky and favorite beat). |
-| ALGORITHM | How the keys play, one step per turn (below): 1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW, CHORDS. |
+| ALGORITHM | How the keys play, one step per turn (below): 1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW, CHORDS, COPY ME. |
 | SELECT | The beat slower or faster (SLOW, WALK, FAST). |
 | KNOB 1 | Big and small. Low notes make a big friend, high notes a small one. OCT- and OCT+ do the same. |
 | KNOB 2 | Day to night. The sky darkens, the sun sets, the moon comes out, and the sound gets softer and darker. |
@@ -49,6 +49,7 @@ at the next power-on.
 | GUESS | An ear game (an idea from u/nutty_cartoon). A friend sings a note and the band shows ?. The right key: YES! and confetti. Another key: TRY AGAIN, with no sound of its own, and the friend sings the note again; after two tries the right key blinks. It starts with C and G and adds a note after three right in a row (C G E D A F B, then high C). PLAY: hear it again. |
 | FOLLOW | Songs to learn (u/nutty_cartoon). The next note's key lights and the band shows its letter; the song is played at the child's own pace, and a wrong key changes nothing. At the end, a party, and it starts again. SEQ picks the song: Twinkle Twinkle, Mary Had a Little Lamb, Hot Cross Buns, Row Your Boat, Old MacDonald, Frere Jacques, London Bridge, Ode to Joy, Jingle Bells, Happy Birthday, Itsy Bitsy, Yankee Doodle, Oh Susanna, Amazing Grace, Silent Night, Joy to the World, Au Clair de la Lune (all old and free). |
 | CHORDS | Chord lessons (u/Yablan on r/MVaveFM1). The next chord's keys light up and the band shows its letters and name; holding exactly those keys plays it, says YES! and lights the next. Four chords make a lesson, and a party comes at the end of each round. SEQ picks the lesson: FIRST CHORDS (C F G C), POP FOUR (C G Am F), SEVENTHS (Cmaj7 Am7 Dm7 G7), LOFI (Fmaj7 Em7 Dm7 Cmaj7) and LOFI JAZZ (Dm9 G13 Cmaj9, rootless, the way lofi keys are played). Each is voiced so the hand barely moves. PLAY starts the slow, swung LOFI beat: each chord gets a bar, the bass plays its root, and the next chord blinks a beat early. |
+| COPY ME | A memory game. The friend plays two notes (the band says LISTEN and each key lights as it plays), then the band says YOUR TURN and the child plays them back on the five keys C D E G A. Right: YES! and a party, and the friend adds a note. A wrong key says TRY AGAIN and the friend plays it again; after three misses in a row the pattern gets one shorter. Eight notes in a row earns a STAR! and a fresh start. PLAY hears the pattern again. |
 
 Each setting has a picture, for children who do not read yet: a smiling face, three singing friends, a harp, an accordion, a
 speech bubble with a note and a question mark, and piano keys with one lit. It shows beside the setting's name when ALGORITHM turns,
