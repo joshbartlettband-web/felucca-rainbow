@@ -58,6 +58,10 @@ and stays at the left of the band while any setting but 1 FRIEND is on.
 In every setting, keys held together show their letters in their colors and, when it has one, the chord's name (MAJOR, MINOR,
 SEVEN, DIM, SUS), whatever their order (u/nutty_cartoon). GUESS and FOLLOW keep the keys at their own notes (OCT 0).
 
+A win has a sound too: when GUESS is right, a COPY ME round is played back, a FOLLOW song or a CHORDS lesson is finished, the
+friend plays a little cheer up the C chord (two notes for a small win, four for a whole song, lesson or STAR!). A new friend (a
+surprise from HOME) or a new sky (REC) gets the small one. The drum, bass and noise friends stay quiet, as their notes are no tune.
+
 ## Drum friends
 
 Scissors, Beat Bot, Toy Drum, Bongo and Monkey play drum kits: every key is a different drum (Felucca's GM drum map). For them the

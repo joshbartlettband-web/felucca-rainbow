@@ -403,6 +403,8 @@ static struct {
     uint8_t voice0;                     /* the friend's sound's own voice mode (a mono friend: LEGATO) */
     uint8_t full;                       /* draw everything next frame */
     uint32_t hint_ms, key_ms, hop_ms, party_ms, exit_ms, play_ms, bg_ms;
+    uint32_t cheer_ms;                  /* the cheer's next note at (a few notes the friend plays when something is won) */
+    uint8_t cheer_i, cheer_n, cheer_on; /* .. which note, how many (0 none), sounding */
     uint32_t hello_ms;                  /* the power-up hello since (fm1_ms | 1), 0 none */
     char hello_name[12];                /* .. the name it shows, with its "!" ("" none: HI! alone), and its letters' scale */
     uint8_t hello_sc;
@@ -692,8 +694,10 @@ static void kid_beat_load(void)
     song.g[G_BPM] = b->bpm;
 }
 
+static void kid_cheer_stop(void);
 static void kid_friend(uint32_t f)
 {
+    kid_cheer_stop();                             /* (its note off while its sound is still there) */
     kid.fr = (uint8_t)(f % KID_N);
     kid_sound();
     kid.scene = KID_SOUND[kid.fr].sky;
@@ -1373,6 +1377,51 @@ static void kid_sing(uint32_t key, int on)                       /* the friend s
     fm1_irq_on();
 }
 
+/* the cheer: when a game is won (or a friend or sky arrives), the friend plays a few notes up the C major chord: four for a win
+ * of a whole song or lesson, two for the rest. Not the bass, drum and noise friends (their notes are no tune) */
+static const uint8_t KID_CHEER_KEY[4] = {19, 23, 26, 31};        /* C5 E5 G5 C6 */
+static void kid_cheer_off(void)
+{
+    if (kid.cheer_on) {
+        kid_sing(KID_CHEER_KEY[kid.cheer_i - 1u], 0);
+        kid.cheer_on = 0;
+    }
+}
+
+static void kid_cheer_stop(void)
+{
+    kid_cheer_off();
+    kid.cheer_n = 0;
+}
+
+static void kid_cheer(uint32_t big)
+{
+    if (kw.on || !kid_sub_level(kid.fr))
+        return;
+    kid_cheer_off();
+    kid.cheer_n = (uint8_t)(big ? 4u : 2u);
+    kid.cheer_i = (uint8_t)(big ? 0u : 1u);                       /* (the small one: E5 G5) */
+    kid.cheer_ms = fm1_ms;
+}
+
+static void kid_cheer_tick(uint32_t now)
+{
+    if (!kid.cheer_n || (int32_t)(now - kid.cheer_ms) < 0)
+        return;
+    if (kid.cheer_on) {
+        kid_cheer_off();
+        if (kid.cheer_i >= kid.cheer_n)
+            kid.cheer_n = 0;
+        else
+            kid.cheer_ms = now + 40u;
+    } else {
+        kid_sing(KID_CHEER_KEY[kid.cheer_i], 1);
+        kid.cheer_i++;
+        kid.cheer_on = 1;
+        kid.cheer_ms = now + (kid.cheer_i >= kid.cheer_n ? 520u : 110u);
+    }
+}
+
 /* COPY ME (Double Rainbow's idea, here first): the friend plays a pattern of notes, lighting each key; the child plays
  * it back. A round won adds a note (2 .. 8: then a party and it starts again); a wrong key and the friend plays it
  * again, and after three wrong in a row the pattern gets a note shorter. PLAY: hear it again. The notes: C D E G A
@@ -1441,6 +1490,7 @@ static void kid_copy(int32_t lo, uint32_t now)
                 kid.party_ms = now | 1u;
                 kid.m_stars++;
                 kid.m_wrong = 0;
+                kid_cheer(kid.m_len >= KID_COPY_MAX);
                 if (kid.m_len >= KID_COPY_MAX) {                  /* the longest: all the way round, and again from two */
                     kid.m_done_ms = now | 1u;
                     kid.m_len = 0;
@@ -1469,6 +1519,7 @@ static void kid_mode_set(uint32_t m)
         kid_sing(kid.g_note, 0);
     if (kid.mode == KM_COPY)
         kid_copy_stop();
+    kid_cheer_stop();
     kid.mode = (uint8_t)(m % KM_COUNT);
     kid.c_pos = kid.c_ok = 0;
     kid.c_held = fm1_in.notes;
@@ -1495,6 +1546,7 @@ static void kid_mode_set(uint32_t m)
 static void kid_game(int32_t lo)
 {
     uint32_t now = fm1_ms;
+    kid_cheer_tick(now);
     if (kid.mode == KM_GUESS) {
         uint32_t pool = 2u + kid.g_level;
         if (kid.g_state == KG_IDLE && (int32_t)(now - kid.g_ms) >= 0) {
@@ -1522,6 +1574,7 @@ static void kid_game(int32_t lo)
                 kid.g_yes_ms = now | 1u;
                 kid.g_try_ms = 0;
                 kid.party_ms = now | 1u;
+                kid_cheer(0);
                 if (++kid.g_streak >= 3u && kid.g_level < 6u) {
                     kid.g_level++;
                     kid.g_streak = 0;
@@ -1550,6 +1603,7 @@ static void kid_game(int32_t lo)
             if (kid_song_key(kid.f_song, kid.f_pos) == 99u) {     /* the whole song: a party */
                 kid.f_done_ms = now | 1u;
                 kid.party_ms = now | 1u;
+                kid_cheer(1);
             }
         }
     } else if (kid.mode == KM_CHORDS) {
@@ -1569,8 +1623,10 @@ static void kid_game(int32_t lo)
                     kid.c_ok = 1;
                 } else {                                          /* at the child's own pace: the next, a party at the end */
                     kid.c_pos = (uint8_t)((kid.c_pos + 1u) % KID_LESSON_LEN);
-                    if (!kid.c_pos)
+                    if (!kid.c_pos) {
                         kid.party_ms = now | 1u;
+                        kid_cheer(1);
+                    }
                 }
             }
         }
@@ -1714,6 +1770,7 @@ static void kid_input(void)
             kid.full = 1;
             kid.party_ms = fm1_ms | 1u;
             kid.hop_ms = fm1_ms;
+            kid_cheer(0);
             break;
         case B_SAVE:                              /* WRITE: the child's song, and back (not with HOME: that leaves) */
             if (held & home)
@@ -1780,6 +1837,7 @@ static void kid_input(void)
         } else {
             kid_friend(kid.fr + 1u + rng() % (KID_N - 1u));
             kid.party_ms = fm1_ms | 1u;
+            kid_cheer(0);
         }
     }
     if (kw.on) {
