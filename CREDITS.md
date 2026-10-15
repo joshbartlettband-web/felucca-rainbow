@@ -20,7 +20,7 @@ Thank you to the people who suggested these on r/MVaveFM1:
 | u/veecheech | Omnichord strumming with chords (as dxsloop's arp mode does it) | **STRUM** (ALGORITHM): black keys pick a chord, white keys strum it |
 | u/nutty_cartoon | Show chords, not only the last key | Keys held together show their letters and the chord's name |
 | u/nutty_cartoon | An ear game: a note plays, find the key | **GUESS** (ALGORITHM), gentle: TRY AGAIN with no sound of its own |
-| u/nutty_cartoon | Simple songs to learn by following lit keys | **FOLLOW** (ALGORITHM): eight old songs, the next key lit |
+| u/nutty_cartoon | Simple songs to learn by following lit keys | **FOLLOW** (ALGORITHM): old songs to learn (17 now), the next key lit |
 | u/theskyisfalling1 | Show the note value on the staff by how long a key is held, so kids learn rhythm too | The staff writes sixteenths, eighths, quarters, halves and wholes, and a held note grows while the key is down |
 | u/Yablan | Learning really basic lofi chords | **CHORDS** (ALGORITHM): lessons from first chords to lofi, the chord's keys lit and named, and a slow, swung LOFI beat to practice over |
 | u/litomanu | 303-style acid sounds | **SCIENTIST**, **FLYTRAP** and **SUNFLOWER** on ANALOG's ACID (the Scientist set like a TD-3), and the **ACID** beat with a 303-style line |

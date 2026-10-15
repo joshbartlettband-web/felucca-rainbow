@@ -68,7 +68,7 @@ static const uint16_t KID_VOL_CAP[8] = {362, 512, 724, 1024, 1448, 2048, 2896, 4
 enum { KS_RAINBOW, KS_STARS, KS_HEARTS, KS_BUBBLES, KS_FLOWERS, KS_CONFETTI, KS_CLOUDS, KS_SNOW, KS_LEAVES, KS_DESERT,
        KS_STREET, KS_COUNT };
 enum { KB_DANCE, KB_MARCH, KB_SPOOKY, KB_ROCK, KB_DISCO, KB_HIPHOP, KB_TRAIN, KB_SAMBA, KB_REGGAE, KB_LULLABY,
-       KB_HOEDOWN, KB_LOFI, KB_ACID, KB_COUNT };
+       KB_HOEDOWN, KB_LOFI, KB_ACID, KB_POLKA, KB_BOSSA, KB_FUNK, KB_SKA, KB_TRAP, KB_SALSA, KB_SHUFFLE, KB_COUNT };
 
 /* each friend's sound, in the order of KID_NAME: an engine and one of its factory presets (by name), its level
  * (P_LEVEL, 1/2 dB steps: the friends measured alike, about 0.14 peak with MASTER up), its home sky and its
@@ -170,15 +170,15 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     /* more drum kits: every key another drum, as SCISSORS (Felucca's model kits) */
     {10, "DRUM KIT", 103, KS_CONFETTI, KB_HIPHOP, 0, 0, 0, 5},    /* BEAT BOT: the 80 kit, a classic drum machine */
     {10, "DRUM KIT", 105, KS_FLOWERS, KB_MARCH, 0, 0, 0, 8},     /* TOY DRUM: the 55 kit, small and tight */
-    {10, "DRUM KIT", 101, KS_HEARTS, KB_SAMBA, 0, 0, 0, 7},       /* BONGO: the 66 kit, congas */
-    {10, "DRUM KIT", 106, KS_STARS, KB_ROCK, 0, 0, 0, 6},        /* MONKEY: the 10 kit, a cymbal on the bell */
+    {10, "DRUM KIT", 101, KS_HEARTS, KB_SALSA, 0, 0, 0, 7},       /* BONGO: the 66 kit, congas */
+    {10, "DRUM KIT", 106, KS_STARS, KB_SKA, 0, 0, 0, 6},        /* MONKEY: the 10 kit, a cymbal on the bell */
     /* Prophet-style (TW_*) */
-    {0, "BRASS", 100, KS_DESERT, KB_MARCH, 0, 0, 0, 0, TW_ELEPHANT},      /* ELEPHANT: poly brass, a trumpet */
+    {0, "BRASS", 100, KS_DESERT, KB_POLKA, 0, 0, 0, 0, TW_ELEPHANT},      /* ELEPHANT: poly brass, a trumpet */
     {6, "SYNC LEAD", 96, KS_CLOUDS, KB_ROCK, 0, 22, 0, 0, TW_RACECAR},    /* RACE CAR: the sync sweep, zoom */
     {0, "STRINGS", 93, KS_BUBBLES, KB_LULLABY, 1, 0, 0, 0, TW_JELLYFISH},   /* JELLYFISH: strings, floating */
-    {0, "SQR BASS", 118, KS_LEAVES, KB_HIPHOP, 0, 0, 0, 0, TW_BEAR},     /* BEAR: a punchy saw bass */
+    {0, "SQR BASS", 118, KS_LEAVES, KB_TRAP, 0, 0, 0, 0, TW_BEAR},     /* BEAR: a punchy saw bass */
     {6, "RING BELL", 101, KS_SNOW, KB_DISCO, 0, 0, 0, 0, TW_SNOWMAN},    /* SNOWMAN: glassy bells (ring, like poly-mod) */
-    {0, "PLUCK", 117, KS_BUBBLES, KB_REGGAE, 0, 0, 0, 0, TW_CRAB},       /* CRAB: a snappy clav */
+    {0, "PLUCK", 117, KS_BUBBLES, KB_FUNK, 0, 0, 0, 0, TW_CRAB},       /* CRAB: a snappy clav */
     {0, "SAW LEAD", 97, KS_STARS, KB_SPOOKY, 2, 40, 0, 0, TW_WOLF},     /* WOLF: a howl, swelling and sliding */
     {0, "SAW LEAD", 96, KS_DESERT, KB_TRAIN, 1, 33, 0, 0, TW_CAMEL},     /* CAMEL: a big, loping lead */
     /* acid (TW_*) */
@@ -201,9 +201,9 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {2, "ORGAN", 79, KS_LEAVES, KB_TRAIN},           /* TIGER CUB: a bright, reedy organ, and a trolley's beat (a look-alike: LION CUB) */
     {2, "WIRE", 100, KS_STARS, KB_DISCO},             /* RACCOON: a plucky wire, out at night (a look-alike: SQUIRREL) */
     {0, "STRINGS", 93, KS_LEAVES, KB_HOEDOWN},       /* GOLDENROD: prairie strings (a prairie flower) */
-    {4, "PIANO", 96, KS_STARS, KB_LULLABY},          /* PIANO PAL: a real piano recording (SAMPLE) */
+    {4, "PIANO", 96, KS_STARS, KB_BOSSA},          /* PIANO PAL: a real piano recording (SAMPLE) */
     {4, "FLUTE", 95, KS_CLOUDS, KB_SAMBA},           /* FLUTE BIRD: a real flute (SAMPLE) */
-    {4, "SAX", 93, KS_BUBBLES, KB_REGGAE},           /* SAX CAT: a real saxophone (SAMPLE) */
+    {4, "SAX", 93, KS_BUBBLES, KB_SHUFFLE},           /* SAX CAT: a real saxophone (SAMPLE) */
 };
 
 /* the beats: drums on track 4 (DRUM), a bass line on track 2, 16 steps of 1/16. Drums: a string per lane
@@ -218,6 +218,7 @@ typedef struct {
     uint8_t bass[16];
     uint8_t bfl[16];                    /* its steps' SF_ACCENT (1) and SF_SLIDE (2) */
     uint8_t acid;                       /* the bass plays ANALOG's ACID (a 303's squelch), not SQR BASS */
+    uint8_t swing;                      /* G_SWING, 0 straight */
 } kid_beat_t;
 static const kid_beat_t KID_BEATS[KB_COUNT] = {
     {"DANCE", 112, KD_HOP, 92, 100,
@@ -256,12 +257,32 @@ static const kid_beat_t KID_BEATS[KB_COUNT] = {
      {36, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 40, 0, 41, 0}},
     {"LOFI", 80, KD_SWAY, 95, 104,                    /* slow and swung (CHORDS: the bass plays each chord's root) */
      {"x.........x.....", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, "..............x.", 0},
-     {41, 1, 1, 1, 0, 0, 0, 0, 40, 1, 1, 1, 0, 0, 38, 0}},
+     {41, 1, 1, 1, 0, 0, 0, 0, 40, 1, 1, 1, 0, 0, 38, 0}, {0}, 0, 30},
     {"ACID", 124, KD_BOTH, 91, 96,                    /* four on the floor, and Felucca's acid line (engines.c PATTERNS:
                                                   * A minor, accents and slides) on the ACID sound */
      {"x...x...x...x...", 0, "....x.......x...", "x.x.x.x.x.x.x.x.", "..x...x...x...x.", 0, 0, 0},
      {45, 45, 57, 45, 0, 48, 45, 55, 45, 0, 57, 52, 45, 48, 0, 50},
      {1, 0, 2, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0, 2, 0, 1}, 1},
+    {"POLKA", 138, KD_HOP, 91, 100,                   /* oom-pah: the bass leaps between the root and the fifth */
+     {"x.......x.......", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0},
+     {36, 0, 43, 0, 36, 0, 43, 0, 36, 0, 43, 0, 36, 0, 43, 0}},
+    {"BOSSA", 118, KD_SWAY, 87, 103,                  /* the bossa nova's rim pattern over a soft kick */
+     {"x..x..x...x..x..", 0, 0, "x.x.x.x.x.x.x.x.", 0, 0, "x..x..x...x..x..", 0},
+     {36, 0, 0, 43, 0, 0, 36, 0, 0, 0, 43, 0, 0, 36, 0, 0}},
+    {"FUNK", 106, KD_BOTH, 90, 100,                   /* a tight kick and a snare, sixteenth hats, a bass that jumps */
+     {"x..x..x...x..x..", "....x..x.x..x...", 0, "xxxxxxxxxxxxxxxx", 0, 0, 0, 0},
+     {36, 0, 0, 36, 0, 0, 38, 0, 36, 0, 0, 41, 0, 43, 0, 0}},
+    {"SKA", 138, KD_HOP, 90, 100,                     /* the hats on the off-beats, a walking bass */
+     {"x...x...x...x...", "....x.......x...", 0, "..x...x...x...x.", 0, 0, 0, 0},
+     {36, 0, 0, 0, 40, 0, 0, 0, 43, 0, 0, 0, 40, 0, 0, 0}},
+    {"TRAP", 70, KD_SLOW, 88, 100,                    /* slow and heavy, rolling hats, a long low bass (the richest lows) */
+     {"x.....x...x.....", "........x.......", "........x.......", "x.x.x.x.xxxxx.xx", 0, 0, 0, 0},
+     {33, 1, 1, 1, 1, 1, 1, 0, 33, 0, 1, 1, 36, 1, 1, 1}},
+    {"SALSA", 96, KD_BOTH, 88, 100,                   /* a clave on the rim, a cowbell, a bass that lands before the beat */
+     {"x.......x.......", 0, 0, 0, 0, "..x...x...x...x.", "x..x..x...x.x...", "x.x.x.x.x.x.x.x."},
+     {36, 0, 0, 43, 0, 0, 0, 36, 0, 0, 43, 0, 36, 0, 0, 0}},
+    {"SHUFFLE", 100, KD_SWAY, 92, 102, {"x.....x...x.....", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0},   /* swung, a walking bass */
+     {36, 0, 0, 0, 36, 0, 40, 0, 43, 0, 0, 0, 45, 0, 43, 0}, {0}, 0, 33},
 };
 
 /* the top row, tapped on and off: Felucca's performance effects (perform.c), and what the friend does meanwhile */
@@ -613,7 +634,7 @@ static void kid_beat_load(void)
     uint32_t i, l;
     if (t->eng_req != ENGI_DRUM)
         set_engine_of(t, ENGI_DRUM);
-    song.g[G_SWING] = kid.beat % KB_COUNT == KB_LOFI ? 30 : 0;   /* (LOFI: swung) */
+    song.g[G_SWING] = b->swing;                   /* (LOFI, SHUFFLE: swung) */
     track_defaults_steps(t);
     t->p[P_SLEN] = 16;
     t->p[P_LEVEL] = b->dlvl;                      /* (the kit alone peaks about twice a friend) */
@@ -1266,6 +1287,17 @@ static const kid_song_t KID_SONGS[] = {
     {"FRERE JACQUES", "C4 D4 E4 C4 C4 D4 E4 C4 E4 F4 G4 E4 F4 G4 G4 A4 G4 F4 E4 C4 G4 A4 G4 F4 E4 C4 C4 G3 C4 C4 G3 C4"},
     {"LONDON BRIDGE", "G4 A4 G4 F4 E4 F4 G4 D4 E4 F4 E4 F4 G4 G4 A4 G4 F4 E4 F4 G4 D4 G4 E4 C4"},
     {"ODE TO JOY", "E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4 D4 D4 E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4 C4 C4"},
+    {"JINGLE BELLS", "E4 E4 E4 E4 E4 E4 E4 G4 C4 D4 E4 F4 F4 F4 F4 F4 E4 E4 E4 E4 G4 G4 F4 D4 C4"},
+    {"HAPPY BIRTHDAY", "G3 G3 A3 G3 C4 B3 G3 G3 A3 G3 D4 C4 G3 G3 G4 E4 C4 B3 A3 F4 F4 E4 C4 D4 C4"},
+    {"ITSY BITSY", "G3 C4 C4 C4 D4 E4 E4 E4 D4 C4 D4 E4 C4 E4 E4 F4 G4 G4 F4 E4 F4 G4 E4 C4 C4 D4 E4 E4 D4 C4 D4 E4 C4"},
+    {"YANKEE DOODLE", "C4 C4 D4 E4 C4 E4 D4 G3 C4 C4 D4 E4 C4 B3 G3 C4 C4 D4 E4 F4 E4 D4 C4 B3 G3 A3 B3 C4 C4"},
+    {"OH SUSANNA", "C4 D4 E4 G4 G4 A4 G4 E4 C4 D4 E4 E4 D4 C4 D4 C4 D4 E4 G4 G4 A4 G4 E4 C4 D4 E4 E4 D4 D4 C4"},
+    {"AMAZING GRACE", "G3 C4 E4 C4 E4 D4 C4 A3 G3 G3 C4 E4 C4 E4 D4 G4"},
+    {"SILENT NIGHT", "G4 A4 G4 E4 G4 A4 G4 E4 D5 D5 B4 C5 C5 G4 A4 A4 C5 B4 A4 G4 A4 G4 E4 A4 A4 C5 B4 A4 G4 A4 G4 E4 "
+                     "D5 D5 F5 D5 B4 C5 E5 C5 G4 E4 G4 F4 D4 C4"},
+    {"JOY TO WORLD", "C5 B4 A4 G4 F4 E4 D4 C4 G4 A4 A4 B4 B4 C5 C5 C5 B4 A4 G4 G4 F4 E4 C5 C5 B4 A4 G4 G4 F4 E4 E4 E4 E4 E4 E4 F4 G4 F4 E4 "
+                    "D4 D4 D4 D4 D4 E4 F4 E4 D4 C4"},
+    {"AU CLAIR", "C4 C4 C4 D4 E4 D4 C4 E4 D4 D4 C4 C4 C4 C4 D4 E4 D4 C4 E4 D4 D4 C4"},
 };
 #define KID_NSONGS (sizeof KID_SONGS / sizeof KID_SONGS[0])
 
