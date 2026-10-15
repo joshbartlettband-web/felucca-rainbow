@@ -82,8 +82,8 @@ Read it with `RAINBOW.md` (how Rainbow mode works) and `CREDITS.md` (who suggest
   optional vibrato, glide, drive, drum kit and a list of parameter tweaks (`TW_*`). Pictures come from
   `tools/gen_kid_art.py`, which draws shapes, outlines them, trims them and **stops the build if a picture would be cut
   off**. It also emits the look-alike stand-ins (`STAND_INS` -> `KID_ALT`).
-- **Modes** on ALGORITHM (1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW), each with a picture for children who do not
-  read. WRITE is on SAVE (a Mario Paint style composer). VOLUME and LOOK-ALIKES are grown-up settings behind HOME held 1 s.
+- **Modes** on ALGORITHM (1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW, CHORDS, COPY ME), each with a picture for children
+  who do not read. WRITE is on SAVE (a Mario Paint style composer). VOLUME and LOOK-ALIKES are grown-up settings behind HOME held 1 s.
 - **Settings that survive power-off** are packed into spare bytes of the saved settings, never into the user's projects.
 
 ## 5. Bugs and lessons (each one cost a round trip)
@@ -147,8 +147,14 @@ For older kids (about eight), roughly in order of delight per effort:
    creature's sound, name it on the keys, and keep it as their friend. Real synthesis in disguise. On Melodee, PROPHET's
    two oscillators, filter and envelopes are a natural fit, if the voice budget allows.
 2. **Beat Maker:** a 16-step drum grid on the keys with lights, then jam over the loop.
-3. **Band Builder:** record a tune, it loops, add a bass, add chords.
-4. **Copy-Me:** a friend plays a short melody or rhythm, the player repeats it; it grows each round and earns stars.
+3. **Band Builder:** record a tune, it loops, add a bass, add chords. Rainbow mode has a first version in WRITE: while the song
+   plays, a key is written into the nearest beat's column (`kw_notes`), PRESETS picks another friend for the next layer, HOME wipes
+   the playing column. Live recording with a count-in, and layers that can be muted one by one, are still open.
+4. **Copy-Me:** built in Rainbow mode as the COPY ME setting (`kid_copy` in `kid.c`: the friend plays two notes on C D E G A, the
+   player answers, each round adds a note up to eight, a wrong key replays it, three misses shorten it). A rhythm version
+   (tap the pattern) is still open. Wins earn **stars** (`kid_win`: a cheer of two or four notes, a count kept in spare settings
+   bytes with a check byte and written every tenth star): 10 stars a hat, 25 a sky, 50 a friend (`KID_FRIEND_LOCKED`,
+   `KID_SCENE_LOCKED`, `KID_HATS_OPEN`).
 5. **Unlocks:** new friends, skies or chord rows earned by playing.
 6. **Theory in color:** major and minor as happy and sad skies, a scale picker, measures and note values (already in Rainbow
    mode's staff).
