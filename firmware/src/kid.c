@@ -94,12 +94,18 @@ static const int16_t TW_RACECAR[] = {P_E1, 4, P_ATK, 30, P_DEC, 80, P_SUS, 90,  
 static const int16_t TW_JELLYFISH[] = {P_ATK, 50, P_E4, 64, -1};
 static const int16_t TW_BEAR[] = {P_E0, 0, P_E1, 7, P_E2, 64, P_E4, 40, P_E5, 40, P_E6, 25, P_ED_FLT, 50,
                                   P_DEC, 58, P_SUS, 45, -1};
-static const int16_t TW_SNOWMAN[] = {P_E0, 12, P_E1, 17, P_E4, 0, P_E5, 110, P_DEC, 95, P_REL, 85, -1};
+static const int16_t TW_SNOWMAN[] = {P_E0, 12, P_E1, 17, P_E4, 0, P_E5, 88, P_DEC, 95, P_REL, 85, -1};
 static const int16_t TW_CRAB[] = {P_E0, 1, P_E1, 0, P_E4, 50, P_E5, 45, P_ED_FLT, 55, P_DEC, 72, P_REL, 36, -1};
 static const int16_t TW_WOLF[] = {P_E4, 34, P_E5, 55, P_ED_FLT, 40, P_ATK, 55, P_SUS, 110, P_REL, 60, -1};
 static const int16_t TW_CAMEL[] = {P_E1, 22, P_E4, 62, P_E5, 18, P_E6, 25, P_ATK, 8, -1};
-static const int16_t TW_FAIRY[] = {P_E1, 12, P_E2, 19, P_E3, 14, P_E6, 50, P_DEC, 80, -1};   /* (the ring bell higher, an octave
+static const int16_t TW_FAIRY[] = {P_E1, 12, P_E2, 19, P_E3, 14, P_E5, 74, P_E6, 50, P_DEC, 80, -1};   /* (the ring bell higher, an octave
                                                   * and a twelfth up, shimmering: a twinkle, not ICE CREAM's bell) */
+/* the sound pass (too sharp on a small speaker, measured: the 2.5 .. 8 kHz band): their brightness down */
+static const int16_t TW_LADYBUG[] = {P_E2, 56, P_E5, 72, -1};    /* (PHYS BELL TREE: BRIT, ACC) */
+static const int16_t TW_COWBOY[] = {P_E2, 58, -1};               /* (PHYS PLUCK: BRIT) */
+static const int16_t TW_ICECREAM[] = {P_E5, 74, -1};             /* (TRIO RING BELL: CUT) */
+static const int16_t TW_PRINCESS[] = {P_E6, 50, -1};             /* (TRIO CHIP CHOIR: less RES, its peak) */
+static const int16_t TW_ROCKET[] = {P_E2, 88, -1};               /* (NOISE ARCADE: FREQ, its hiss) */
 static const int16_t TW_GOOBERT[] = {P_E0, 1, P_E1, 6, P_E2, 50, P_E4, 26, P_E5, 96, P_E6, 0, P_ED_FLT, 48, P_ATK, 2,
                                      P_DEC, 62, P_SUS, 56, P_REL, 45, P_LD_FLT, 10, -1};   /* (a rubbery bloop: a
                                      * ringing filter that pops open and settles, with a little jelly wobble) */
@@ -134,7 +140,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {3, "WAVE BASS", 110, KS_BUBBLES, KB_REGGAE},     /* FROG */
     {3, "ARP 8BIT", 96, KS_STARS, KB_HIPHOP},        /* ROBOT */
     {8, "CLOUD PAD", 100, KS_RAINBOW, KB_LULLABY},    /* RAINBOW */
-    {6, "CHIP CHOIR", 90, KS_HEARTS, KB_DISCO},      /* PRINCESS DUCKY: TRIO */
+    {6, "CHIP CHOIR", 96, KS_HEARTS, KB_DISCO, 0, 0, 0, 0, TW_PRINCESS},   /* PRINCESS DUCKY: TRIO */
     {3, "STEP LEAD", 99, KS_FLOWERS, KB_ROCK},       /* RED PUP: LOFI */
     {0, "SINE KEY", 107, KS_STREET, KB_MARCH},        /* YELLOW BIRD: ANALOG */
     {8, "GLITCH", 107, KS_STARS, KB_SPOOKY},          /* SLIMY: GRAIN, and the spooky beat */
@@ -143,21 +149,21 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {3, "WAVE LEAD", 108, KS_STARS, KB_MARCH},        /* PENGUIN: LOFI */
     {5, "WHISPER", 97, KS_STARS, KB_LULLABY},        /* OWL: VOICE, hoo */
     {6, "ARP LEAD", 96, KS_FLOWERS, KB_SAMBA},       /* BEE: TRIO, bzz */
-    {9, "BELL TREE", 101, KS_FLOWERS, KB_DANCE},      /* LADYBUG: PHYS */
+    {9, "BELL TREE", 105, KS_FLOWERS, KB_DANCE, 0, 0, 0, 0, TW_LADYBUG},   /* LADYBUG: PHYS */
     {0, "ACID", 110, KS_CONFETTI, KB_ROCK},           /* DINO: ANALOG */
     {8, "FROZEN", 117, KS_BUBBLES, KB_LULLABY},       /* WHALE: GRAIN */
     {9, "MARIMBA", 127, KS_BUBBLES, KB_REGGAE},       /* OCTOPUS: PHYS */
     {12, "PLUCK", 118, KS_BUBBLES, KB_REGGAE},        /* FISH: FM6 */
     {9, "HAND DRUM", 113, KS_BUBBLES, KB_LULLABY},    /* TURTLE: PHYS */
-    {6, "RING BELL", 116, KS_CONFETTI, KB_DISCO},     /* ICE CREAM: TRIO */
+    {6, "RING BELL", 110, KS_CONFETTI, KB_DISCO, 0, 0, 0, 0, TW_ICECREAM},   /* ICE CREAM: TRIO */
     {7, "JAZZ PERC", 101, KS_HEARTS, KB_DANCE},       /* CUPCAKE: WHEEL */
-    {11, "ARCADE", 113, KS_STARS, KB_HIPHOP},         /* ROCKET: NOISE */
+    {11, "ARCADE", 119, KS_STARS, KB_HIPHOP, 0, 0, 0, 0, TW_ROCKET},   /* ROCKET: NOISE */
     {0, "PLUCK", 113, KS_HEARTS, KB_SAMBA},           /* STRAWBERRY: ANALOG */
     {2, "BELL", 108, KS_STARS, KB_LULLABY},           /* STAR: PHASE */
     /* suggested by r/MVaveFM1's u/veecheech (CREDITS.md) */
     {0, "SAW", 92, KS_FLOWERS, KB_ROCK, 0, 0, 80},   /* T-REX: a growly bass: a saw, driven hard (DIST) */
     {0, "SINE KEY", 103, KS_STARS, KB_SPOOKY, 3, 36, 0, 0, TW_SWOOP},  /* SKELETON: a theremin, a wide vibrato and a slide */
-    {9, "PLUCK", 125, KS_FLOWERS, KB_HOEDOWN},        /* COWBOY: a twangy string */
+    {9, "PLUCK", 127, KS_FLOWERS, KB_HOEDOWN, 0, 0, 0, 0, TW_COWBOY},   /* COWBOY: a twangy string */
     {0, "PLUCK", 113, KS_HEARTS, KB_HOEDOWN},         /* COWGIRL: a twangy pluck */
     {0, "RAVE", 95, KS_CONFETTI, KB_DANCE},          /* VACUUM: the rave "hoover", a joke for the grown-ups */
     {6, "SAW3", 113, KS_STARS, KB_DISCO, 1, 32, 0, 0, TW_SWOOP},      /* SPACE HERO: buzzy saws that swoop (a glide) and shimmer */
@@ -365,6 +371,7 @@ static struct {
     int8_t key;                         /* the key whose letter shows, -1 none */
     uint8_t rev0, dly0;                 /* the friend's sound's own sends (the echo adds to them) */
     uint8_t acc_fr;                     /* the friend whose sound track 3 has (ACCORDION's chords apart), 0xFF none */
+    uint8_t sub_ready;                  /* track 3 has the sub octave's sound (kid_sub) */
     uint8_t voice0;                     /* the friend's sound's own voice mode (a mono friend: LEGATO) */
     uint8_t full;                       /* draw everything next frame */
     uint32_t hint_ms, key_ms, hop_ms, party_ms, exit_ms, play_ms, bg_ms;
@@ -456,12 +463,67 @@ static const uint8_t *kid_row(uint32_t art, uint32_t ry)
 static void kid_sound_to(track_t *t, uint32_t fr);
 
 /* ---------------------------------------------------------------- sound */
+/* the sub octave (seq.c kb_sub_on): under the friend's notes, an octave down, a soft triangle on track 3 that follows
+ * the friend's envelope, about 12 dB under it, dry and in the middle. Not for the bass friends (they are low already),
+ * the drum friends, the noise friend, STRUM (its black keys play the root low), ACCORDION's chords apart or WRITE (both
+ * use track 3) */
+#define KID_SUB_LEVEL 66
+static uint32_t kid_sub_level(uint32_t fr)
+{
+    const kid_sound_t *s = &KID_SOUND[fr % KID_N];
+    const char *p = s->preset;
+    if (s->eng == 10u || s->eng == 11u)           /* DRUM, NOISE */
+        return 0;
+    for (; *p; p++)
+        if (p[0] == 'B' && p[1] == 'A' && p[2] == 'S' && p[3] == 'S')
+            return 0;
+    return KID_SUB_LEVEL;
+}
+
+static void kid_sub(int ok)
+{
+    track_t *c = &trk[2], *t = &trk[0];
+    uint32_t lv = ok ? kid_sub_level(kid.fr) : 0u, i;
+    if (lv && !kid.sub_ready) {
+        const engine_t *e = ENGINES[0];
+        uint32_t p = 0;
+        for (i = 0; i < e->npresets; i++)
+            if (str_eq(e->presets[preset_orig(e, i)].name, "SUB BASS"))
+                p = i;
+        if (c->eng_req != 0u)
+            set_engine_of(c, 0u);
+        apply_preset_to(c, p);
+        c->p[P_E0] = 2;                           /* a triangle: its 3rd harmonic carries it on a small speaker */
+        c->p[P_E1] = c->p[P_E2] = c->p[P_E5] = c->p[P_E6] = 0;
+        c->p[P_E4] = 48;                          /* (soft) */
+        c->p[P_DIST] = c->p[P_CHOR] = c->p[P_DLY] = c->p[P_REV] = 0;
+        c->p[P_PAN] = 0;
+        c->p[P_VOICE] = V_POLY;
+        c->p[P_CHRD] = CH_OFF;
+        c->p[P_AMODE] = 0;
+        c->p[P_GLIDE] = 0;
+        c->p[P_LD_PIT] = c->p[P_ED_PIT] = c->p[P_ED_FLT] = c->p[P_LD_FLT] = 0;
+        c->p[P_MUTE] = 0;
+        kid.acc_fr = 0xFF;                        /* (ACCORDION's chords apart load their sound again) */
+        kid.sub_ready = 1;
+    }
+    if (lv) {
+        for (i = P_ATK; i <= P_REL; i++)          /* the friend's envelope: a pluck's sub fades with it */
+            c->p[i] = t->p[i];
+        c->p[P_LEVEL] = (int16_t)lv;
+    }
+    kb_sub_on = (uint8_t)(lv != 0u);
+}
+
 static void kid_knobs(void)                       /* the knobs' state into the friend's track (track 1) */
 {
     track_t *t = &trk[0];
     perf_k[0] = (int8_t)-(kid.night * 8);         /* the FX filter: night closes it to ~700 Hz */
-    if (kw.on)                                    /* (WRITE: track 1 is the band's, as she wrote it) */
+    if (kw.on) {                                  /* (WRITE: track 1 is the band's, as she wrote it) */
+        kb_sub_on = 0;
+        kid.sub_ready = 0;
         return;
+    }
     t->p[P_DLY] = (int16_t)clamp(kid.dly0 + kid.echo * 14, 0, 127);
     t->p[P_REV] = (int16_t)clamp(kid.rev0 + kid.echo * 6, 0, 127);
     t->p[P_LD_PIT] = (int16_t)clamp(KID_SOUND[kid.fr % KID_N].vib + KID_WIG * 5, -64, 63);
@@ -493,6 +555,9 @@ static void kid_knobs(void)                       /* the knobs' state into the f
             c->p[P_MUTE] = 0;
         }
         kb_accord_trk = apart ? 2u : 0u;
+        if (apart)
+            kid.sub_ready = 0;
+        kid_sub(!apart && kid.mode != KM_STRUM);
     }
     song.octave = kid.mode >= KM_GUESS || drum_track(t) ? 0 : kid.oct;   /* (GUESS, FOLLOW: the keys where the notes
                                                   * are; a drum friend: each key always its drum, big or small) */
@@ -528,6 +593,8 @@ static void kid_sound(void)
 {
     track_t *t = &trk[0];
     kid_sound_to(t, kid.fr);
+    if (!drum_track(t) && t->p[P_REV] < 24)      /* (the sound pass: a little room around the driest friends) */
+        t->p[P_REV] = 24;
     kid.rev0 = (uint8_t)t->p[P_REV];
     kid.dly0 = (uint8_t)t->p[P_DLY];
     kid.voice0 = (uint8_t)t->p[P_VOICE];
@@ -655,6 +722,7 @@ static void kid_master(void)
 
 static void kid_enter(void)
 {
+    fx_warm = 1;                                  /* (fx.c: the highs softened while Rainbow mode plays) */
     led_pos_init();
     song.sel = 0;
     kid.ready = 1;
@@ -675,6 +743,7 @@ static void kid_mode_set(uint32_t m);
 
 static void kid_leave(void)
 {
+    fx_warm = 0;
     if (kw.on)
         kw_leave();
     kid_mode_set(KM_ONE);                         /* (the keys back to their own notes: STRUM off) */
@@ -1077,6 +1146,8 @@ static void kw_stamp(uint32_t fr)
 static void kw_enter(void)
 {
     uint32_t s;
+    kb_sub_on = 0;                                /* (WRITE: track 3 is a band friend's) */
+    kid.sub_ready = 0;
     if (song.playing || chain_busy())
         transport_req = 2;
     if (!kw.loaded) {

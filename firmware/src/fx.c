@@ -104,6 +104,16 @@ static inline int32_t dc_block(int32_t x, int32_t *dc, int32_t *err)
     return x - ((*dc + 32) >> 6);
 }
 
+/* Rainbow mode's warmth (kid.c sets fx_warm): the highs about 4 dB down above ~3.3 kHz, a one-pole shelf. The
+ * FM-1's speaker and children's headphones make the 2..5 kHz band sharp, where the ear is most sensitive */
+static volatile uint8_t fx_warm;
+static int32_t wm_l, wm_r;
+static inline int32_t warm1(int32_t x, int32_t *lp)
+{
+    *lp += ((x - *lp) >> 3) * 3;                  /* a 3/8: a one-pole low-pass at ~3.3 kHz (44.1 kHz) */
+    return x - ((x - *lp) >> 4) * 6;              /* the rest, above it, 6/16 down: about -4 dB */
+}
+
 static int32_t lce[4];
 static inline int32_t lowcut1(int32_t x, int32_t *lc, int32_t *err, uint32_t sh)   /* x minus its one-pole low-pass */
 {
@@ -144,6 +154,10 @@ static inline void master_out(int32_t *l, int32_t *r)
     int32_t al, ar, a, lt = lim_t;
     *l = dc_block(*l, &dc_l, &dce_l);
     *r = dc_block(*r, &dc_r, &dce_r);
+    if (fx_warm) {
+        *l = warm1(*l, &wm_l);
+        *r = warm1(*r, &wm_r);
+    }
     if (fx_lowcut) {                  /* two one-pole high-passes, error feedback as dc_block (the */
         uint32_t sh = fx_lowcut == 2u ? 5u : 6u;    /* rounded step stopped at |x - lc| < 32: an offset) */
         int32_t b = fx_lowcut == 2u ? spk_bass((*l + *r) >> 1) : 0;

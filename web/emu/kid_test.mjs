@@ -427,11 +427,12 @@ check("PLAY again stops it", ex.web_playing() === 0);
     arp();
     const allWord = band();
     ex.web_keys(1 << 8); render(400);
-    check("..twice: SPARKLE ALL, the chord sparkles too (on the friend's track)", ex.web_voices(2) === 0 && allWord !== tuneWord);
+    check("..twice: SPARKLE ALL, the chord sparkles too (on the friend's track)", ex.web_voices(2) <= 1 && allWord !== tuneWord);   // (track 3:
+                                                  // the sub octave under it, one voice, not the chord)
     ex.web_keys(0); render(800);
     arp();
     ex.web_keys(1 << 8); render(300);
-    check("..three times: off, the chord plain again", ex.web_voices(0) >= 3 && ex.web_voices(2) === 0);
+    check("..three times: off, the chord plain again", ex.web_voices(0) >= 3 && ex.web_voices(2) <= 1);
     ex.web_keys(0); render(1200);
   }
   ex.web_keys(1 << 14); render(300);                                          // G: its own note

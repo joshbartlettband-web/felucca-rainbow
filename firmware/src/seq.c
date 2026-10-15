@@ -86,6 +86,11 @@ static volatile uint8_t kb_accord;                /* ACCORDION (kid.c): a black 
 static volatile uint8_t kb_accord_trk;            /* .. and on this track, 0 the key's own (kid.c: the tune's arp leaves the
                                                    * chords alone) */
 static volatile uint8_t kb_strum_root, kb_strum_minor;   /* the chord picked (a pitch class, C major to begin with) */
+/* Rainbow mode's sub octave (kid.c kid_sub): a key also plays, quietly, an octave under its lowest note on track 3
+ * (KB_SUB_TRK), so the small speaker and children's headphones get some warmth under the friend */
+#define KB_SUB_TRK 2u
+static volatile uint8_t kb_sub_on;
+static uint8_t kb_sub[27];                        /* the sub note key k started, 0 none */
 static uint32_t kb_strum_map(uint32_t k)
 {
     uint32_t n = 53u + k, pc = n % 12u, i, w, tone, third, cnt = 0;
@@ -622,6 +627,19 @@ static void key_on(uint32_t k, track_t *t)
     }
     kb_chn[k] = (uint8_t)n;
     last_note = kb_note[k];                         /* (step entry, the SAMPLE zone: the key's note) */
+    if (kb_sub_on && n && k < 27u && t != &trk[KB_SUB_TRK]) {   /* the sub octave, under the lowest note */
+        uint32_t lo = 127, j;
+        for (i = 0; i < n; i++)
+            lo = kb_chord[k][i] < lo ? kb_chord[k][i] : lo;
+        if (lo >= 24u) {
+            lo -= 12u;
+            for (j = 0; j < 27u && kb_sub[j] != lo; j++)
+                ;
+            if (j == 27u)                           /* (another key's sub already sounds it) */
+                input_on(&trk[KB_SUB_TRK], lo, key_vel(k));
+            kb_sub[k] = (uint8_t)lo;
+        }
+    }
 }
 
 /* key k is up: the notes it started end, but those another key still holds */
@@ -629,6 +647,14 @@ static void key_off(uint32_t k, track_t *t)
 {
     uint32_t n = kb_chn[k], i, mc = trk_midi_ch(trk_index(t));
     kb_chn[k] = 0;
+    if (k < 27u && kb_sub[k]) {                     /* its sub octave ends, unless another key's sounds it too */
+        uint32_t s = kb_sub[k], j;
+        kb_sub[k] = 0;
+        for (j = 0; j < 27u && kb_sub[j] != s; j++)
+            ;
+        if (j == 27u)
+            input_off(&trk[KB_SUB_TRK], s);
+    }
     for (i = 0; i < n; i++) {
         uint32_t x = kb_chord[k][i];
         if (midi_local_held(t, x))
