@@ -41,7 +41,7 @@ const shot = (name) => {
   fs.writeFileSync(`${outDir}/kid_${name}.ppm`, Buffer.concat([Buffer.from("P6 240 240 255\n"), b]));
 };
 const WHITE = 0xFFFF;
-const NF = 73;                                                               // the friends (kid_art.h KID_N)
+const NF = 76;                                                               // the friends (kid_art.h KID_N)
 const KID_Y = (step) => 54 - 3 * step;
 const FXB = [B.FX, B.SCL, B.ENV, B.LFO, B.EDIT, B.GLO];
 
@@ -599,6 +599,41 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_buttons(1 << B.HOME); render(60); ex.web_buttons(0); render(1500);
   const nor2 = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
   check("..HOME leaves it as it was", px(5, 5) !== CREAM && (await hello(nor2)) === (await hello(nor)));
+}
+
+// the HAT: HOME held 1 s, then KNOB 4 puts a hat on the friend (round: none, ten hats), kept over a power-off; KNOB 4 alone is
+// still WIGGLE. The first hat is the PARTY cone, red and yellow with a pink band: found by the cone's pink (255, 62, 150)
+{
+  const HP = (236 >> 3) << 11 | (64 >> 2) << 5 | (150 >> 3);                 // hpink (236, 64, 150) as RGB565
+  const pink = (e) => { const fb = new Uint16Array(e.memory.buffer, e.web_screen(), 240 * 240); let n = 0; for (let y = 60; y < 175; y++) for (let x = 40; x < 200; x++) { const v = fb[y * 240 + x]; if ((((v & 255) << 8) | (v >> 8)) === HP) n++; } return n; };
+  const f0 = ex.web_kid_friend();
+  render(2500);
+  const bare = pink(ex);
+  ex.web_buttons(1 << B.HOME); render(1300);
+  ex.web_enc(EN.K4, 1); render(200);
+  const name = band();
+  ex.web_buttons(0); render(2600);
+  check(`HAT: HOME held 1 s, KNOB 4: the first hat is on the friend (${bare} -> ${pink(ex)} hat pixels, no surprise friend)`, pink(ex) > bare + 4 && ex.web_kid_friend() === f0);
+  render(3000);
+  const nor = new Uint8Array(mem.buffer, ex.web_nor(), ex.web_nor_size()).slice();
+  const powered = async (norIn) => {                                         // a fresh FM-1 (with the settings kept, or none) at its first friend
+    const e4 = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
+    e4._initialize();
+    if (norIn) new Uint8Array(e4.memory.buffer, e4.web_nor(), e4.web_nor_size()).set(norIn); else e4.web_nor_erase();
+    e4.web_boot(); e4.web_master(1023);
+    for (let k = 0; k < 400; k++) e4.web_render(128);
+    e4.web_keys(1); for (let k = 0; k < 40; k++) e4.web_render(128); e4.web_keys(0);
+    for (let k = 0; k < 600; k++) e4.web_render(128);
+    return pink(e4);
+  };
+  check("..kept over a power-off", (await powered(nor)) > (await powered(null)) + 4);
+  ex.web_buttons(1 << B.HOME); render(1300);
+  for (let i = 0; i < 10; i++) { ex.web_enc(EN.K4, 1); render(80); }
+  ex.web_buttons(0); render(2600);
+  check("..ten more steps: every hat, then none again", pink(ex) <= bare + 1);
+  ex.web_enc(EN.K4, 2); render(300);
+  check("KNOB 4 alone is still WIGGLE (no hat)", band() !== name && pink(ex) <= bare + 1);
+  ex.web_enc(EN.K4, -2); render(300);
 }
 
 for (const r of [EN.K1, EN.K2, EN.K3, EN.K4, EN.ALGO, EN.SELECT]) { ex.web_enc(r, 3); render(200); }

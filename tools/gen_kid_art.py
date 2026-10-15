@@ -1646,6 +1646,56 @@ def squirrel():                                                  # Raccoon's sta
     return p.done()
 
 
+# friends that play real recordings (SAMPLE: the piano, flute and sax sets Felucca carries)
+def pianopal():                                                  # an upright piano with a face above its keys
+    p = Pic()
+    p.rect(5, 9, 43, 41, "dbrown"); p.rect(6, 10, 42, 40, "brown")   # the case
+    p.rect(8, 12, 40, 26, "cream")                               # the music stand, a face
+    p.eye(17, 19, 3); p.eye(31, 19, 3)
+    p.smile(24, 24, 3)
+    p.cheek(11, 23); p.cheek(37, 23)
+    p.rect(7, 28, 41, 38, "white")                               # the keys
+    for x in range(9, 40, 4):
+        p.rect(x, 28, x, 38, "grey")
+    for x in (10, 14, 22, 26, 30, 38):
+        p.rect(x, 28, x + 1, 33, "black")
+    p.rect(8, 41, 11, 45, "dbrown"); p.rect(37, 41, 40, 45, "dbrown")   # legs
+    return p.done()
+
+
+def flutebird():                                                 # a blue bird playing a silver flute
+    p = Pic()
+    p.poly([(36, 30), (45, 24), (43, 38)], "dblue")              # tail
+    p.ball(24, 30, 15, 13, "blue", "dblue")                      # body
+    p.ell(24, 33, 8, 7, "lblue")                                 # belly
+    p.ball(20, 16, 11, 10, "blue", "dblue")                      # head
+    p.poly([(8, 16), (3, 18), (8, 20)], "orange")                # beak
+    p.dot_eye(15, 14)
+    p.cheek(21, 20)
+    p.line([(4, 28), (26, 22)], "silver", 3)                     # the flute, held across
+    p.line([(4, 28), (26, 22)], "dgrey", 1)
+    for x, y in ((10, 26), (14, 25), (18, 24), (22, 23)):
+        p.px(x, y, "black")
+    p.ell(26, 24, 3, 2, "lblue")                                 # a wing holding it
+    p.line([(20, 42), (20, 46)], "orange", 1); p.line([(28, 42), (28, 46)], "orange", 1)   # legs
+    return p.done()
+
+
+def saxcat():                                                    # a cat with a golden saxophone
+    p = Pic()
+    p.poly([(11, 13), (13, 2), (20, 9)], "grey"); p.poly([(37, 13), (35, 2), (28, 9)], "grey")   # ears
+    p.poly([(13, 10), (14, 5), (17, 8)], "lpink"); p.poly([(35, 10), (34, 5), (31, 8)], "lpink")
+    p.ball(24, 18, 13, 11, "grey", "dgrey")                      # head
+    p.eye(19, 17, 3); p.eye(29, 17, 3)
+    p.poly([(22, 21), (26, 21), (24, 23)], "hpink")
+    p.ball(24, 37, 11, 9, "grey", "dgrey")                       # body
+    p.line([(31, 26), (35, 38), (34, 44)], "gold", 4)            # the sax: a gold tube,
+    p.poly([(31, 43), (40, 43), (38, 47), (30, 47)], "dyellow")   # its bell,
+    p.line([(31, 27), (27, 24)], "gold", 3)                      # and its neck to the mouth
+    p.px(33, 32, "dyellow"); p.px(34, 36, "dyellow"); p.px(34, 40, "dyellow")
+    return p.done()
+
+
 STAND_INS = {                    # the look-alike's name: the stand-in's name and picture
     "BLUE PUP": ("SPOTTY PUP", spottypup),
     "RED PUP": ("FOX", fox),
@@ -1744,6 +1794,9 @@ FRIENDS = [
     ("TIGER CUB", tigercub),
     ("RACCOON", raccoon),
     ("GOLDENROD", goldenrod),
+    ("PIANO PAL", pianopal),
+    ("FLUTE BIRD", flutebird),
+    ("SAX CAT", saxcat),
 ]
 
 
@@ -1820,6 +1873,142 @@ def rle(idx):                          # a picture's colour indexes (N x N) as k
 def rgb565(c):
     r, g, b = c[:3]
     return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
+
+
+# ------------------------------------------------------------------ the hats
+# Ten small hats any friend can wear (kid.c: HOME held 1 s, then KNOB 4). Each is drawn like a friend, then cropped to its
+# own size and kept in a HAT_W x HAT_H box (bottom, centre); the friend's picture says where its head top is (hat_anchor).
+HAT_W, HAT_H = 22, 16
+
+
+def hat_party():
+    p = Pic()
+    p.poly([(24, 20), (17, 31), (31, 31)], "red")
+    for x0, x1, y in ((22, 26, 24), (20, 28, 28)):
+        p.rect(x0, y, x1, y + 1, "yellow")
+    p.ell(24, 20, 2, 2, "yellow")
+    p.rect(17, 30, 31, 31, "hpink")
+    return p.done()
+
+
+def hat_crown():
+    p = Pic()
+    p.poly([(16, 31), (16, 22), (20, 26), (24, 20), (28, 26), (32, 22), (32, 31)], "gold")
+    p.rect(16, 28, 32, 31, "dyellow")
+    p.px(24, 24, "red"); p.px(19, 29, "blue"); p.px(29, 29, "green")
+    p.px(16, 21, "yellow"); p.px(24, 19, "yellow"); p.px(32, 21, "yellow")
+    return p.done()
+
+
+def hat_top():
+    p = Pic()
+    p.rect(18, 22, 30, 29, "black")
+    p.rect(18, 26, 30, 27, "red")
+    p.rect(15, 30, 33, 31, "black")
+    p.rect(20, 23, 21, 24, "dgrey")
+    return p.done()
+
+
+def hat_bucket():
+    p = Pic()
+    for i, c in enumerate(["red", "orange", "yellow", "green", "blue"]):
+        p.rect(18 - (i == 0) * -1, 22 + i * 2, 30 + (i == 0) * -1, 23 + i * 2, c)
+    p.rect(15, 32, 33, 33, "purple")
+    p.rect(18, 22, 30, 22, "red")
+    return p.done()
+
+
+def hat_wizard():
+    p = Pic()
+    p.poly([(26, 19), (19, 31), (31, 31), (29, 25)], "purple")
+    p.poly([(26, 19), (30, 20), (28, 24)], "purple")
+    p.rect(15, 30, 33, 32, "dpurple")
+    p.px(24, 27, "yellow"); p.px(27, 25, "yellow"); p.px(22, 29, "yellow")
+    return p.done()
+
+
+def hat_beanie():
+    p = Pic()
+    p.ell(24, 27, 8, 5, "red")
+    p.rect(16, 28, 32, 31, "white")
+    for x in range(17, 32, 2):
+        p.px(x, 29, "grey")
+    p.ell(24, 21, 2, 2, "white")
+    return p.done()
+
+
+def hat_western():
+    p = Pic()
+    p.poly([(19, 30), (20, 23), (22, 25), (26, 25), (28, 23), (29, 30)], "brown")
+    p.poly([(15, 28), (17, 31), (31, 31), (33, 28), (32, 32), (16, 32)], "dbrown")
+    p.rect(20, 28, 28, 29, "dbrown")
+    p.px(24, 23, "dbrown")
+    return p.done()
+
+
+def hat_chef():
+    p = Pic()
+    p.ell(19, 24, 4, 4, "white"); p.ell(24, 22, 5, 4, "white"); p.ell(29, 24, 4, 4, "white")
+    p.rect(18, 26, 30, 31, "white")
+    p.rect(18, 30, 30, 31, "dwhite")
+    return p.done()
+
+
+def hat_prop():
+    p = Pic()
+    p.pie(24, 31, 8, 180, 360, "blue")
+    p.pie(24, 31, 8, 225, 270, "red"); p.pie(24, 31, 8, 270, 315, "yellow")
+    p.rect(15, 30, 33, 31, "dblue")
+    p.rect(23, 21, 24, 23, "grey")
+    p.rect(18, 20, 30, 20, "red")
+    return p.done()
+
+
+def hat_flowers():
+    p = Pic()
+    p.rect(15, 29, 33, 31, "green")
+    for x, c in ((17, "pink"), (21, "yellow"), (26, "white"), (30, "hpink")):
+        p.ell(x, 28, 2, 2, c)
+        p.px(x, 28, "gold")
+    p.px(18, 26, "lgreen"); p.px(24, 25, "lgreen"); p.px(29, 26, "lgreen")
+    return p.done()
+
+
+HATS = [("PARTY", hat_party), ("CROWN", hat_crown), ("TOP HAT", hat_top), ("BUCKET", hat_bucket), ("WIZARD", hat_wizard),
+        ("BEANIE", hat_beanie), ("WESTERN", hat_western), ("CHEF", hat_chef), ("PROPELLER", hat_prop), ("FLOWERS", hat_flowers)]
+
+
+def hat_sprite(f):                      # the hat cropped, in a HAT_W x HAT_H box, bottom and centre
+    im = f().im
+    x0, y0, x1, y1 = im.getbbox()
+    w, h = x1 - x0, y1 - y0
+    if w > HAT_W or h > HAT_H:
+        raise SystemExit(f"a hat is {w} x {h}: {HAT_W} x {HAT_H} at most")
+    out = Image.new("RGBA", (HAT_W, HAT_H), (0, 0, 0, 0))
+    out.paste(im.crop((x0, y0, x1, y1)), ((HAT_W - w) // 2, HAT_H - h))
+    return out
+
+
+# where a friend wears a hat: (centre x, the row its hat's bottom edge sits on, hat width): the head top of its picture,
+# found from the picture (the topmost rows' middle), and the overrides below for a picture that is not a head up top
+HAT_AT = {}   # name -> (x, y, w)
+
+
+def hat_anchor(name, im):
+    px = im.load()
+    rows = [y for y in range(N) if any(px[x, y][3] for x in range(N))]
+    top = rows[0]
+    if name in HAT_AT:
+        return HAT_AT[name]
+    xs = [x for y in range(top, min(top + 5, N)) for x in range(N) if px[x, y][3]]
+    cx = (min(xs) + max(xs)) // 2
+    span = [x for x in range(N) if px[x, min(top + 8, N - 1)][3]]
+    w = max(10, min(20, (max(span) - min(span)) * 3 // 4 if span else 16))
+    hh = HAT_H * w // HAT_W
+    return cx, max(top + 4, hh + 1), w
+
+
+hat_anchors = []
 
 
 def main(out, png=None):
@@ -1908,6 +2097,38 @@ def main(out, png=None):
     for _, d in icons:
         lines.append("    {" + ",".join(str(b) for b in d) + "},")
     lines.append("};")
+    hat_data = []                                                # the hats, 4 bits a pixel, each with its own palette
+    for _, f in HATS:
+        him, cols, hidx = hat_sprite(f), [], []
+        for y in range(HAT_H):
+            for x in range(HAT_W):
+                q = him.getpixel((x, y))
+                if not q[3]:
+                    hidx.append(0)
+                    continue
+                if q[:3] not in cols:
+                    cols.append(q[:3])
+                hidx.append(cols.index(q[:3]) + 1)
+        if len(cols) > 15:
+            raise SystemExit(f"a hat has {len(cols)} colours, 15 at most")
+        hat_data.append(([0] + [rgb565(c) for c in cols] + [0] * (15 - len(cols)),
+                         bytes((hidx[i] << 4) | hidx[i + 1] for i in range(0, len(hidx), 2))))
+    lines.append(f"#define KID_HAT_N {len(HATS)}")
+    lines.append(f"#define KID_HAT_W {HAT_W}")
+    lines.append(f"#define KID_HAT_H {HAT_H}")
+    lines.append("static const char *const KID_HAT_NAME[KID_HAT_N] = {" + ", ".join(f'"{n}"' for n, _ in HATS) + "};")
+    lines.append("static const uint16_t KID_HAT_PAL[KID_HAT_N][16] = {")
+    for pal, _ in hat_data:
+        lines.append("    {" + ", ".join(f"0x{v:04X}" for v in pal) + "},")
+    lines.append("};")
+    lines.append(f"static const uint8_t KID_HAT_PIX[KID_HAT_N][{HAT_W * HAT_H // 2}] = {{")
+    for _, d in hat_data:
+        lines.append("    {" + ",".join(str(b) for b in d) + "},")
+    lines.append("};")
+    anchors = [hat_anchor(n, im) for n, im in pics]
+    lines.append("/* where each picture's head top is: the hat's centre x, the row its bottom sits on, and its width (kid.c kid_hat) */")
+    lines.append("static const uint8_t KID_HAT_AT[KID_NART][3] = {" + ", ".join("{%d, %d, %d}" % a for a in anchors) + "};")
+    hat_anchors[:] = anchors
     lines.append(f"#define KID_CLEF_W {len(CLEF[0])}")
     lines.append(f"#define KID_CLEF_H {len(CLEF)}")
     lines.append(f"static const uint16_t KID_CLEF[{len(CLEF)}] = {{    /* bit 15 the left column */")
@@ -1924,6 +2145,18 @@ def main(out, png=None):
             ImageDraw.Draw(sheet).rectangle([x, y, x + N * 4 - 1, y + N * 4 - 1], outline=(90, 160, 220))
             sheet.paste(big, (x, y), big)
         sheet.save(png)
+        hs = Image.new("RGB", (cols * (N * 4 + 8), ((len(pics) + cols - 1) // cols) * (N * 4 + 8)), (120, 200, 255))
+        for i, (_, im) in enumerate(pics):                       # every picture in a hat, to check where they sit
+            big = im.copy()
+            cx, by, w = hat_anchors[i]
+            hat = hat_sprite(HATS[i % len(HATS)][1])
+            hh = HAT_H * w // HAT_W
+            hat = hat.resize((w, hh), Image.NEAREST)
+            big.alpha_composite(hat, (cx - w // 2, by - hh)) if cx - w // 2 >= 0 and by - hh >= 0 else None
+            big = big.resize((N * 4, N * 4), Image.NEAREST)
+            x, y = (i % cols) * (N * 4 + 8) + 4, (i // cols) * (N * 4 + 8) + 4
+            hs.paste(big, (x, y), big)
+        hs.save(png.replace(".png", "-hats.png"))
         row = Image.new("RGB", (len(ICONS) * (N * 4 + 8), N * 4 + 8), (150, 110, 230))
         for i, f in enumerate(ICONS):
             big = f().im.resize((N * 4, N * 4), Image.NEAREST)

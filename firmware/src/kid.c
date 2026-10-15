@@ -201,6 +201,9 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {2, "ORGAN", 79, KS_LEAVES, KB_TRAIN},           /* TIGER CUB: a bright, reedy organ, and a trolley's beat (a look-alike: LION CUB) */
     {2, "WIRE", 100, KS_STARS, KB_DISCO},             /* RACCOON: a plucky wire, out at night (a look-alike: SQUIRREL) */
     {0, "STRINGS", 93, KS_LEAVES, KB_HOEDOWN},       /* GOLDENROD: prairie strings (a prairie flower) */
+    {4, "PIANO", 96, KS_STARS, KB_LULLABY},          /* PIANO PAL: a real piano recording (SAMPLE) */
+    {4, "FLUTE", 95, KS_CLOUDS, KB_SAMBA},           /* FLUTE BIRD: a real flute (SAMPLE) */
+    {4, "SAX", 93, KS_BUBBLES, KB_REGGAE},           /* SAX CAT: a real saxophone (SAMPLE) */
 };
 
 /* the beats: drums on track 4 (DRUM), a bass line on track 2, 16 steps of 1/16. Drums: a string per lane
@@ -313,7 +316,7 @@ static const int8_t KID_SIN[32] = {0, 25, 49, 71, 90, 106, 117, 125, 127, 125, 1
                                    0, -25, -49, -71, -90, -106, -117, -125, -127, -125, -117, -106, -90, -71, -49, -25};
 
 enum { KH_NONE, KH_SIZE, KH_NIGHT, KH_ECHO, KH_WIGGLE, KH_SPEED, KH_CHORD, KH_SPARKLE, KH_BEAT, KH_VOLUME, KH_NEWSONG, KH_SONG,
-       KH_LOOK };
+       KH_LOOK, KH_HAT };
 enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 /* ALGORITHM: how the keys play (kid_mode_set). CHOIR: three friends sing a chord; STRUM: an Omnichord (seq.c
  * kb_strum_map); GUESS: an ear game; FOLLOW: songs to learn, the next key lit */
@@ -905,6 +908,20 @@ static void kid_name_input(uint32_t pressed)       /* the NAME's own controls; e
             return;
         }
     }
+}
+
+/* the HAT (HOME held 1 s, then KNOB 4): one of KID_HAT_N hats on every friend, or none, kept over power-off in a spare
+ * setting byte (favorites.factory[13][19]: SLICE has two presets, so its favourites use one byte of 32) */
+#define KID_HAT_BYTE (favorites.factory[13][19])
+#define KID_HAT (KID_HAT_BYTE > KID_HAT_N ? 0u : (uint32_t)KID_HAT_BYTE)
+static void kid_hat_step(int32_t d)
+{
+    int32_t h = (int32_t)KID_HAT + (d > 0 ? 1 : -1);
+    h = h < 0 ? (int32_t)KID_HAT_N : h > (int32_t)KID_HAT_N ? 0 : h;           /* round: none, the hats, none */
+    KID_HAT_BYTE = (uint8_t)h;
+    settings_save();
+    kid.full = 1;
+    kid_hint(KH_HAT);
 }
 
 static uint32_t kid_beat_ms(void);
@@ -1744,6 +1761,12 @@ static void kid_input(void)
         kid_knobs();
         kid_hint(KH_ECHO);
     }
+#if !BOARD_SMK37
+    if ((s = panel_enc(EN_K4)) != 0 && kid.vol_open) {              /* HOME held 1 s: the HAT */
+        any = 1u;
+        kid_hat_step(s);
+    } else
+#endif
     if ((s = panel_enc(EN_K4)) != 0 && !kw.on) {
         any = 1u;
         kid.wiggle = (uint8_t)clamp(kid.wiggle + s, 0, 8);
@@ -1822,6 +1845,7 @@ static struct {
     uint16_t sky[KID_BAND_Y];
     uint16_t sky_mid;
     kid_inst_t in[6];                   /* front first */
+    uint8_t hat;                        /* the hat worn (KID_HAT), 0 none */
     uint32_t n;
     uint16_t pal[4][16];                /* the echoes' faded palettes */
     uint16_t ice[16];                   /* FREEZE: the friend's palette, icy */
@@ -1905,6 +1929,7 @@ static void kid_frame_setup(uint32_t now)
     kid_inst_t tmp[6];
     kf.t = now;
     kf.ph = now / 45u;
+    kf.hat = (uint8_t)KID_HAT;
     for (y = 0; y < KID_BAND_Y; y++)
         kf.sky[y] = kid_mix(top, bot, y * 256u / KID_BAND_Y);
     kf.sky_mid = kf.sky[KID_BAND_Y / 2u];
@@ -2144,11 +2169,11 @@ static uint32_t kid_play_band(uint32_t now)
 static uint32_t kid_band_setup(uint32_t now)
 {
     uint32_t sig, len, w;
-    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
+    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
     int hint = kid.hint != KH_NONE && now - kid.hint_ms < 1500u;
     kf.meter = -1;
     kf.ol = 2;
-    if (kw.on && !(hint && (kid.hint == KH_SPEED || kid.hint == KH_NIGHT || kid.hint == KH_VOLUME || kid.hint == KH_LOOK))) {
+    if (kw.on && !(hint && (kid.hint == KH_SPEED || kid.hint == KH_NIGHT || kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT))) {
         /* WRITE: the friend to write with, and a word */
         kf.band = KB_NAME;
         kf.txt = hint && kid.hint == KH_BEAT ? (kw.beat ? KID_BEATS[(kw.beat - 1u) % KB_COUNT].name : "NO BEAT") :
@@ -2221,6 +2246,7 @@ static uint32_t kid_band_setup(uint32_t now)
             v = -1;
             break;
         case KH_LOOK: kf.txt = KID_VOL_BYTE & KID_HIDE_BIT ? "LOOK-ALIKES OFF" : "LOOK-ALIKES ON"; v = -1; break;
+        case KH_HAT: kf.txt = KID_HAT ? KID_HAT_NAME[KID_HAT - 1u] : "NO HAT"; v = -1; break;
         default: break;
         }
         kf.meter = (int8_t)clamp(v, -1, 8);
@@ -2674,6 +2700,20 @@ static int32_t kid_friends_px(int32_t x, int32_t y)        /* the friends, front
         rx = sx * in->invx >> 8;
         if (in->flip)
             rx = KID_PW - 1 - rx;
+        if (kf.hat) {                                    /* the hat, over the head top (KID_HAT_AT) */
+            const uint8_t *at = KID_HAT_AT[in->art];
+            int32_t hw = at[2], hh = KID_HAT_H * hw / KID_HAT_W, cx = in->flip ? KID_PW - 1 - (int32_t)at[0] : (int32_t)at[0];
+            int32_t hx = rx - (cx - hw / 2), hy = ry - ((int32_t)at[1] - hh);
+            if ((uint32_t)hx < (uint32_t)hw && (uint32_t)hy < (uint32_t)hh) {
+                uint32_t hb;
+                hx = hx * KID_HAT_W / hw;
+                hy = hy * KID_HAT_W / hw;
+                hb = KID_HAT_PIX[kf.hat - 1u][(uint32_t)(hy * KID_HAT_W + hx) >> 1];
+                hb = hx & 1 ? hb & 15u : hb >> 4;
+                if (hb)
+                    return KID_HAT_PAL[kf.hat - 1u][hb];
+            }
+        }
         b = kid_row(in->art, (uint32_t)ry)[rx];
         if (b)
             return in->pal[b];

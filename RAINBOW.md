@@ -12,7 +12,7 @@ at the next power-on.
 | Control | What happens |
 | --- | --- |
 | Keys | Play the friend's sound. The note's letter shows big in the band at the bottom, in its own color, and the friend hops. A music staff drops in at the top and writes the note (see below). |
-| PRESETS | Next or previous friend (73 of them, each with its own picture, sound, home sky and favorite beat). |
+| PRESETS | Next or previous friend (76 of them, each with its own picture, sound, home sky and favorite beat). |
 | ALGORITHM | How the keys play, one step per turn (below): 1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW, CHORDS. |
 | SELECT | The beat slower or faster (SLOW, WALK, FAST). |
 | KNOB 1 | Big and small. Low notes make a big friend, high notes a small one. OCT- and OCT+ do the same. |
@@ -34,6 +34,7 @@ at the next power-on.
 | SAVE | WRITE: write your own song (below). SAVE again goes back to playing. |
 | HOME held 1 s, then OCT- / OCT+ | The grown-ups' VOLUME: the most the MASTER knob can give (below). |
 | HOME held 1 s, then ALGORITHM | The grown-ups' NAME: the name the hello greets (below). |
+| HOME held 1 s, then KNOB 4 | The HAT: ten hats (party, crown, top hat, rainbow bucket, wizard, beanie, western, chef, propeller, flowers) any friend can wear, or none; the band names it. Kept over power-off. (On the SMK-37: not yet.) |
 | HOME held 1 s, then PRESETS | The grown-ups' LOOK-ALIKES: left swaps the friends drawn after TV and film characters for original stand-ins, right brings them back (below). |
 | MASTER | Volume, up to the VOLUME the grown-ups chose (about half, unless changed). |
 
@@ -204,6 +205,9 @@ beat, for the trolley), Raccoon (with a box of collected treasures; PHASE's WIRE
 (a prairie flower: golden plumes on tall stems; ANALOG's STRINGS and HOEDOWN, for the prairie). Grouch, Tiger Cub and
 Raccoon are look-alikes, with Alley Cat, Lion Cub and Squirrel as their stand-ins.
 
+And three that play real recordings: Piano Pal, Flute Bird and Sax Cat use SAMPLE, the piano, flute and sax sets Felucca carries
+(about 104 KB of its flash, which no friend used before). The drum break of SLICE (22 KB) is the one piece left over.
+
 Each one uses one of Felucca's own factory sounds (listed in `firmware/src/kid.c`, `KID_SOUND`), with its
 level set so they all play at about the same loudness. Each also has a home sky and a favorite beat
 (Ghost and Slimy: SPOOKY, a ghost-hunting funk; Frog and Axolotl: REGGAE; Butterfly and Rainbow: LULLABY). Scissors
@@ -220,7 +224,7 @@ repository and its website are public.
 
 ## Where it lives
 
-- `tools/gen_kid_art.py`: the 73 pictures, drawn from shapes on a 48 x 48 grid and outlined
+- `tools/gen_kid_art.py`: the 76 pictures, drawn from shapes on a 48 x 48 grid and outlined
   automatically. `python3 tools/gen_kid_art.py /tmp/kid_art.h --png /tmp/sheet.png` writes a contact
   sheet to look at. The build runs it (`tools/build.py` generate).
 - `firmware/src/kid.c`: everything else (sounds, knobs, buttons, the screen). It takes over the main
