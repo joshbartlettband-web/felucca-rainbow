@@ -80,6 +80,51 @@
 </head>
 <body>
 <div class="stripe"></div>
+<!--MORE-TOP-->
+<style>
+  .jbm-top { max-width: 940px; margin: 0 auto; padding: 10px 16px 0; display: flex; justify-content: flex-end; position: relative; z-index: 5; }
+  .jbm-top details { position: relative; background: none; padding: 0; margin: 0; border-radius: 0; }
+  .jbm-top summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 40px;
+    padding: 0 14px; border-radius: 999px; font: 600 15px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #f6ead2; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18); }
+  .jbm-top summary::-webkit-details-marker { display: none; }
+  .jbm-top summary::after { content: ""; width: 7px; height: 7px; border: solid currentColor; border-width: 0 2px 2px 0;
+    transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
+  .jbm-top details[open] summary::after { transform: translateY(1px) rotate(-135deg); }
+  .jbm-top summary:focus-visible, .jbm-top a:focus-visible, .jbm-bottom a:focus-visible { outline: 3px solid #3fe0c5; outline-offset: 3px; }
+  .jbm-top ul { position: absolute; right: 0; top: calc(100% + 8px); width: min(320px, calc(100vw - 32px)); margin: 0; padding: 8px;
+    list-style: none; background: #1b1430; border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .12); }
+  .jbm-top li a { display: flex; gap: 12px; align-items: center; padding: 8px; border-radius: 12px; text-decoration: none; color: #f6ead2; }
+  .jbm-top li a:hover { background: rgba(255, 255, 255, .08); }
+  .jbm-top li img { width: 52px; height: 52px; object-fit: cover; object-position: center; border-radius: 10px; flex: none; image-rendering: pixelated; }
+  .jbm-top li b { display: block; font: 700 16px/1.25 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .jbm-top li span { display: block; font: 13px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; color: #c9bcd9; }
+  .jbm-bottom { max-width: 940px; margin: 64px auto 0; padding: 0 16px; }
+  .jbm-bottom h2 { margin: 0 0 14px; }
+  .jbm-bottom ul { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .jbm-bottom a { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: center; padding: 12px; border-radius: 18px;
+    text-decoration: none; color: inherit; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); }
+  .jbm-bottom a:hover { background: rgba(255, 255, 255, .1); }
+  .jbm-bottom img { width: 120px; height: 120px; object-fit: cover; object-position: center; border-radius: 12px; image-rendering: pixelated; }
+  .jbm-bottom b { display: block; font-size: 1.15rem; }
+  .jbm-bottom span { display: block; font-size: .95rem; line-height: 1.4; opacity: .85; }
+  .jbm-bottom em { display: block; margin-top: 6px; font-style: normal; font-weight: 700; font-size: .95rem; color: #3fe0c5; }
+  @media (min-width: 640px) {
+    .jbm-bottom ul { grid-template-columns: repeat(2, 1fr); }
+    .jbm-bottom a { grid-template-columns: 1fr; align-items: start; }
+    .jbm-bottom img { width: 100%; height: auto; aspect-ratio: 1; }
+  }
+</style>
+<nav class="jbm-top" aria-label="Other projects by Josh">
+  <details>
+    <summary>Other projects by Josh</summary>
+    <ul>
+      <li><a href="https://joshbartlettband-web.github.io/Double-Rainbow/"><img src="more/double-rainbow.gif" width="52" height="52" alt=""><span><b>Double Rainbow</b><span>Synth characters for the FM-1, ten and up</span></span></a></li>
+      <li><a href="https://joshbartlettband-web.github.io/Fretbound/"><img src="more/fretbound.gif" width="52" height="52" alt=""><span><b>Fretbound</b><span>Ear training for guitarists, in your browser</span></span></a></li>
+    </ul>
+  </details>
+</nav>
+<!--/MORE-TOP-->
 <main>
   <section class="hero">
     <div>
@@ -179,6 +224,24 @@
 </section>
 </main>
 
+<!--MORE-BOTTOM-->
+<section class="jbm-bottom" aria-labelledby="jbm-h">
+  <h2 id="jbm-h">Other projects by Josh</h2>
+  <ul>
+    <li><a href="https://joshbartlettband-web.github.io/Double-Rainbow/"><img src="more/double-rainbow.gif" width="240" height="240" loading="lazy" alt="Double Rainbow, a few of its screens"><div><b>Double Rainbow</b><span>Firmware for the M-VAVE FM-1: twenty-four escaped sounds, each a character on a real synth engine. For players from about ten up.</span><em>Take a look</em></div></a></li>
+    <li><a href="https://joshbartlettband-web.github.io/Fretbound/"><img src="more/fretbound.gif" width="240" height="240" loading="lazy" alt="Fretbound, a few of its screens"><div><b>Fretbound</b><span>A roguelike ear-training game for guitarists. A rival plays a phrase and you answer on the fretboard. Plays in your browser.</span><em>Take a look</em></div></a></li>
+  </ul>
+</section>
+<script>
+  // the menu closes on a click outside it or on Escape
+  (function () {
+    var d = document.querySelector(".jbm-top details");
+    if (!d) return;
+    document.addEventListener("click", function (e) { if (d.open && !d.contains(e.target)) d.open = false; });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && d.open) { d.open = false; d.querySelector("summary").focus(); } });
+  })();
+</script>
+<!--/MORE-BOTTOM-->
 <footer>
   <p><b>Built on Felucca</b>, the multi-engine synthesizer firmware for the FM-1 by Leo Kuroshita and Hügelton Instruments. Rainbow mode is a fork of it and adds a toy mode on top: <a href="https://github.com/hugelton/Felucca">github.com/hugelton/Felucca</a>.</p>
   <p>Free and open source under the GPL-3.0. Source code and a guide to every control: <a href="https://github.com/@REPO@">github.com/@REPO@</a>. The pictures are original drawings.</p>
