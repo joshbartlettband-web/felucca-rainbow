@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-3.0-only
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'io.github.joshbartlettbandweb.fm1rescue'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'io.github.joshbartlettbandweb.fm1rescue'
+        minSdk 29                       // MediaStore.Downloads for the backups
+        targetSdk 34
+        versionCode 1
+        versionName '0.1'
+    }
+    buildFeatures {
+        buildConfig true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    lint {
+        abortOnError false
+    }
+}
