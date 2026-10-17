@@ -14,10 +14,9 @@ NOTE = [(236, 40, 52), (246, 92, 40), (255, 140, 26), (255, 184, 30), (255, 218,
 LETTER = {0: "C", 2: "D", 4: "E", 5: "F", 7: "G", 9: "A", 11: "B"}
 T1, T2, T3, TL, TK = font(64, b"ExtraBold"), font(34, b"Medium"), font(26, b"SemiBold"), font(40, b"Bold"), font(22, b"Bold")
 meta = json.load(open("captions.json")); caps = meta["captions"]; fps = meta["fps"]; n = meta["frames"]; KEYS = meta["keys"]
-ITEMS = ["8 new friends with Prophet-5 style sounds", "4 new skies: clouds, snow, leaves, a desert",
-         "ACCORDION goes jazz: ninths and fourths", "SPARKLE TUNE: the arp leaves the chords alone",
-         "Measures on the staff, and in WRITE", "Every friend sings whole chords now",
-         "LOOK-ALIKES: a switch for grown-ups"]
+ITEMS = ["94 friends, and now in sets", "Real piano, flute and sax", "Acid friends that slide like a 303",
+         "New skies: sea, rain, fireworks", "COPY ME: a memory game", "WRITE: loop and layer",
+         "Stars open a hat, a sky, a friend", "BREAK: Felucca's own drum loop"]
 SX, SY, SS = 108, 196, 864                    # the FM-1's screen: 240 px at 3.6x
 KX0, KX1, KY0, KY1 = 40, 1040, 1106, 1270     # the keyboard: F3 .. G5, 16 white keys
 
@@ -81,7 +80,7 @@ def frames(start=0, stop=None):
                     ai = max(0.0, min(1.0, (t - cur[0] - 900 - i * meta["list_gap"]) / 300))
                     if ai <= 0:
                         continue
-                    y = SY + 70 + i * 108
+                    y = SY + 64 + i * 100
                     col = RAIN[i % 6]
                     d.ellipse([SX + 48, y - 14, SX + 76, y + 14], fill=fade(col, ai, DARK))
                     d.text((SX + 100 + int((1 - ai) * 30), y), item, font=TL, fill=fade(INK, ai, DARK), anchor="lm")

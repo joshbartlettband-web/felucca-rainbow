@@ -1,0 +1,73 @@
+# The demo video (landing/rainbow-mode.mp4), recorded from the current build. Run it by hand: Actions > tour-video >
+# Run workflow. It builds Felucca for the browser, plays the tour in tools/video/record_tour.mjs, lays it out with
+# tools/video/compose_tour.py, and attaches rainbow-mode.mp4 and poster.png to the run (Artifacts, at the bottom of the
+# run's page). Nothing is published: look at it, and if it is good, put both in landing/ and push.
+# The tour and the "new since the last video" list are in those two scripts; change them when the toy changes.
+name: tour-video
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EMSDK_VERSION: 3.1.74
+
+jobs:
+  record:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python packages
+        run: pip install Pillow fonttools
+
+      - name: Generated headers (fonts, icons, tables, samples), as build.py makes them
+        run: python3 -c "import sys; sys.path.insert(0, 'tools'); import build; build.generate()"
+
+      - name: Restore Emscripten
+        id: emcache
+        uses: actions/cache@v4
+        with:
+          path: ~/emsdk
+          key: emsdk-${{ env.EMSDK_VERSION }}-v1
+
+      - name: Install Emscripten
+        if: steps.emcache.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git ~/emsdk
+          ~/emsdk/emsdk install "$EMSDK_VERSION"
+
+      - name: Build Felucca for the browser
+        run: |
+          ~/emsdk/emsdk activate "$EMSDK_VERSION" >/dev/null
+          . ~/emsdk/emsdk_env.sh >/dev/null
+          EMU_PREVIEW=0 sh web/emu/build.sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Record the tour, then lay it out
+        run: |
+          mkdir -p build/tour
+          node tools/video/record_tour.mjs build/emu/felucca.wasm build/tour
+          cd build/tour
+          python3 ../../tools/video/compose_tour.py video rainbow-mode.mp4
+          python3 ../../tools/video/compose_tour.py still 680 poster-full.png
+          python3 -c "from PIL import Image; Image.open('poster-full.png').resize((540, 675), Image.LANCZOS).save('poster.png', optimize=True)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rainbow-mode-tour
+          path: |
+            build/tour/rainbow-mode.mp4
+            build/tour/poster.png
