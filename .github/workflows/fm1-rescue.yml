@@ -56,4 +56,4 @@ jobs:
           gh release delete fm1-rescue-test --yes --cleanup-tag || true
           gh release create fm1-rescue-test fm1-rescue.apk --prerelease --target "$GITHUB_SHA" \
             --title "FM-1 Rescue (test build)" \
-            --notes "A test build of FM-1 Rescue (android/README.md), from ${GITHUB_REF_NAME} at ${GITHUB_SHA::7}. APK sha256: ${sha}. Debug-signed: uninstall the previous test build before installing a new one."
+            --notes "A test build of FM-1 Rescue (android/README.md), from ${GITHUB_REF_NAME} at ${GITHUB_SHA::7}. APK sha256: ${sha}. Signed with the public test key (android/app/test-signing.jks): a new test build installs over the last one."

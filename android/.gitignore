@@ -3,4 +3,5 @@ build/
 local.properties
 core-test/build/
 core-test/*.bin
+!app/test-signing.jks
 core-test/synthetic.fwsc

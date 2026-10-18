@@ -268,6 +268,8 @@ public class MainActivity extends Activity {
         writeMode = write;
         sessions = 0;
         asked.clear();
+        seen.clear();
+        lastBeat = android.os.SystemClock.elapsedRealtime();
         waiting = true;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         say(write ? "Repair armed: waiting for the FM-1 in its boot mode ..." : "Check armed: waiting for the FM-1 in its boot mode ...");
@@ -284,10 +286,57 @@ public class MainActivity extends Activity {
         refreshButtons();
     }
 
+    /** Every USB device while waiting, as it comes and goes: what the FM-1 really presents (and how often it restarts). */
+    private final java.util.Map<String, Long> seen = new java.util.HashMap<>();
+    private long lastBeat;
+
+    private static String describe(UsbDevice d) {
+        StringBuilder s = new StringBuilder(String.format(Locale.US, "%04X:%04X", d.getVendorId(), d.getProductId()));
+        try {
+            if (d.getManufacturerName() != null) s.append(" \"").append(d.getManufacturerName()).append('"');
+            if (d.getProductName() != null) s.append(" \"").append(d.getProductName()).append('"');
+        } catch (SecurityException ignored) { }
+        s.append(String.format(Locale.US, ", class %02X", d.getDeviceClass()));
+        for (int i = 0; i < d.getInterfaceCount(); i++) {
+            android.hardware.usb.UsbInterface f = d.getInterface(i);
+            s.append(String.format(Locale.US, i == 0 ? ", interfaces %02X/%02X/%02X" : " %02X/%02X/%02X",
+                    f.getInterfaceClass(), f.getInterfaceSubclass(), f.getInterfaceProtocol()));
+        }
+        if (d.getVendorId() == Uboot.VID && d.getProductId() == Uboot.PID) s.append("  <- the boot mode");
+        else if (d.getVendorId() == 0x1209 && d.getProductId() == 0x0002) s.append("  <- Felucca's update mode: the web installer finishes the install");
+        else if (d.getVendorId() == 0x1209 && d.getProductId() == 0x0001) s.append("  <- Felucca / Rainbow mode is running");
+        return s.toString();
+    }
+
+    private void watchDevices() {
+        long now = android.os.SystemClock.elapsedRealtime();
+        Set<String> here = new HashSet<>();
+        for (UsbDevice d : usb.getDeviceList().values()) {
+            String k = d.getDeviceName() + "#" + d.getDeviceId();
+            here.add(k);
+            if (!seen.containsKey(k)) {
+                seen.put(k, now);
+                say("USB device appeared: " + describe(d));
+            }
+        }
+        for (java.util.Iterator<java.util.Map.Entry<String, Long>> it = seen.entrySet().iterator(); it.hasNext(); ) {
+            java.util.Map.Entry<String, Long> e = it.next();
+            if (!here.contains(e.getKey())) {
+                say(String.format(Locale.US, "USB device gone after %.1f s", (now - e.getValue()) / 1000.0));
+                it.remove();
+            }
+        }
+        if (now - lastBeat > 15000) {
+            lastBeat = now;
+            if (here.isEmpty()) say("Still waiting: the phone sees no USB device at all.");
+        }
+    }
+
     private final Runnable poll = new Runnable() {
         @Override public void run() {
             ui.removeCallbacks(this);
             if (!waiting || running) return;
+            watchDevices();
             for (UsbDevice d : usb.getDeviceList().values()) {
                 if (d.getVendorId() != Uboot.VID || d.getProductId() != Uboot.PID) continue;
                 if (usb.hasPermission(d)) {
