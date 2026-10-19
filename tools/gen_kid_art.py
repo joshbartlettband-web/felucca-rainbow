@@ -31,7 +31,7 @@ C = dict(
     dlime=(112, 180, 40), lgreen=(214, 252, 170), purple=(150, 88, 226), dpurple=(104, 56, 180),
     lpurple=(204, 164, 255), brown=(150, 92, 46), dbrown=(84, 50, 32), tan=(226, 176, 112), dtan=(186, 128, 70),
     silver=(214, 220, 236), dwhite=(204, 212, 238), sky=(150, 206, 255), glass=(212, 236, 255),
-    mint=(110, 230, 196), dmint=(52, 176, 148),
+    mint=(110, 230, 196), dmint=(52, 176, 148), tongue=(179, 38, 94),
 )
 
 
@@ -2001,6 +2001,42 @@ def helicopter():
     return p.done()
 
 
+NOODLE = [                       # a 16 x 23 drawing, each pixel drawn 2 x 2: # black, w white, t its tongue
+    ".........##.....",
+    "......########..",
+    ".....##########.",
+    ".....##########.",
+    "....###www##www#",
+    "....###w#w##w#w#",
+    "....###www##www#",
+    "....############",
+    "....######tt###.",
+    "....######tt##..",
+    ".....#####tt#...",
+    ".....########...",
+    "....########....",
+    "...########.....",
+    "..#########.....",
+    ".##########.....",
+    "###########.....",
+    "###########.....",
+    "###########.....",
+    "###########.....",
+    "######..###.....",
+    "######..###.....",
+    "######..###.....",
+]
+
+
+def noodle():                    # a dopey black pup, sitting, its tongue out (from a pixel drawing)
+    p = Pic()
+    for y, row in enumerate(NOODLE):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                p.rect(7 + 2 * x, 1 + 2 * y, 8 + 2 * x, 2 + 2 * y, {"#": "black", "w": "white", "t": "tongue"}[ch])
+    return p.done()
+
+
 STAND_INS = {                    # the look-alike's name: the stand-in's name and picture
     "BLUE PUP": ("SPOTTY PUP", spottypup),
     "RED PUP": ("FOX", fox),
@@ -2120,6 +2156,7 @@ FRIENDS = [
     ("FIRE TRUCK", firetruck),
     ("SCHOOL BUS", schoolbus),
     ("HELICOPTER", helicopter),
+    ("NOODLE", noodle),
     ("GOLD DUCKY", ducky("gold", "dyellow", goldcrown)),       # the secret friend (50 stars): always the last
 ]
 SECRET_FRIEND = "GOLD DUCKY"
