@@ -41,7 +41,7 @@ const shot = (name) => {
   fs.writeFileSync(`${outDir}/kid_${name}.ppm`, Buffer.concat([Buffer.from("P6 240 240 255\n"), b]));
 };
 const WHITE = 0xFFFF;
-const NF = 95;                                                               // the friends (kid_art.h KID_N), the secret one last
+const NF = 96;                                                               // the friends (kid_art.h KID_N), the secret one last
 const NFP = NF - 1;                                                          // (the ones PRESETS shows before the 50 stars)
 const KID_Y = (step) => 54 - 3 * step;
 const FXB = [B.FX, B.SCL, B.ENV, B.LFO, B.EDIT, B.GLO];
@@ -441,6 +441,8 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_keys(1 << 14); render(300);                                          // G: its own note
   check("ACCORDION: a white key plays its own note (G teal, no chord)", bandHas(G_TEAL) && !bandHas(C_RED));
   ex.web_keys(0); render(1500);
+  while (!ex.web_kid_tune()) { ex.web_enc(EN.PRESETS, 1); render(400); }   // (a friend with a tune: the drum, bass and noise
+                                                  // friends play no cheer, and which friend this is depends on how many there are)
   algo(1);
   render(400);
   peak = 0; render(1200);

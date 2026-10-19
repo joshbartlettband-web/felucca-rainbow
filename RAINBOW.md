@@ -12,7 +12,7 @@ at the next power-on.
 | Control | What happens |
 | --- | --- |
 | Keys | Play the friend's sound. The note's letter shows big in the band at the bottom, in its own color, and the friend hops. A music staff drops in at the top and writes the note (see below). |
-| PRESETS | Next or previous friend (94 of them, and a secret one; each with its own picture, sound, home sky and favorite beat). |
+| PRESETS | Next or previous friend (95 of them, and a secret one; each with its own picture, sound, home sky and favorite beat). |
 | ALGORITHM | How the keys play, one step per turn (below): 1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW, CHORDS, COPY ME. |
 | SELECT | The beat slower or faster (SLOW, WALK, FAST). |
 | KNOB 1 | Big and small. Low notes make a big friend, high notes a small one. OCT- and OCT+ do the same. |
@@ -246,6 +246,14 @@ Train, the Helicopter and Shark play no cheer, as their notes are no tune; the r
 (`web/emu/kid_test.mjs`, and by a K-weighted loudness over a phrase), and none is closer in sound to an older friend than the older
 friends are to each other.
 
+And Noodle, a dopey black pup with its tongue out, from a 16 x 23 pixel drawing (each pixel 2 x 2 here). Every note is a giant
+dog's yawn: a low, breathy groan that opens and slides slowly up into a whine. VOICE's VOX LEAD from a closed OO to a wide-open
+AH, its formants shifted down for a big dog's mouth, a soft buzz and a lot of breath; the envelope pulls the pitch about an
+octave down at the start and lets it go over about a second, so the note lands on its key (GUESS's 0.7 s note ends about a
+third of a semitone under it; the matrix's EXPR, full when no CC11 comes, puts it back up). A little drive on the groan, and
+the breath rises into the whine (`TW_NOODLE` in `kid.c`). Its sky is the clouds, where a black friend shows best, and its beat
+SHUFFLE. On the landing page's poster it has a light rim, as the poster is dark.
+
 Each one uses one of Felucca's own factory sounds (listed in `firmware/src/kid.c`, `KID_SOUND`), with its
 level set so they all play at about the same loudness. Each also has a home sky and a favorite beat
 (Ghost and Slimy: SPOOKY, a ghost-hunting funk; Frog and Axolotl: REGGAE; Butterfly and Rainbow: LULLABY). Scissors
@@ -254,7 +262,7 @@ plays the drum kit: every key is a different drum.
 The pictures are drawn on a roomy canvas, then trimmed, centred and stood on the bottom of a 48 x 48 grid;
 a picture that would not fit stops the build, so none is ever cut off. On the screen they are drawn at 1x,
 1.5x, 2x, 2.5x or 3x (KNOB 1) and kept inside the screen even at their biggest, hopping and wiggling.
-They are stored a row at a time as runs of one colour (`KID_RLE`: 54 KB for all 112 pictures, friends and stand-ins, from 129 KB), and
+They are stored a row at a time as runs of one colour (`KID_RLE`: 54 KB for all 113 pictures, friends and stand-ins, from 130 KB), and
 `kid_row` in `kid.c` decodes a row as the screen is drawn, keeping the last 16 rows (about 800 B of RAM).
 
 The characters are original drawings in the spirit of the ones children love, not copies, because this
@@ -265,7 +273,7 @@ repository and its website are public.
 - `installer-pin.txt`: a rollback switch for the public installer. A run number in it makes the site's installer offer that earlier
   run's firmware instead of the newest build (nothing is deleted; the browser version and the private installer stay on the newest, and
   the landing page says so while it is pinned). Empty it and push to follow the newest again.
-- `tools/gen_kid_art.py`: the 95 pictures (94 and a secret), drawn from shapes on a 48 x 48 grid and outlined
+- `tools/gen_kid_art.py`: the 96 pictures (95 and a secret), drawn from shapes on a 48 x 48 grid and outlined
   automatically. `python3 tools/gen_kid_art.py /tmp/kid_art.h --png /tmp/sheet.png` writes a contact
   sheet to look at. The build runs it (`tools/build.py` generate).
 - `firmware/src/kid.c`: everything else (sounds, knobs, buttons, the screen). It takes over the main

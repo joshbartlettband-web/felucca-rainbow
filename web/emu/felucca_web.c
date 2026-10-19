@@ -501,6 +501,7 @@ EXPORT void web_kid_win(void) { kid_win(0); }                                   
 EXPORT uint32_t web_kid_hat(void) { return KID_HAT; }
 EXPORT uint32_t web_kid_cheer(void) { return kid.cheer_n | ((uint32_t)kid.cheer_on << 8); }   /* (kid_test.mjs: the cheer's notes left, and sounding) */
 EXPORT uint32_t web_kid_friend(void) { return kid.fr; }
+EXPORT uint32_t web_kid_tune(void) { return kid_sub_level(kid.fr) != 0u; }   /* (kid_test.mjs: the friend plays a tune, and so a cheer) */
 EXPORT uint32_t web_voices(uint32_t t)                  /* (kid_test.mjs: a track's sounding voices) */
 {
     uint32_t i, n = 0;
