@@ -246,12 +246,13 @@ Train, the Helicopter and Shark play no cheer, as their notes are no tune; the r
 (`web/emu/kid_test.mjs`, and by a K-weighted loudness over a phrase), and none is closer in sound to an older friend than the older
 friends are to each other.
 
-And Noodle, a dopey black pup with its tongue out, from a 16 x 23 pixel drawing (each pixel 2 x 2 here). Every note is a low growl that
-slides up into a high, crackly voice: VOICE's VOX LEAD from a dark OO to a thin EE, the envelope pulling the pitch about an
-octave down at the start and letting it go over about 0.7 s, so the note lands on its key (in tune for GUESS and the staff;
-the matrix's EXPR, full when no CC11 comes, puts it back up). Most drive is on the growl and the breath rises with the
-squeak (`TW_NOODLE` in `kid.c`). Its sky is the clouds, where a black friend shows best, and its beat SHUFFLE. On the
-landing page's poster it has a light rim, as the poster is dark.
+And Noodle, a dopey black pup with its tongue out, from a 16 x 23 pixel drawing (each pixel 2 x 2 here). Every note is a giant
+dog's yawn: a low, breathy groan that opens and slides slowly up into a whine. VOICE's VOX LEAD from a closed OO to a wide-open
+AH, its formants shifted down for a big dog's mouth, a soft buzz and a lot of breath; the envelope pulls the pitch about an
+octave down at the start and lets it go over about a second, so the note lands on its key (GUESS's 0.7 s note ends about a
+third of a semitone under it; the matrix's EXPR, full when no CC11 comes, puts it back up). A little drive on the groan, and
+the breath rises into the whine (`TW_NOODLE` in `kid.c`). Its sky is the clouds, where a black friend shows best, and its beat
+SHUFFLE. On the landing page's poster it has a light rim, as the poster is dark.
 
 Each one uses one of Felucca's own factory sounds (listed in `firmware/src/kid.c`, `KID_SOUND`), with its
 level set so they all play at about the same loudness. Each also has a home sky and a favorite beat

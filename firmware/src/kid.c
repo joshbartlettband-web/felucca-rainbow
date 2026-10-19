@@ -131,15 +131,16 @@ static const int16_t TW_PIZZA[] = {P_E0, 7, P_E1, 2, P_E3, 2, -1};              
 static const int16_t TW_DONUT[] = {P_E3, 3, P_E6, 70, P_E4, -10, -1};            /* (FM6 PAD: a wide, swimming one) */
 static const int16_t TW_BANANA[] = {P_E4, 40, P_E2, 10, P_E3, -2, -1};           /* (FM6 PLUCK: a slow, boingy one) */
 static const int16_t TW_FIRETRUCK[] = {P_E0, 1, P_E4, 100, P_E5, 20, -1};        /* (ANALOG SAW LEAD as a square, wide vibrato and a glide: a siren) */
-/* NOODLE: a dopey low growl that slides up into a high, crackly voice, every note. VOICE's VOX LEAD from a
- * dark OO to a thin EE (VOWL, VOWL2 over TALK); the envelope pulls the pitch down (ENV PIT and slot 1: about two octaves at
- * its peak) and lets it go as it decays to SUS, while slot 2 (EXPR: full when no CC11 comes, a constant) lifts it back, so
- * each note starts about an octave low and lands on its key (in tune for GUESS and the staff). Slot 3: the growl's drive,
- * most at the start; slot 4: the breath (BRTH) rises as the envelope falls, the crackle in the high voice */
-static const int16_t TW_NOODLE[] = {P_E0, 110, P_E1, 50, P_E2, 90, P_E4, 110, P_E5, 72,
-                                    P_ATK, 2, P_DEC, 92, P_SUS, 63, P_REL, 40, P_ED_PIT, -64,
+/* NOODLE: a giant dog's yawn, every note: a low, breathy groan that opens and slides slowly up into a whine. VOICE's VOX
+ * LEAD from a closed OO to a wide-open AH (VOWL, VOWL2 over a slow TALK), its formants down (SHIFT: a big dog's mouth), soft
+ * BUZZ and a lot of breath; the envelope pulls the pitch down (ENV PIT and slot 1: about two octaves at its peak) and lets
+ * it go as it decays to SUS over about a second, while slot 2 (EXPR: full when no CC11 comes, a constant) lifts it back, so each
+ * note starts about an octave low and lands on its key (in tune for GUESS and the staff). Slot 3: a little drive on the
+ * groan, most at the start; slot 4: the breath (BRTH) rises as the envelope falls, into the whine */
+static const int16_t TW_NOODLE[] = {P_E0, 120, P_E1, 4, P_E2, 96, P_E3, -6, P_E4, 70, P_E5, 90, P_E6, 56,
+                                    P_ATK, 10, P_DEC, 94, P_SUS, 63, P_REL, 60, P_ED_PIT, -64,
                                     P_M1SRC, MS_ENV, P_M1DST, MD_PITCH, P_M1AMT, -64, P_M2SRC, MS_EXPR, P_M2DST, MD_PITCH, P_M2AMT, 63,
-                                    P_M3SRC, MS_ENV, P_M3DST, MD_DIST, P_M3AMT, 16, P_M4SRC, MS_ENV, P_M4DST, MD_E1 + 5, P_M4AMT, -40, -1};
+                                    P_M3SRC, MS_ENV, P_M3DST, MD_DIST, P_M3AMT, 16, P_M4SRC, MS_ENV, P_M4DST, MD_E1 + 5, P_M4AMT, -30, -1};
 static const kid_sound_t KID_SOUND[KID_N] = {
     {12, "TINE EP", 97, KS_BUBBLES, KB_DANCE},       /* DUCKY: FM6 */
     {7, "SOFT FLUTE", 104, KS_HEARTS, KB_DISCO},      /* PINK DUCKY: WHEEL */
@@ -244,7 +245,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {0, "SAW LEAD", 99, KS_STREET, KB_MARCH, 3, 50, 0, 0, TW_FIRETRUCK},   /* FIRE TRUCK: a siren */
     {9, "TOMS", 110, KS_STREET, KB_HIPHOP},            /* SCHOOL BUS: toms, a marching band */
     {11, "WIND", 116, KS_CLOUDS, KB_FUNK},             /* HELICOPTER: a rotor's whoosh */
-    {5, "VOX LEAD", 92, KS_CLOUDS, KB_SHUFFLE, 0, 0, 70, 0, TW_NOODLE},   /* NOODLE: a dopey growl into a crackly squeak */
+    {5, "VOX LEAD", 95, KS_CLOUDS, KB_SHUFFLE, 0, 0, 30, 0, TW_NOODLE},   /* NOODLE: a giant dog yawning */
     {7, "ROCK DRIVE", 93, KS_AURORA, KB_ROCK},     /* GOLD DUCKY (the secret friend): a rock star's organ */
 };
 
