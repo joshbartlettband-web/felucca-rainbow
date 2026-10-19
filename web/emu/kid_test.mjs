@@ -441,6 +441,8 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_keys(1 << 14); render(300);                                          // G: its own note
   check("ACCORDION: a white key plays its own note (G teal, no chord)", bandHas(G_TEAL) && !bandHas(C_RED));
   ex.web_keys(0); render(1500);
+  while (!ex.web_kid_tune()) { ex.web_enc(EN.PRESETS, 1); render(400); }   // (a friend with a tune: the drum, bass and noise
+                                                  // friends play no cheer, and which friend this is depends on how many there are)
   algo(1);
   render(400);
   peak = 0; render(1200);
