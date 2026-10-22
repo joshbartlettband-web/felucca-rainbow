@@ -11,13 +11,14 @@ from pathlib import Path
 
 PROJECTS = [
     ("double-rainbow", "Double Rainbow", "https://joshbartlettband-web.github.io/Double-Rainbow/",
-     "Firmware for the M-VAVE FM-1: twenty-four escaped sounds, each a character on a real synth engine. "
-     "For players from about ten up.", "Synth characters for the FM-1, ten and up"),
+     "Firmware for the M-VAVE FM-1. 24 sounds got out of the Keeper's jars, and each one is a real synth engine you "
+     "learn by playing. For ages ten and up.", "Synth characters for the FM-1, ten and up"),
     ("rainbow-mode", "Rainbow mode", "https://joshbartlettband-web.github.io/felucca-rainbow/",
-     "Firmware for the M-VAVE FM-1, made for little hands: 94 friends, beats, and a color for every note.", "A music toy for little hands, on the FM-1"),
+     "A music toy for little hands on the M-VAVE FM-1. 94 friends, 21 beats and a color for every note.",
+     "A music toy for little hands, on the FM-1"),
     ("fretbound", "Fretbound", "https://joshbartlettband-web.github.io/Fretbound/",
-     "A roguelike ear-training game for guitarists. A rival plays a phrase and you answer on the fretboard. "
-     "Plays in your browser.", "Ear training for guitarists, in your browser"),
+     "An ear-training game for guitarists. A rival plays a phrase and you play it back on the fretboard. "
+     "It runs in your browser.", "Ear training for guitarists, in your browser"),
 ]
 
 STYLE = """<style>
