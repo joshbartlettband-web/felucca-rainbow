@@ -17,12 +17,20 @@ Three questions for every line:
 
 ## Josh's voice
 
-- Short and plain. Get to the point in the first few words. No warm-up, no sign-off.
-- Everyday words: "fresh", "show off", "take a look". Not industry words.
-- Honest small hedges are fine: "probably", "a good amount of", "I suppose".
-- One picture from the world, not three: a jar, a moonbow, a van.
-- Polite, never gushing. A plain "please", no praise.
+The best sample is Josh's thesis, "Creative Aging: Living Well through the Arts" (May 2026). Josh writes like a good
+storyteller talks:
+
+- Start from real people and specific details: a place, a year, an object. Then let the facts make the case.
+- Vary the length. A long sentence, then a short turn that lands it ("...a lampshade on her head by the end of the
+  night, and I believe it.").
+- Dry, warm humor is welcome, one line at a time, usually at the end of a sentence.
+- Be honest about hard or uncertain things. Small honest hedges are fine: "hardly scientific", "probably".
+- Strong plain verbs ("she devoured life"), everyday words, no industry words.
+- Polite, never gushing. A plain "please", no praise. In chat, the ask comes first and there's no sign-off.
 - American spelling. Real numbers. Credit people from r/MVaveFM1 by username.
+- An occasional spaced en dash or semicolon is fine, about one a page.
+- The thesis uses "key", "vital" and "crucial" because academic readers expect them. On the toy and game sites,
+  leave them out.
 
 ## Spell breakers
 
