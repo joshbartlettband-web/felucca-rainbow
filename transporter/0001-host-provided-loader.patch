@@ -1,0 +1,86 @@
+diff --git a/src/jieli_uboot.c b/src/jieli_uboot.c
+index 4296abb..b5465c6 100644
+--- a/src/jieli_uboot.c
++++ b/src/jieli_uboot.c
+@@ -112,6 +112,24 @@ static bool cmd_exec(uint16_t cmd, const uint8_t *args, uint8_t nargs) {
+     return true;
+ }
+ 
++// The loader answered its JUMP: from here on only loader commands are sent.
++static void loader_started(void) {
++    loader_running = true;
++    last_cmd_us = time_us_64();
++    dlog("JL: loader running");
++
++    // Read-only query; falls back to 512-byte reads if unsupported.
++    if (cmd_exec(CMD_GET_USB_BUFF_SIZE, NULL, 0)) {
++        uint32_t size = (uint32_t)resp[2] << 24 | (uint32_t)resp[3] << 16 |
++                        (uint32_t)resp[4] << 8 | resp[5];
++        uint32_t chunk = size > JL_READ_MAX ? JL_READ_MAX : size;
++        chunk -= chunk % JL_IO_SIZE;
++        if (chunk >= JL_IO_SIZE) read_chunk = (uint16_t)chunk;
++        dlog("JL: loader USB buffer %lu bytes, reading %u at a time", (unsigned long)size,
++             read_chunk);
++    }
++}
++
+ bool jl_ensure_loader(void) {
+     if (loader_running) return true;
+     if (!fm1_host_uboot_ready()) {
+@@ -119,7 +137,7 @@ bool jl_ensure_loader(void) {
+         return false;
+     }
+ #if !FM1T_HAVE_LOADER
+-    dlog("JL: firmware built without wl82loader.bin (see FM1T_LOADER_BIN)");
++    dlog("JL: no loader yet: the host uploads wl82loader.bin with memw, then jump 1C02000 1");
+     return false;
+ #else
+     dlog("JL: uploading wl82loader (%u bytes) to %08lX", (unsigned)sizeof(wl82loader),
+@@ -157,20 +175,7 @@ bool jl_ensure_loader(void) {
+         return false;
+     }
+ 
+-    loader_running = true;
+-    last_cmd_us = time_us_64();
+-    dlog("JL: loader running");
+-
+-    // Read-only query; falls back to 512-byte reads if unsupported.
+-    if (cmd_exec(CMD_GET_USB_BUFF_SIZE, NULL, 0)) {
+-        uint32_t size = (uint32_t)resp[2] << 24 | (uint32_t)resp[3] << 16 |
+-                        (uint32_t)resp[4] << 8 | resp[5];
+-        uint32_t chunk = size > JL_READ_MAX ? JL_READ_MAX : size;
+-        chunk -= chunk % JL_IO_SIZE;
+-        if (chunk >= JL_IO_SIZE) read_chunk = (uint16_t)chunk;
+-        dlog("JL: loader USB buffer %lu bytes, reading %u at a time", (unsigned long)size,
+-             read_chunk);
+-    }
++    loader_started();
+     return true;
+ #endif
+ }
+@@ -331,5 +336,9 @@ bool jl_rom_jump(uint32_t addr, uint16_t arg) {
+     put_be32(args, addr);
+     args[4] = (uint8_t)(arg >> 8);
+     args[5] = (uint8_t)arg;
+-    return cmd_exec(CMD_JUMP, args, sizeof(args));
++    if (!cmd_exec(CMD_JUMP, args, sizeof(args))) return false;
++    // A host-provided wl82loader (memw at LOADER_ADDR, then this jump): the same state as
++    // jl_ensure_loader leaves, so info/read/wsec/runapp work in firmware built without the blob.
++    if (addr == LOADER_ADDR && arg == LOADER_ARG) loader_started();
++    return true;
+ }
+diff --git a/src/jieli_uboot.h b/src/jieli_uboot.h
+index d37ff73..4479424 100644
+--- a/src/jieli_uboot.h
++++ b/src/jieli_uboot.h
+@@ -33,7 +33,9 @@ void jl_reset(void);
+ // True if this firmware was built with the loader blob embedded.
+ bool jl_have_loader(void);
+ 
+-// Uploads wl82loader to RAM and jumps to it, once per mount.
++// Uploads wl82loader to RAM and jumps to it, once per mount. Built without the blob, the host
++// uploads it instead (memw to 0x1C02000, deciphered per 512-byte block, then jump 1C02000 1),
++// and jl_rom_jump marks it running.
+ bool jl_ensure_loader(void);
+ 
+ bool jl_info(jl_info_t *info);
