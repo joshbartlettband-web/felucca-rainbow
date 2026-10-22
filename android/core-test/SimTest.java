@@ -174,6 +174,103 @@ public class SimTest {
         }
     }
 
+
+    /** The patched FM-1 Transporter's data channel (transporter_proto.c), in front of an FM-1 flash. */
+    static final class SimTransporter implements Transporter.Link {
+        final byte[] flash;
+        final ByteArrayOutputStream ram = new ByteArrayOutputStream();
+        boolean loader = false, ranApp = false, uboot = true;
+        int sectorsWritten = 0;
+        final List<String> illegalWrites = new ArrayList<>();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();   // to the phone
+        byte[] outBuf = new byte[0];
+        int outPos = 0;
+        final StringBuilder line = new StringBuilder();
+        String pendingLine;
+        ByteArrayOutputStream payload;
+        int expect;
+
+        SimTransporter(byte[] flash) { this.flash = flash; }
+
+        void reply(String s) { byte[] b = (s + "\n").getBytes(StandardCharsets.ISO_8859_1); out.write(b, 0, b.length); }
+
+        static long crc(byte[] b) { java.util.zip.CRC32 c = new java.util.zip.CRC32(); c.update(b); return c.getValue(); }
+
+        @Override public void write(byte[] b) {
+            for (byte x : b) {
+                if (payload != null) {
+                    payload.write(x);
+                    if (payload.size() == expect) { byte[] p = payload.toByteArray(); payload = null; handle(pendingLine, p); }
+                    continue;
+                }
+                if (x == '\r') continue;
+                if (x != '\n') { line.append((char) (x & 0xFF)); continue; }
+                String l = line.toString();
+                line.setLength(0);
+                String[] a = l.split(" ");
+                if (a[0].equals("wsec")) { pendingLine = l; payload = new ByteArrayOutputStream(); expect = 4096; continue; }
+                if (a[0].equals("memw")) { pendingLine = l; payload = new ByteArrayOutputStream(); expect = Integer.decode(a[2]); continue; }
+                handle(l, null);
+            }
+        }
+
+        void handle(String l, byte[] p) {
+            String[] a = l.split(" ");
+            switch (a[0]) {
+                case "ping": reply("PONG"); break;
+                case "status": reply("OK uboot=" + (uboot ? 1 : 0) + " v15=0 loader=1 loader_running=" + (loader ? 1 : 0)); break;
+                case "memw": {
+                    if (loader) { reply("ERR loader-running"); break; }
+                    if (Long.parseLong(a[3], 16) != crc(p)) { reply("ERR crc"); break; }
+                    byte[] wire = p.clone();
+                    Jl.crcCipher(wire);                                    // as jl_rom_mem_write does
+                    if (Integer.decode(a[1]) != 0x1C02000 + ram.size()) { reply("ERR memw at"); break; }
+                    ram.write(wire, 0, wire.length);
+                    reply("OK");
+                    break;
+                }
+                case "jump":
+                    if (Integer.decode(a[1]) == 0x1C02000 && Uboot.LOADER_SHA256.equals(Fwsc.sha256(ram.toByteArray()))) {
+                        loader = true;
+                        reply("OK ms=3");
+                    } else reply("ERR jump ms=2000");
+                    break;
+                case "info":
+                    if (!loader) { reply("ERR info"); break; }
+                    reply("OK key=980F type=3 id=856014");
+                    break;
+                case "read": {
+                    if (!loader) { reply("ERR loader"); break; }
+                    int addr = Integer.decode(a[1]), n = Integer.decode(a[2]);
+                    byte[] d = Arrays.copyOfRange(flash, addr, addr + n);
+                    reply("DATA " + n);
+                    out.write(d, 0, d.length);
+                    reply(String.format("END %08X", crc(d)));
+                    break;
+                }
+                case "wsec": {
+                    int addr = Integer.decode(a[1]);
+                    if (Long.parseLong(a[2], 16) != crc(p)) { reply("ERR crc"); break; }
+                    if (addr < 0x4000 || addr >= 0x93000 || addr % 0x1000 != 0) { illegalWrites.add(l); reply("ERR range"); break; }
+                    System.arraycopy(p, 0, flash, addr, 4096);
+                    sectorsWritten++;
+                    reply("OK");
+                    break;
+                }
+                case "runapp": ranApp = true; loader = false; reply("OK"); break;
+                default: reply("ERR unknown");
+            }
+        }
+
+        @Override public int read(byte[] buf, int off, int len, int timeoutMs) {
+            if (outPos >= outBuf.length) { outBuf = out.toByteArray(); out.reset(); outPos = 0; }
+            int n = Math.min(len, outBuf.length - outPos);
+            System.arraycopy(outBuf, outPos, buf, off, n);
+            outPos += n;
+            return n;
+        }
+    }
+
     /** An .fwsc holding flash image img (APP_END bytes) and identity id, in fm1pkg_make.py's layout. */
     static byte[] makePackage(byte[] img, String id) {
         int nEntries = 1, dataOff = 0x40 + 0x50 * nEntries;
@@ -287,6 +384,22 @@ public class SimTest {
         log = new Log();
         try { Rescue.run(new Uboot(sim), pkg, loader, true, log); check(false, "odd head refused"); }
         catch (RescueFail e) { check(e.fatal && log.backup != null && sim.sectorsWritten == 0, "unknown start-up area: refused after the backup, nothing written"); }
+
+
+        // 8. the same repair through a (simulated) FM-1 Transporter: the loader uploaded by the phone, deciphered
+        SimTransporter tr = new SimTransporter(device.clone());
+        r = Rescue.run(new Transporter(tr), pkg, loader, true, new Log());
+        check(tr.loader || tr.ranApp, "transporter: the phone-uploaded loader reached the chip byte for byte and ran");
+        check(r.verified && Arrays.equals(tr.flash, expect) && tr.ranApp, "transporter: repaired, verified, firmware started");
+        check(tr.sectorsWritten == changed.length && tr.illegalWrites.isEmpty(), "transporter: only the " + changed.length + " differing sectors written");
+        tr = new SimTransporter(device.clone());
+        log = new Log();
+        r = Rescue.run(new Transporter(tr), pkg, loader, false, log);
+        check(!r.wrote && tr.sectorsWritten == 0 && Arrays.equals(log.backup, device), "transporter: check only writes nothing, backup is the flash");
+        tr = new SimTransporter(device.clone());
+        tr.uboot = false;
+        try { Rescue.run(new Transporter(tr), pkg, loader, true, new Log()); check(false, "transporter without boot mode refused"); }
+        catch (RescueFail e) { check(!e.fatal && tr.sectorsWritten == 0, "transporter not yet in the boot mode: retryable, nothing written"); }
 
         // 7. a damaged package is refused at once
         byte[] bad = pkgRaw.clone();

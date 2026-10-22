@@ -11,7 +11,7 @@ import java.util.Arrays;
  * run from it. A port of fm1_rescue.py (charlesvestal/fm1-x0x, GPL-3.0); the protocol is FM-1-transporter's
  * docs/PROTOCOL.md (kurogedelic, MIT), verified on hardware there.
  */
-public final class Uboot {
+public final class Uboot implements FlashTarget {
     public static final int VID = 0x4C4A, PID = 0x8057;
     public static final int FLASH_SIZE = 0x100000, WRITE_MIN = 0x4000, SECTOR = 0x1000, IO = 512;
     public static final int CHIP_KEY = 0x980F, FLASH_TYPE = 3, FLASH_ID = 0x856014;
@@ -84,6 +84,13 @@ public final class Uboot {
         return Arrays.copyOf(b.array(), b.position());
     }
 
+    @Override public String identify() throws RescueFail {
+        String[] iq = inquiry();
+        if (!"WL82".equals(iq[0]))
+            throw new RescueFail("this is not the FM-1's boot mode (it says " + iq[0] + ")", true);
+        return "Device: " + iq[0] + " " + iq[1];
+    }
+
     /** SCSI INQUIRY: {vendor, product}; the boot mode says WL82 / UBOOT1.00. */
     public String[] inquiry() throws RescueFail {
         byte[] r = xfer(new byte[] {0x12, 0, 0, 0, 36, 0}, null, 36);
@@ -109,14 +116,14 @@ public final class Uboot {
     }
 
     /** Load JieLi's flash loader (shipped already ciphered: sent as it is) into RAM and start it. */
-    public void startLoader(byte[] blob) throws RescueFail {
+    @Override public void startLoader(byte[] blob) throws RescueFail {
         for (int off = 0; off < blob.length; off += IO)
             writeBlock(CMD_WRITE_MEMORY, LOADER_ADDR + off, Arrays.copyOfRange(blob, off, Math.min(off + IO, blob.length)));
         cmd(CMD_JUMP, be(LOADER_ADDR, 4, LOADER_ARG, 2));
     }
 
     /** {chip key, flash type, flash id}; an FM-1 is {980F, 3, 856014}. */
-    public int[] chip() throws RescueFail {
+    @Override public int[] chip() throws RescueFail {
         byte[] p = cmd(CMD_READ_KEY, be(0x00AC6900, 4));
         byte[] k = {p[5], p[4]};
         Jl.crcCipher(k);
@@ -126,9 +133,7 @@ public final class Uboot {
         return new int[] {key, p[0] & 0xFF, id};
     }
 
-    public interface Progress { void at(int done, int total); }
-
-    public byte[] read(int addr, int n, Progress pr) throws RescueFail {
+    @Override public byte[] read(int addr, int n, Progress pr) throws RescueFail {
         byte[] out = new byte[n];
         for (int got = 0; got < n; ) {
             int k = Math.min(IO, n - got);
@@ -141,7 +146,7 @@ public final class Uboot {
     }
 
     /** Erase, write and read back one 4 KiB sector of the application area; nothing else is ever written. */
-    public void writeSector(int addr, byte[] data) throws RescueFail {
+    @Override public void writeSector(int addr, byte[] data) throws RescueFail {
         if (addr < WRITE_MIN || addr >= Fwsc.APP_END || addr % SECTOR != 0 || data.length != SECTOR)
             throw new RescueFail(String.format("refusing to write %#x (outside the application area)", addr), true);
         cmd(CMD_ERASE_SECTOR, be(addr, 4));
@@ -152,10 +157,10 @@ public final class Uboot {
     }
 
     /** Leave the loader and start the firmware; the FM-1 may reset before it answers. */
-    public void runApp() {
+    @Override public void runApp() {
         try { cmd(CMD_RUN_APP, be(1, 4)); } catch (RescueFail ignored) { }
     }
 
     /** Keep the loader from resetting the chip (it does after ~3 s without a command). */
-    public void ping() throws RescueFail { cmd(CMD_GET_ONLINE_DEVICE, new byte[0]); }
+    @Override public void ping() throws RescueFail { cmd(CMD_GET_ONLINE_DEVICE, new byte[0]); }
 }

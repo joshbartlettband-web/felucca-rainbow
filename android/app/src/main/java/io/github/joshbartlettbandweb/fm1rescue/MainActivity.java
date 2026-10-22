@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
 import io.github.joshbartlettbandweb.fm1rescue.core.Fwsc;
 import io.github.joshbartlettbandweb.fm1rescue.core.Rescue;
 import io.github.joshbartlettbandweb.fm1rescue.core.RescueFail;
+import io.github.joshbartlettbandweb.fm1rescue.core.Transporter;
 import io.github.joshbartlettbandweb.fm1rescue.core.Uboot;
 
 /**
@@ -61,11 +62,11 @@ public class MainActivity extends Activity {
     private final Set<String> asked = new HashSet<>();
     private UsbManager usb;
     private TextView fwText, status, log;
-    private Button checkBtn, repairBtn, stopBtn;
+    private Button checkBtn, repairBtn, stopBtn, tCheckBtn, tRepairBtn, rekeyBtn;
     private ProgressBar bar;
     private Fwsc firmware;
     private byte[] loader;
-    private boolean waiting, running, writeMode;
+    private volatile boolean waiting, running, writeMode, viaTransporter, rekeyAsked;
     private int sessions;
     private File lastBackup;
 
@@ -134,6 +135,19 @@ public class MainActivity extends Activity {
         checkBtn = button(col, "Check only (back up, write nothing)", v -> arm(false));
         repairBtn = button(col, "Repair (back up, then write the firmware)", v -> arm(true));
         stopBtn = button(col, "Stop waiting", v -> stopWaiting("Stopped."));
+
+        text(col, "3. With an FM-1 Transporter", 18, true);
+        text(col, "If the FM-1 never shows up on its own (the log only says the phone sees no USB device), an FM-1 "
+                + "Transporter wakes its boot mode electrically: a Seeed XIAO RP2040 with the FM-1 Rescue Transporter "
+                + "firmware, wired to a USB-C breakout plugged into the FM-1: XIAO D6 to D+, D7 to D-, GND to GND. Do not "
+                + "connect 5V. Switch the FM-1 off, connect the XIAO to this phone (through the OTG adapter), press a "
+                + "button below, allow the app to use it, then switch the FM-1 on.", 15, false);
+        tCheckBtn = button(col, "Check with the Transporter (back up, write nothing)", v -> armTransporter(false));
+        tRepairBtn = button(col, "Repair with the Transporter", v -> armTransporter(true));
+        rekeyBtn = button(col, "Restart the Transporter's key (if nothing happens)", v -> {
+            rekeyAsked = true;
+            setStatus("Restarting the Transporter's key: switch the FM-1 off now, then on again when asked.");
+        });
         status = text(col, "", 16, true);
         bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         bar.setMax(1000);
@@ -158,6 +172,9 @@ public class MainActivity extends Activity {
         boolean ready = firmware != null && loader != null && !waiting && !running;
         checkBtn.setEnabled(ready);
         repairBtn.setEnabled(ready);
+        tCheckBtn.setEnabled(ready);
+        tRepairBtn.setEnabled(ready);
+        rekeyBtn.setEnabled(waiting && viaTransporter && running);
         stopBtn.setEnabled(waiting);
     }
 
@@ -264,7 +281,24 @@ public class MainActivity extends Activity {
     }
 
     // ------------------------------------------------------------------ the rescue ---
+    private void armTransporter(boolean write) {
+        viaTransporter = true;
+        rekeyAsked = false;
+        arming(write);
+        say(write ? "Repair with the Transporter armed: waiting for the Transporter ..." : "Check with the Transporter armed: waiting for the Transporter ...");
+        setStatus("Connect the Transporter (the XIAO) to this phone.");
+        ui.post(poll);
+    }
+
     private void arm(boolean write) {
+        viaTransporter = false;
+        arming(write);
+        say(write ? "Repair armed: waiting for the FM-1 in its boot mode ..." : "Check armed: waiting for the FM-1 in its boot mode ...");
+        setStatus("Plug the FM-1 in and switch it on.");
+        ui.post(poll);
+    }
+
+    private void arming(boolean write) {
         writeMode = write;
         sessions = 0;
         asked.clear();
@@ -272,10 +306,7 @@ public class MainActivity extends Activity {
         lastBeat = android.os.SystemClock.elapsedRealtime();
         waiting = true;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        say(write ? "Repair armed: waiting for the FM-1 in its boot mode ..." : "Check armed: waiting for the FM-1 in its boot mode ...");
-        setStatus("Plug the FM-1 in and switch it on.");
         refreshButtons();
-        ui.post(poll);
     }
 
     private void stopWaiting(String why) {
@@ -337,17 +368,19 @@ public class MainActivity extends Activity {
             ui.removeCallbacks(this);
             if (!waiting || running) return;
             watchDevices();
+            int vid = viaTransporter ? Transporter.VID : Uboot.VID, pid = viaTransporter ? Transporter.PID : Uboot.PID;
             for (UsbDevice d : usb.getDeviceList().values()) {
-                if (d.getVendorId() != Uboot.VID || d.getProductId() != Uboot.PID) continue;
+                if (d.getVendorId() != vid || d.getProductId() != pid) continue;
                 if (usb.hasPermission(d)) {
-                    startSession(d);
+                    if (viaTransporter) startTransporterSession(d); else startSession(d);
                     return;
                 }
                 if (asked.add(d.getDeviceName() + d.getDeviceId())) {
                     int flags = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
                     usb.requestPermission(d, PendingIntent.getBroadcast(MainActivity.this, 0,
                             new Intent(ACTION_PERMISSION).setPackage(getPackageName()), flags));
-                    setStatus("Found it: allow FM-1 Rescue to use it (tick Always).");
+                    setStatus(viaTransporter ? "Found the Transporter: allow FM-1 Rescue to use it."
+                            : "Found it: allow FM-1 Rescue to use it (tick Always).");
                 }
             }
             ui.postDelayed(this, 40);
@@ -362,13 +395,84 @@ public class MainActivity extends Activity {
         new Thread(() -> session(d), "rescue").start();
     }
 
-    private void session(UsbDevice d) {
+    private void startTransporterSession(UsbDevice d) {
+        running = true;
+        sessions++;
+        setStatus("Transporter connected.");
+        ui.post(this::refreshButtons);
+        new Thread(() -> transporterSession(d), "rescue-transporter").start();
+    }
+
+    /** Console lines, without the stream of keying counters (one in ten is shown). */
+    private int keyLines;
+
+    private void consoleLine(String s) {
+        if (s.matches(".*KEY: \\d+ packets.*") && (keyLines++ % 10) != 0) return;
+        say("Transporter: " + s);
+    }
+
+    private void transporterSession(UsbDevice d) {
         boolean again = false;
         String end;
-        try (UsbTransport t = UsbTransport.open(usb, d)) {
-            Uboot dev = new Uboot(t);
-            try { dev.inquiry(); } catch (RescueFail e) { t.resetRecovery(); }
-            Rescue.Result r = Rescue.run(dev, firmware, loader, writeMode, new Rescue.Listener() {
+        try (TransporterUsb link = TransporterUsb.open(usb, d, this::consoleLine)) {
+            Transporter t = new Transporter(link);
+            boolean answered = false;
+            for (int i = 0; i < 10 && !answered; i++) answered = t.ping(1000);
+            if (!answered) throw new RescueFail("the Transporter's data channel does not answer");
+            say("The Transporter answers.");
+            String last = "";
+            long since = android.os.SystemClock.elapsedRealtime();
+            for (;;) {                                         // until the FM-1's boot mode is connected
+                if (!waiting) throw new RescueFail("stopped", true);
+                if (rekeyAsked) {
+                    rekeyAsked = false;
+                    say("Restarting the Transporter's key; it drops off USB and comes back.");
+                    t.rekey();
+                    throw new RescueFail("the Transporter is restarting its key: switch the FM-1 off, then on once it is back");
+                }
+                String st = t.status();
+                if (!st.equals(last)) { say("Transporter status: " + st); last = st; }
+                if (Transporter.has(st, "uboot=1")) break;
+                if (Transporter.has(st, "v15=1")) { say("Stock V15 is running: sending it to its boot mode: " + t.softKey()); }
+                long waited = (android.os.SystemClock.elapsedRealtime() - since) / 1000;
+                setStatus(waited < 120 ? "Switch the FM-1 on now (if it is on: off, then on). Waiting " + waited + " s ..."
+                        : "Still no boot mode after " + waited + " s: check the three wires (D+ and D- swapped?), or restart the key.");
+                Thread.sleep(1000);
+            }
+            setStatus("The FM-1's boot mode is connected. Do not unplug anything.");
+            Rescue.Result r = Rescue.run(t, firmware, loader, writeMode, listener());
+            end = endMessage(r);
+        } catch (RescueFail e) {
+            say("Stopped: " + e.getMessage());
+            again = !e.fatal && waiting && sessions < MAX_SESSIONS;
+            end = !waiting ? "Stopped." : e.fatal ? "Stopped. Copy the log and share it." : again
+                    ? "Waiting for the Transporter again (try " + (sessions + 1) + " of " + MAX_SESSIONS + ") ..." : "Copy the log and share it.";
+        } catch (Exception e) {
+            say("Stopped: " + e);
+            again = waiting && sessions < MAX_SESSIONS;
+            end = "Something went wrong; waiting for the Transporter again ...";
+        }
+        finish(again, end);
+    }
+
+    private String endMessage(Rescue.Result r) {
+        return !writeMode ? "Check passed: nothing was written."
+                : r.verified ? "Done: " + firmware.identity + " is on the FM-1 and it is restarting. Its screen should come on."
+                : "Finished.";
+    }
+
+    private void finish(boolean again, String end) {
+        if (lastBackup != null) { publishBackup(lastBackup); lastBackup = null; }
+        say(end);
+        ui.post(() -> {
+            running = false;
+            if (again) { setStatus(end); refreshButtons(); poll.run(); }
+            else stopWaiting(end);
+        });
+    }
+
+    private Rescue.Listener listener() {
+        return new Rescue.Listener() {
                 @Override public void say(String line) { MainActivity.this.say(line); }
 
                 @Override public void progress(String what, int done, int total) {
@@ -387,10 +491,17 @@ public class MainActivity extends Activity {
                         throw new RescueFail("could not keep the backup (" + e.getMessage() + "): nothing was written", true);
                     }
                 }
-            });
-            end = !writeMode ? "Check passed: nothing was written. The FM-1 will go back to its start-up loop."
-                    : r.verified ? "Done: " + firmware.identity + " is on the FM-1 and it is restarting. Its screen should come on."
-                    : "Finished.";
+        };
+    }
+
+    private void session(UsbDevice d) {
+        boolean again = false;
+        String end;
+        try (UsbTransport t = UsbTransport.open(usb, d)) {
+            Uboot dev = new Uboot(t);
+            try { dev.inquiry(); } catch (RescueFail e) { t.resetRecovery(); }
+            Rescue.Result r = Rescue.run(dev, firmware, loader, writeMode, listener());
+            end = endMessage(r);
         } catch (RescueFail e) {
             say("Stopped: " + e.getMessage());
             again = !e.fatal && sessions < MAX_SESSIONS;
@@ -401,15 +512,7 @@ public class MainActivity extends Activity {
             again = sessions < MAX_SESSIONS;
             end = "Something went wrong; waiting for the FM-1 to come back ...";
         }
-        if (lastBackup != null) { publishBackup(lastBackup); lastBackup = null; }
-        say(end);
-        final boolean retry = again;
-        final String msg = end;
-        ui.post(() -> {
-            running = false;
-            if (retry) { setStatus(msg); refreshButtons(); poll.run(); }
-            else stopWaiting(msg);
-        });
+        finish(again, end);
     }
 
     @Override protected void onDestroy() {

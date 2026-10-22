@@ -35,12 +35,9 @@ public final class Rescue {
 
     private Rescue() {}
 
-    public static Result run(Uboot dev, Fwsc pkg, byte[] loader, boolean write, Listener l) throws RescueFail {
+    public static Result run(FlashTarget dev, Fwsc pkg, byte[] loader, boolean write, Listener l) throws RescueFail {
         Result res = new Result();
-        String[] iq = dev.inquiry();
-        l.say("Device: " + iq[0] + " " + iq[1]);
-        if (!"WL82".equals(iq[0]))
-            throw new RescueFail("this is not the FM-1's boot mode (it says " + iq[0] + ")", true);
+        l.say(dev.identify());
         if (!Uboot.LOADER_SHA256.equals(Fwsc.sha256(loader)))
             throw new RescueFail("the flash loader file is not the expected one", true);
         dev.startLoader(loader);

@@ -48,11 +48,33 @@ on afterwards with the web installer, from a running V15.
 4. When Android asks whether to open FM-1 Rescue for the USB device, tick **Always** and tap OK.
 5. Wait for "Done", and keep the cable still. **Copy the log** gives a report to share if something goes wrong.
 
+## With an FM-1 Transporter
+
+Sometimes an FM-1 never shows up on USB by itself. The app's log then only says "the phone sees no USB device",
+even through an OTG adapter that works with a mouse. In that case an
+[FM-1 Transporter](../transporter/README.md) wakes its boot mode electrically. It is a Seeed XIAO RP2040 wired to a
+USB-C breakout plugged into the FM-1: D6 to D+, D7 to D-, GND to GND, **no 5V**.
+
+1. Put `fm1-transporter.uf2` from the same prerelease on the XIAO: hold its B button while connecting it, then
+   copy the file to the RPI-RP2 drive that appears.
+2. Switch the FM-1 off. Connect the XIAO to the phone through the OTG adapter.
+3. In the app, press **Check with the Transporter** (or **Repair with the Transporter**), and allow the app to use
+   the device.
+4. Switch the FM-1 on. The log shows the Transporter's console: the key, its acknowledgement, and the boot mode
+   connected. Then come the same backup, checks and writes as above.
+
+The app sends JieLi's loader to the Transporter itself, so the Transporter firmware contains no JieLi code. If
+nothing happens for two minutes, check the wires (D+ and D- swapped?), or press **Restart the Transporter's key**
+and switch the FM-1 off and on.
+
 ## Building and testing
 
-- The GitHub workflow `.github/workflows/fm1-rescue.yml` builds the APK and publishes the prerelease.
+- The GitHub workflow `.github/workflows/fm1-rescue.yml` builds the APK and the Transporter firmware, and publishes
+  both in the prerelease.
 - `core-test/SimTest.java` runs the rescue core, in plain Java, against a simulated FM-1 boot mode: check only,
-  repair, repeat, a drop mid-write and a second session, the wrong chip, an unknown start-up area, a damaged package.
+  repair, repeat, a drop mid-write and a second session, the wrong chip, an unknown start-up area, a damaged package;
+  and through a simulated Transporter: the loader the phone uploads reaches the chip byte for byte, then check and
+  repair.
   Pass a real 1 MiB FM-1 flash dump as the second argument for the full run. Without one, only the start-up area
   refusal can be checked.
 
