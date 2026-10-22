@@ -34,21 +34,35 @@ storyteller talks:
 
 ## Spell breakers
 
-From Wikipedia's "Signs of AI writing". One of these alone proves nothing. A pile of them gives the page away.
+From Wikipedia's "Signs of AI writing", checked against the live page on October 22, 2026. One of these alone proves
+nothing. A pile of them gives the page away.
 
-- Puffing things up: "a testament to", "vital", "rich", "vibrant", "seamless", "groundbreaking", "with attitude"
-- Chatbot words: delve, tapestry, realm, landscape, showcase, foster, enhance, crucial, pivotal, intricate, additionally
-- Fancy verbs for "is" and "has": serves as, stands as, boasts, features, offers
-- "It's not just X, it's Y"
+- Puffing things up: stands as, a testament to, a pivotal/key/vital role, underscores its importance, enduring legacy,
+  indelible mark, deeply rooted, evolving landscape
+- Sales voice: boasts, vibrant, rich, profound, showcasing, exemplifies, commitment to, nestled, in the heart of,
+  groundbreaking, renowned, diverse array, "with attitude"
+- Chatbot words: additionally, align with, bolstered, crucial, deep dive, delve, enhance, fostering, garner, highlight,
+  interplay, intricate, meticulous, pivotal, robust, showcase, tapestry, testament, underscore, valuable
+- Fancy verbs for "is" and "has": serves as, stands as, functions as, represents, boasts, features, offers
+- Stiff synonyms: authored, relocated, utilized, attempted, passed away (say wrote, moved, used, tried, died)
+- Tacked-on -ing clauses: "..., highlighting its importance", "..., ensuring a smooth experience"
+- "Not only X but also Y", "It's not just X, it's Y", "Y rather than X"
+- Correcting the reader (new in 2026): "should be treated as... rather than...", "does not by itself establish",
+  "should not be confused with"
+- Vague credit: experts argue, observers have cited, several sources. Name the person instead.
+- Gloomy wrap-ups: "Despite its..., it faces several challenges", "Future outlook"
 - Everything in threes
-- Every bullet opening with a bold label and a colon
+- Every bullet opening with a bold label and a colon; bold scattered through every paragraph
 - Slogan headings like "Music theory you can see"
-- Brackets inside sentences that carry long lists
-- Filler like "Each sound was made for its character"
-- Tacked-on -ing clauses: "..., highlighting its importance"
-- "It's important to note", "In summary", "Overall"
-- An em dash in every paragraph
-- In chat: "Great question", "Certainly!", "I hope this helps", headers and bullet lists for a short answer
+- In chat: "Certainly!", "You're absolutely right!", "I hope this helps", "Let me know", headers and bullet lists for a
+  short answer
+
+Punctuation: few em dashes (a July 2026 study found Claude still uses more than professional writers). But the newest
+chatbots use nothing but commas and periods, and that flatness is a tell too. A semicolon, a parenthesis or a spaced en
+dash now and then reads human.
+
+What reads as human, per the same page: plain "is" and "has", plain verbs, definite claims ("was the first"), and
+qualifiers like "very", "perhaps" and "tends to". Formal or academic prose is not a sign by itself.
 
 ## Before it ships
 
