@@ -168,6 +168,12 @@ for (let f = 0; f < NF; f++) {
   ex.web_enc(EN.PRESETS, 1); render(400);
 }
 check(`3 FRIENDS: every friend sings three notes${thin.length ? " (not: " + thin.join(" ") + ")" : ""}`, thin.length === 0);
+// .. and the chord is the major chord built on the key, white or black (to find the magic ones), not the key's chord in C
+for (let i = 0; i < NF + 4 && ex.web_kid_friend() !== 0; i++) { ex.web_enc(EN.PRESETS, 1); render(150); }   // (DUCKY)
+const pcsOf = (k) => { ex.web_keys(1 << k); render(120); const p = [0, 1, 2, 3].map((i) => ex.web_kb_chord(k, i)).filter((n) => n).map((n) => n % 12); ex.web_keys(0); render(400); return [...new Set(p)].sort((a, b) => a - b).join(" "); };
+const dMaj = pcsOf(9), csMaj = pcsOf(8), aMaj = pcsOf(16);
+check(`3 FRIENDS: D plays D major (D F# A: ${dMaj}), C# plays C# major (C# F G#: ${csMaj}), A plays A major (${aMaj})`,
+      dMaj === "2 6 9" && csMaj === "1 5 8" && aMaj === "1 4 9");
 ex.web_enc(EN.ALGO, -3); render(100);
 ex.web_kid_stars_set(0);
 ex.web_keys(1 << 12); render(120);
@@ -676,7 +682,8 @@ check("PLAY again stops it", ex.web_playing() === 0);
 // still WIGGLE. The first hat is the PARTY cone, red and yellow with a pink band: found by the cone's pink (255, 62, 150)
 {
   const HP = (236 >> 3) << 11 | (64 >> 2) << 5 | (150 >> 3);                 // hpink (236, 64, 150) as RGB565
-  const pink = (e) => { const fb = new Uint16Array(e.memory.buffer, e.web_screen(), 240 * 240); let n = 0; for (let y = 60; y < 175; y++) for (let x = 40; x < 200; x++) { const v = fb[y * 240 + x]; if ((((v & 255) << 8) | (v >> 8)) === HP) n++; } return n; };
+  const pink = (e) => { const fb = new Uint16Array(e.memory.buffer, e.web_screen(), 240 * 240); let n = 0; for (let y = 0; y < 190; y++) for (let x = 0; x < 240; x++) { const v = fb[y * 240 + x]; if ((((v & 255) << 8) | (v >> 8)) === HP) n++; } return n; };
+  for (let i = 0; i < 200 && ex.web_kid_friend() !== 40; i++) { ex.web_enc(EN.PRESETS, 1); render(60); }   // (T-REX: no pink of its own)
   const f0 = ex.web_kid_friend();
   render(2500);
   const bare = pink(ex);

@@ -6,8 +6,8 @@
  *               and the friend hops
  *   PRESETS     the next / previous friend (58, each a picture, a sound, a home sky and a favourite beat:
  *               tools/gen_kid_art.py, KID_SOUND)
- *   ALGORITHM   how the keys play, a step a turn, each with a picture: 1 FRIEND, 3 FRIENDS (a key plays a chord in
- *               key), STRUM (an Omnichord: black keys pick a chord, white keys strum it), ACCORDION (a black key plays
+ *   ALGORITHM   how the keys play, a step a turn, each with a picture: 1 FRIEND, 3 FRIENDS (a key plays the major
+ *               chord built on it, black keys too), STRUM (an Omnichord: black keys pick a chord, white keys strum it), ACCORDION (a black key plays
  *               its chord, white keys their own notes), GUESS (an ear game: a friend sings a note,
  *               the child finds it), FOLLOW (songs to learn: the next key lights, SEQ the next song). Keys held together
  *               show their letters in their colours and the chord's name
@@ -596,7 +596,8 @@ static void kid_knobs(void)                       /* the knobs' state into the f
     t->p[P_REV] = (int16_t)clamp(kid.rev0 + kid.echo * 6, 0, 127);
     t->p[P_LD_PIT] = (int16_t)clamp(KID_SOUND[kid.fr % KID_N].vib + KID_WIG * 5, -64, 63);
     t->p[P_LRATE] = 74;
-    t->p[P_CHRD] = kid.chord && !drum_track(t) ? CH_DIA3 : CH_OFF;   /* (a drum friend: one drum a key) */
+    t->p[P_CHRD] = kid.chord && !drum_track(t) ? CH_MAJ : CH_OFF;    /* 3 FRIENDS: a major chord on any key, white or
+                                                                   * black, to find the magic ones (a drum friend: one drum a key) */
     t->p[P_VOICE] = kid.chord || kid.mode == KM_STRUM || kid.mode == KM_ACCORD ? V_POLY : kid.voice0;   /* (a mono
                                                   * friend sings one note at a time: its chords, strums and squeezes
                                                   * need its voices; 1 FRIEND keeps its legato slide) */
@@ -1099,6 +1100,10 @@ static void kid_staff_add(uint32_t keys, uint32_t now)
         uint8_t an[CHORD_MAX];
         if (kid.mode == KM_ACCORD && SHARP[pc])                   /* ACCORDION: a black key's chord (seq.c) */
             acc = accord_chord(&trk[0], k, 0, an);
+        else if (kid.chord && !drum_track(&trk[0])) {             /* 3 FRIENDS: the major chord on the key, as it sounds */
+            an[0] = (uint8_t)n; an[1] = (uint8_t)(n + 4u); an[2] = (uint8_t)(n + 7u);
+            acc = 3;
+        }
         for (h = 0; h < (acc ? acc : kid.chord ? 3u : 1u); h++) {
             uint32_t d = e->n, sh = h || acc ? 0u : SHARP[pc], i;
             int32_t s = acc ? ((int32_t)(an[h] / 12u) - 5) * 7 + IDX[an[h] % 12u] : st + (int32_t)h * 2;
@@ -2507,13 +2512,11 @@ static uint32_t kid_play_band(uint32_t now)
     }
     if (drum_track(&trk[0]))                                      /* (a drum friend: drums, not chords) */
         return 0;
-    if (kid.mode == KM_CHOIR && keyed && !((0x54Au >> ((53u + (uint32_t)kid.key) % 12u)) & 1u)) {
-        static const uint8_t SCALE[7] = {0, 2, 4, 5, 7, 9, 11};  /* three friends: the key's chord in C major */
-        uint32_t pc = (53u + (uint32_t)kid.key) % 12u, d;
-        for (d = 0; SCALE[d] != pc; d++)
-            ;
-        for (k = 0; k < 3u; k++)
-            pcs[k] = SCALE[(d + 2u * k) % 7u];
+    if (kid.mode == KM_CHOIR && keyed) {                          /* three friends: the major chord on the key */
+        uint32_t pc = (53u + (uint32_t)kid.key) % 12u;
+        pcs[0] = (uint8_t)pc;
+        pcs[1] = (uint8_t)((pc + 4u) % 12u);
+        pcs[2] = (uint8_t)((pc + 7u) % 12u);
         return kid_chord_band(pcs, 3);
     }
     if (keyed && kid.chord_ms && now - kid.chord_ms < 900u) {     /* keys pressed together: their chord */
@@ -3174,11 +3177,12 @@ static int32_t kid_friends_px(int32_t x, int32_t y)        /* the friends, front
     uint32_t i;
     for (i = 0; i < kf.n; i++) {
         const kid_inst_t *in = &kf.in[i];
+        int32_t up = kf.hat ? KID_HAT_UP * in->h / KID_PW : 0;   /* a hat may rise above the picture (KID_HAT_UP rows) */
         int32_t sy = y - in->y, sx, ry, rx, xo;
         uint32_t b;
-        if ((uint32_t)sy >= (uint32_t)in->h)
+        if ((uint32_t)(sy + up) >= (uint32_t)(in->h + up))
             continue;
-        ry = sy * in->invy >> 8;
+        ry = sy >= 0 ? sy * in->invy >> 8 : -((-sy * in->invy + 255) >> 8);
         xo = in->wig ? KID_SIN[((uint32_t)ry / 3u + kf.ph) & 31u] * in->wig / 127 : 0;
         sx = x - in->x - xo;
         if ((uint32_t)sx >= (uint32_t)in->w)
@@ -3200,6 +3204,8 @@ static int32_t kid_friends_px(int32_t x, int32_t y)        /* the friends, front
                     return KID_HAT_PAL[kf.hat - 1u][hb];
             }
         }
+        if (ry < 0)
+            continue;                                    /* (above the picture: only the hat) */
         b = kid_row(in->art, (uint32_t)ry)[rx];
         if (b)
             return in->pal[b];
@@ -3666,9 +3672,10 @@ static void kid_draw(void)
     ssig = kid_staff_setup(now);
     for (i = 0; i < kf.n; i++) {
         const kid_inst_t *in = &kf.in[i];
+        int32_t up = kf.hat ? KID_HAT_UP * in->h / KID_PW : 0;   /* (the hat's headroom) */
         x0 = in->x - in->wig < x0 ? in->x - in->wig : x0;
         x1 = in->x + in->w + in->wig > x1 ? in->x + in->w + in->wig : x1;
-        y0 = in->y < y0 ? in->y : y0;
+        y0 = in->y - up < y0 ? in->y - up : y0;
         y1 = in->y + in->h > y1 ? in->y + in->h : y1;
         sig = sig * 31u + (uint32_t)in->x * 7u + (uint32_t)in->y * 131u + (uint32_t)in->w * 3u + (uint32_t)in->h
               + (uint32_t)in->flip * 977u + (uint32_t)(in->pal == kf.ice) * 1931u;

@@ -2329,23 +2329,58 @@ def hat_sprite(f):                      # the hat cropped, in a HAT_W x HAT_H bo
     return out
 
 
-# where a friend wears a hat: (centre x, the row its hat's bottom edge sits on, hat width): the head top of its picture,
-# found from the picture (the topmost rows' middle), and the overrides below for a picture that is not a head up top
-HAT_AT = {}   # name -> (x, y, w)
+# where a friend wears a hat: (centre x, the row its hat's bottom edge sits on, hat width). The hat may rise up to HAT_UP rows
+# above the picture (kid.c draws that headroom), so a head at the very top still gets a whole hat, never one over its eyes.
+# The head is found from the picture: the first row from the top that is wide enough to be a head (HEAD_MIN), so ears,
+# horns, antennae and a whale's spout are passed over; the hat is as wide as that head (a little wider for a small head),
+# centred on it, and sits a few rows into it. HAT_AT overrides a picture where that is wrong (see the hats sheet: --png).
+HAT_UP = 16                              # rows of headroom above the picture
+HEAD_MIN = 10                            # a head is at least this wide (px)
+# A hint where the head is not the top of the picture: look only in columns x0..x1, and a head is at least this wide
+HEAD_HINT = {"BUNNY": (0, 47, 16), "VACUUM": (0, 47, 18), "SPIDER": (14, 40, 14),
+             "SHARK": (2, 18, 10), "UNICORN": (12, 24, 9)}
+# .. and where no rule finds it, by hand: (centre x, the row the hat's bottom sits on, hat width)
+HAT_AT = {"BEE": (12, 19, 16),           # its face, not its wings
+          "SNAIL": (9, 9, 18),           # across both eyes (they are its head)
+          "STEGOSAURUS": (7, 26, 15),    # the small head at the front, not the plates
+          "TRAIN": (35, 11, 18),         # on the cab, where the driver is
+          "WHALE": (13, 21, 17)}         # its head, not its spout
 
 
 def hat_anchor(name, im):
-    px = im.load()
-    rows = [y for y in range(N) if any(px[x, y][3] for x in range(N))]
-    top = rows[0]
     if name in HAT_AT:
         return HAT_AT[name]
-    xs = [x for y in range(top, min(top + 5, N)) for x in range(N) if px[x, y][3]]
-    cx = (min(xs) + max(xs)) // 2
-    span = [x for x in range(N) if px[x, min(top + 8, N - 1)][3]]
-    w = max(10, min(20, (max(span) - min(span)) * 3 // 4 if span else 16))
+    a = im.getchannel("A").load()
+    lo, hi, head_min = HEAD_HINT.get(name, (0, N - 1, HEAD_MIN))
+    def runs(y):                          # the solid spans of row y (within the hint's columns): (x0, x1) inclusive
+        out, x = [], lo
+        while x <= hi:
+            if a[x, y]:
+                x0 = x
+                while x <= hi and a[x, y]:
+                    x += 1
+                out.append((x0, x - 1))
+            x += 1
+        return out
+    rows = [y for y in range(N) if runs(y)]
+    top = rows[0]
+    for y in rows:                        # the head's top: the first row with a span as wide as a head
+        if any(x1 - x0 + 1 >= head_min for x0, x1 in runs(y)):
+            top = y
+            break
+    def span(y, near):                    # the span of row y nearest a column
+        rs = runs(min(y, N - 1)) or [(near, near)]
+        return min(rs, key=lambda r: 0 if r[0] <= near <= r[1] else min(abs(r[0] - near), abs(r[1] - near)))
+    wide = max(runs(top), key=lambda r: r[1] - r[0])
+    cx = (wide[0] + wide[1] + 1) // 2
+    head = span(top + 5, cx)              # the head's width a little way down
+    cx = (head[0] + head[1] + 1) // 2 if head[1] - head[0] + 1 >= head_min else cx
+    hw = head[1] - head[0] + 1
+    w = max(15, min(26, round(hw * 0.9) if hw >= 18 else hw + 3))
     hh = HAT_H * w // HAT_W
-    return cx, max(top + 4, hh + 1), w
+    y = top + max(2, hh // 5)             # the brim a few rows into the head
+    y = max(y, hh - HAT_UP)               # (never higher than the headroom)
+    return cx, y, w
 
 
 hat_anchors = []
@@ -2456,6 +2491,7 @@ def main(out, png=None):
     lines.append(f"#define KID_HAT_N {len(HATS)}")
     lines.append(f"#define KID_HAT_W {HAT_W}")
     lines.append(f"#define KID_HAT_H {HAT_H}")
+    lines.append(f"#define KID_HAT_UP {HAT_UP}")
     lines.append("static const char *const KID_HAT_NAME[KID_HAT_N] = {" + ", ".join(f'"{n}"' for n, _ in HATS) + "};")
     lines.append("static const uint16_t KID_HAT_PAL[KID_HAT_N][16] = {")
     for pal, _ in hat_data:
@@ -2485,16 +2521,18 @@ def main(out, png=None):
             ImageDraw.Draw(sheet).rectangle([x, y, x + N * 4 - 1, y + N * 4 - 1], outline=(90, 160, 220))
             sheet.paste(big, (x, y), big)
         sheet.save(png)
-        hs = Image.new("RGB", (cols * (N * 4 + 8), ((len(pics) + cols - 1) // cols) * (N * 4 + 8)), (120, 200, 255))
+        HH = N + HAT_UP
+        hs = Image.new("RGB", (cols * (N * 4 + 8), ((len(pics) + cols - 1) // cols) * (HH * 4 + 8)), (120, 200, 255))
         for i, (_, im) in enumerate(pics):                       # every picture in a hat, to check where they sit
-            big = im.copy()
+            big = Image.new("RGBA", (N, HH), (0, 0, 0, 0))     # (with the headroom above the picture: kid.c KID_HAT_UP)
+            big.paste(im, (0, HAT_UP), im)
             cx, by, w = hat_anchors[i]
             hat = hat_sprite(HATS[i % len(HATS)][1])
             hh = HAT_H * w // HAT_W
             hat = hat.resize((w, hh), Image.NEAREST)
-            big.alpha_composite(hat, (cx - w // 2, by - hh)) if cx - w // 2 >= 0 and by - hh >= 0 else None
-            big = big.resize((N * 4, N * 4), Image.NEAREST)
-            x, y = (i % cols) * (N * 4 + 8) + 4, (i // cols) * (N * 4 + 8) + 4
+            big.alpha_composite(hat, (cx - w // 2, HAT_UP + by - hh))
+            big = big.resize((N * 4, HH * 4), Image.NEAREST)
+            x, y = (i % cols) * (N * 4 + 8) + 4, (i // cols) * (HH * 4 + 8) + 4
             hs.paste(big, (x, y), big)
         hs.save(png.replace(".png", "-hats.png"))
         row = Image.new("RGB", (len(ICONS) * (N * 4 + 8), N * 4 + 8), (150, 110, 230))
