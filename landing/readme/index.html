@@ -1,0 +1,165 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only
+     Rainbow mode's readme: every control on one page, for the grown-up who forgot where the hats are. The workflow
+     copies landing/ to the site, so this is at /readme/, and fills in @REPO@ (owner/name). The full story of each
+     control, and how it is built, is RAINBOW.md; when a control changes there, change it here too. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rainbow mode controls</title>
+<meta name="description" content="Every button, knob and key in Rainbow mode for the M-VAVE FM-1, on one page.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23241830'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23ec3440'/%3E%3Crect x='3' y='6' width='10' height='2' fill='%23ffd82e'/%3E%3Crect x='3' y='9' width='10' height='2' fill='%2350c85a'/%3E%3Crect x='3' y='12' width='10' height='1' fill='%233880f4'/%3E%3C/svg%3E">
+<style>
+  /* the landing page's palette: the FM-1 screen's own colors on a deep plum */
+  :root {
+    --bg: #241830; --panel: #2f2040; --panel-2: #3a2850; --ink: #fff; --soft: #d6c4ec; --dim: #9c86bb;
+    --red: #ec3440; --orange: #ff8c1e; --yellow: #ffd82e; --green: #50c85a; --blue: #3880f4; --purple: #9658e2;
+    --font: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--font); }
+  a { color: var(--yellow); }
+  a:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .stripe { height: 10px; background: linear-gradient(90deg, var(--red) 0 16.66%, var(--orange) 0 33.33%, var(--yellow) 0 50%,
+            var(--green) 0 66.66%, var(--blue) 0 83.33%, var(--purple) 0); }
+  main, footer { width: 100%; max-width: 860px; margin: 0 auto; padding-inline: 16px; }
+  .back { display: inline-block; margin: 18px 0 0; font-weight: 700; text-decoration: none; }
+  h1 { font-size: clamp(2.1rem, 7vw, 3.2rem); line-height: 1.05; margin: 18px 0 10px; letter-spacing: -.02em; }
+  h2 { font-size: 1.45rem; line-height: 1.2; margin: 44px 0 12px; scroll-margin-top: 16px; }
+  h2 span { color: var(--yellow); }
+  p { margin: 0 0 14px; color: var(--soft); max-width: 40em; }
+  .lede { font-size: 1.15rem; }
+  nav ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+  nav a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; text-decoration: none;
+          color: var(--ink); background: var(--panel); font-size: .95rem; font-weight: 600; }
+  nav a:hover { background: var(--panel-2); }
+  .grownups { background: var(--panel); border-radius: 18px; padding: 18px 18px 6px; margin-top: 12px; box-shadow: inset 0 0 0 2px var(--yellow); }
+  .grownups h2 { margin-top: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .97rem; margin: 0 0 8px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--panel-2); vertical-align: top; }
+  th { color: var(--dim); font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  td { color: var(--soft); }
+  td:first-child { width: 32%; color: var(--ink); font-weight: 700; }
+  td b { color: var(--ink); }
+  footer { margin-top: 56px; padding-block: 24px 40px; color: var(--dim); font-size: .95rem; border-top: 1px solid var(--panel-2); }
+  footer p { color: var(--dim); }
+  @media (min-width: 640px) { body { font-size: 18px; } td:first-child { width: 26%; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<main>
+  <a class="back" href="../">&larr; Rainbow mode</a>
+  <h1>Every control</h1>
+  <p class="lede">Every button, knob and key in Rainbow mode, on one page. The FM-1 starts in Rainbow mode each time it's switched on.</p>
+  <nav aria-label="On this page">
+    <ul>
+      <li><a href="#grownups">Hold HOME</a></li>
+      <li><a href="#panel">The panel</a></li>
+      <li><a href="#algorithm">How the keys play</a></li>
+      <li><a href="#write">Writing a song</a></li>
+      <li><a href="#stars">Stars</a></li>
+    </ul>
+  </nav>
+
+  <section class="grownups" aria-labelledby="grownups">
+    <h2 id="grownups">Hold HOME for a second, <span>then&hellip;</span></h2>
+    <p>The grown-ups' settings all start the same way. Hold HOME for 1 second and keep holding it, then:</p>
+    <table>
+      <thead><tr><th>Then</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>KNOB 4</td><td><b>The hat.</b> Ten hats any friend can wear (party, crown, top hat, rainbow bucket, wizard, beanie, western, chef, propeller, flowers), or none. The band names it. It stays on after power-off. Ten stars add an eleventh, the STAR hat.</td></tr>
+        <tr><td>OCT- / OCT+</td><td><b>Volume.</b> The most the MASTER knob can give, in eight steps. It starts at step 6, about half. Step 8 lets MASTER go all the way.</td></tr>
+        <tr><td>ALGORITHM</td><td><b>The name in the hello.</b> PRESETS picks the letter, ALGORITHM moves to the next place, SAVE keeps it. HOME leaves without changing anything.</td></tr>
+        <tr><td>KNOB 3</td><td><b>Stars.</b> How close the next secret is.</td></tr>
+        <tr><td>PRESETS</td><td><b>Look-alikes.</b> Left swaps the friends drawn after TV and film characters for original ones with the same sounds. Right brings them back.</td></tr>
+      </tbody>
+    </table>
+    <p>To leave Rainbow mode for the full Felucca synth, hold HOME and SAVE together for 3 seconds. Your last Felucca session is right where you left it, and Rainbow mode comes back at the next power-on.</p>
+  </section>
+
+  <h2 id="panel">The panel</h2>
+  <table>
+    <thead><tr><th>Control</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Keys</td><td>Play the friend. The note's letter shows big in its color, the friend hops, and a staff at the top writes the note.</td></tr>
+      <tr><td>PRESETS</td><td>The next or previous friend (94 of them, and a secret one). Each has its own sky and favorite beat.</td></tr>
+      <tr><td>ALGORITHM</td><td>How the keys play (<a href="#algorithm">below</a>).</td></tr>
+      <tr><td>SELECT</td><td>The beat slower or faster: SLOW, WALK, FAST.</td></tr>
+      <tr><td>KNOB 1</td><td>Big and small. Low notes make a big friend, high notes a small one.</td></tr>
+      <tr><td>KNOB 2</td><td>Day to night. The sky darkens and the sound gets softer.</td></tr>
+      <tr><td>KNOB 3</td><td>Echo. Copies of the friend follow the sound around.</td></tr>
+      <tr><td>KNOB 4</td><td>Wiggle. The sound wobbles, and so does the friend.</td></tr>
+      <tr><td>OCT- / OCT+</td><td>The keys an octave down or up (the friend grows or shrinks, as with KNOB 1).</td></tr>
+      <tr><td>FX</td><td>HICCUP: the sound stutters.</td></tr>
+      <tr><td>SCL</td><td>BACKWARDS: the sound plays in reverse.</td></tr>
+      <tr><td>ENV</td><td>SLEEPY: each note winds down like a record player. It wakes up by itself after 3 seconds.</td></tr>
+      <tr><td>LFO</td><td>SQUEAKY: everything an octave up.</td></tr>
+      <tr><td>EDIT</td><td>GIANT: everything an octave down.</td></tr>
+      <tr><td>GLO</td><td>FREEZE: the sound freezes and the friend turns to ice.</td></tr>
+      <tr><td></td><td>The top row's tricks go on with a tap and off with another, one at a time. The lit button shows which.</td></tr>
+      <tr><td>PLAY</td><td>Starts and stops the beat: drums and a bass line that always fits.</td></tr>
+      <tr><td>SEQ</td><td>The next beat, of 21 (DANCE, MARCH, SPOOKY, ROCK, DISCO and on to BREAK).</td></tr>
+      <tr><td>ARP</td><td>Sparkle: a held key plays up and down by itself.</td></tr>
+      <tr><td>REC</td><td>The next sky, with confetti.</td></tr>
+      <tr><td>HOME</td><td>A tap: a surprise friend. Held 1 second: the grown-ups' settings (<a href="#grownups">above</a>).</td></tr>
+      <tr><td>SAVE</td><td>WRITE, a big staff for writing a song (<a href="#write">below</a>).</td></tr>
+      <tr><td>MASTER</td><td>Volume, up to the limit the grown-ups chose.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="algorithm">ALGORITHM: how the keys play</h2>
+  <p>Turn ALGORITHM one click at a time. Each setting has a picture, for kids who don't read yet.</p>
+  <table>
+    <thead><tr><th>Setting</th><th>What the keys do</th></tr></thead>
+    <tbody>
+      <tr><td>1 FRIEND</td><td>Each key plays its note.</td></tr>
+      <tr><td>3 FRIENDS</td><td>Each key plays the major chord built on it, and three friends sing.</td></tr>
+      <tr><td>STRUM</td><td>Like an Omnichord. A black key picks a chord; the white keys strum it, left to right.</td></tr>
+      <tr><td>ACCORDION</td><td>The black keys hold chords while the white keys play the tune. The lower row plays plain chords, the next row jazz ninths. ARP here sparkles the tune, then everything, then nothing.</td></tr>
+      <tr><td>GUESS</td><td>An ear game. A friend sings a note; find it on the keys. PLAY hears it again.</td></tr>
+      <tr><td>FOLLOW</td><td>Songs to learn. The next key lights up. SEQ picks the song, of 17.</td></tr>
+      <tr><td>CHORDS</td><td>Chord lessons. The next chord's keys light up; hold exactly those. SEQ picks the lesson, PLAY starts a slow lofi beat.</td></tr>
+      <tr><td>COPY ME</td><td>A memory game on C, D, E, G and A. The friend plays a pattern, then it's your turn. PLAY hears it again.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="write">SAVE: writing a song</h2>
+  <p>SAVE opens a big staff, Mario Paint style. The song stays on the FM-1 after it's switched off.</p>
+  <table>
+    <thead><tr><th>In WRITE</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Keys</td><td>Write a note in the yellow column. The same key again takes it out. Two keys at once make a chord.</td></tr>
+      <tr><td>PRESETS</td><td>The friend to write with. A song can have three.</td></tr>
+      <tr><td>OCT- / OCT+</td><td>The yellow column back and forward (32 columns, 4 pages).</td></tr>
+      <tr><td>HOME</td><td>Wipes the column.</td></tr>
+      <tr><td>PLAY</td><td>Plays the song in a loop. Keys pressed while it plays are added where the beat is.</td></tr>
+      <tr><td>SEQ</td><td>A beat under it.</td></tr>
+      <tr><td>SELECT</td><td>Slower or faster.</td></tr>
+      <tr><td>REC held 2 s</td><td>A new, empty song.</td></tr>
+      <tr><td>SAVE</td><td>Back to playing.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="stars">Stars and secrets</h2>
+  <p>Every game won is a star: a right GUESS, a COPY ME round, a FOLLOW song or a CHORDS lesson. Hold HOME for a second, then turn KNOB 3, to see how close the next secret is.</p>
+  <table>
+    <thead><tr><th>Stars</th><th>What opens</th></tr></thead>
+    <tbody>
+      <tr><td>10</td><td>The STAR hat. It joins the round on HOME held, then KNOB 4.</td></tr>
+      <tr><td>25</td><td>The northern lights, a secret sky. It joins REC's round.</td></tr>
+      <tr><td>50</td><td>GOLD DUCKY, a secret friend. It joins PRESETS.</td></tr>
+    </tbody>
+  </table>
+  <p>The drum friends (Scissors, Beat Bot, Toy Drum, Bongo and Monkey) play a different drum on every key, and the band shows its name instead of a letter.</p>
+</main>
+<footer>
+  <p>Every control in more detail, and how it's built: <a href="https://github.com/@REPO@/blob/main/RAINBOW.md">RAINBOW.md</a>. On the M-Vave SMK-37: <a href="https://github.com/@REPO@/blob/main/SMK37.md">SMK37.md</a>.</p>
+  <p><a href="../">Back to Rainbow mode</a></p>
+</footer>
+</body>
+</html>
