@@ -1411,58 +1411,111 @@ static void kw_clear(void)
 }
 
 /* ---------------------------------------------------------------- ALGORITHM: how the keys play */
-/* FOLLOW's songs (old ones, free to use), a note a letter and its octave; each fits the keys at OCT 0 (F3 .. G5) */
+/* a key as a one-byte string (its number + 1, so never the end of a string): songs and lessons are written with
+ * these side by side, K_C4 K_E4 K_G4, a byte a note */
+#define K_F3 "\x01"
+#define K_FS3 "\x02"
+#define K_G3 "\x03"
+#define K_GS3 "\x04"
+#define K_A3 "\x05"
+#define K_AS3 "\x06"
+#define K_B3 "\x07"
+#define K_C4 "\x08"
+#define K_CS4 "\x09"
+#define K_D4 "\x0a"
+#define K_DS4 "\x0b"
+#define K_E4 "\x0c"
+#define K_F4 "\x0d"
+#define K_FS4 "\x0e"
+#define K_G4 "\x0f"
+#define K_GS4 "\x10"
+#define K_A4 "\x11"
+#define K_AS4 "\x12"
+#define K_B4 "\x13"
+#define K_C5 "\x14"
+#define K_CS5 "\x15"
+#define K_D5 "\x16"
+#define K_DS5 "\x17"
+#define K_E5 "\x18"
+#define K_F5 "\x19"
+#define K_FS5 "\x1a"
+#define K_G5 "\x1b"
+/* FOLLOW's songs (old ones, free to use), a note a key (K_*); each fits the keys at OCT 0 (F3 .. G5) */
 typedef struct { const char *name, *notes; } kid_song_t;
 static const kid_song_t KID_SONGS[] = {
-    {"TWINKLE", "C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4 G4 G4 F4 F4 E4 E4 D4 G4 G4 F4 F4 E4 E4 D4 "
-                "C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4"},
-    {"MARY", "E4 D4 C4 D4 E4 E4 E4 D4 D4 D4 E4 G4 G4 E4 D4 C4 D4 E4 E4 E4 E4 D4 D4 E4 D4 C4"},
-    {"HOT CROSS BUNS", "E4 D4 C4 E4 D4 C4 C4 C4 C4 C4 D4 D4 D4 D4 E4 D4 C4"},
-    {"ROW YOUR BOAT", "C4 C4 C4 D4 E4 E4 D4 E4 F4 G4 C5 C5 C5 G4 G4 G4 E4 E4 E4 C4 C4 C4 G4 F4 E4 D4 C4"},
-    {"OLD MACDONALD", "G4 G4 G4 D4 E4 E4 D4 B4 B4 A4 A4 G4 D4 G4 G4 G4 D4 E4 E4 D4 B4 B4 A4 A4 G4"},
-    {"FRERE JACQUES", "C4 D4 E4 C4 C4 D4 E4 C4 E4 F4 G4 E4 F4 G4 G4 A4 G4 F4 E4 C4 G4 A4 G4 F4 E4 C4 C4 G3 C4 C4 G3 C4"},
-    {"LONDON BRIDGE", "G4 A4 G4 F4 E4 F4 G4 D4 E4 F4 E4 F4 G4 G4 A4 G4 F4 E4 F4 G4 D4 G4 E4 C4"},
-    {"ODE TO JOY", "E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4 D4 D4 E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4 C4 C4"},
-    {"JINGLE BELLS", "E4 E4 E4 E4 E4 E4 E4 G4 C4 D4 E4 F4 F4 F4 F4 F4 E4 E4 E4 E4 G4 G4 F4 D4 C4"},
-    {"HAPPY BIRTHDAY", "G3 G3 A3 G3 C4 B3 G3 G3 A3 G3 D4 C4 G3 G3 G4 E4 C4 B3 A3 F4 F4 E4 C4 D4 C4"},
-    {"ITSY BITSY", "G3 C4 C4 C4 D4 E4 E4 E4 D4 C4 D4 E4 C4 E4 E4 F4 G4 G4 F4 E4 F4 G4 E4 C4 C4 D4 E4 E4 D4 C4 D4 E4 C4"},
-    {"YANKEE DOODLE", "C4 C4 D4 E4 C4 E4 D4 G3 C4 C4 D4 E4 C4 B3 G3 C4 C4 D4 E4 F4 E4 D4 C4 B3 G3 A3 B3 C4 C4"},
-    {"OH SUSANNA", "C4 D4 E4 G4 G4 A4 G4 E4 C4 D4 E4 E4 D4 C4 D4 C4 D4 E4 G4 G4 A4 G4 E4 C4 D4 E4 E4 D4 D4 C4"},
-    {"AMAZING GRACE", "G3 C4 E4 C4 E4 D4 C4 A3 G3 G3 C4 E4 C4 E4 D4 G4"},
-    {"SILENT NIGHT", "G4 A4 G4 E4 G4 A4 G4 E4 D5 D5 B4 C5 C5 G4 A4 A4 C5 B4 A4 G4 A4 G4 E4 A4 A4 C5 B4 A4 G4 A4 G4 E4 "
-                     "D5 D5 F5 D5 B4 C5 E5 C5 G4 E4 G4 F4 D4 C4"},
-    {"JOY TO WORLD", "C5 B4 A4 G4 F4 E4 D4 C4 G4 A4 A4 B4 B4 C5 C5 C5 B4 A4 G4 G4 F4 E4 C5 C5 B4 A4 G4 G4 F4 E4 E4 E4 E4 E4 E4 F4 G4 F4 E4 "
-                    "D4 D4 D4 D4 D4 E4 F4 E4 D4 C4"},
-    {"AU CLAIR", "C4 C4 C4 D4 E4 D4 C4 E4 D4 D4 C4 C4 C4 C4 D4 E4 D4 C4 E4 D4 D4 C4"},
+    {"TWINKLE", K_C4 K_C4 K_G4 K_G4 K_A4 K_A4 K_G4 K_F4 K_F4 K_E4 K_E4 K_D4 K_D4 K_C4 K_G4 K_G4 K_F4 K_F4 K_E4 K_E4
+                K_D4 K_G4 K_G4 K_F4 K_F4 K_E4 K_E4 K_D4 K_C4 K_C4 K_G4 K_G4 K_A4 K_A4 K_G4 K_F4 K_F4 K_E4 K_E4 K_D4
+                K_D4 K_C4},
+    {"MARY", K_E4 K_D4 K_C4 K_D4 K_E4 K_E4 K_E4 K_D4 K_D4 K_D4 K_E4 K_G4 K_G4 K_E4 K_D4 K_C4 K_D4 K_E4 K_E4 K_E4
+             K_E4 K_D4 K_D4 K_E4 K_D4 K_C4},
+    {"HOT CROSS BUNS", K_E4 K_D4 K_C4 K_E4 K_D4 K_C4 K_C4 K_C4 K_C4 K_C4 K_D4 K_D4 K_D4 K_D4 K_E4 K_D4 K_C4},
+    {"ROW YOUR BOAT", K_C4 K_C4 K_C4 K_D4 K_E4 K_E4 K_D4 K_E4 K_F4 K_G4 K_C5 K_C5 K_C5 K_G4 K_G4 K_G4 K_E4 K_E4
+                      K_E4 K_C4 K_C4 K_C4 K_G4 K_F4 K_E4 K_D4 K_C4},
+    {"OLD MACDONALD", K_G4 K_G4 K_G4 K_D4 K_E4 K_E4 K_D4 K_B4 K_B4 K_A4 K_A4 K_G4 K_D4 K_G4 K_G4 K_G4 K_D4 K_E4
+                      K_E4 K_D4 K_B4 K_B4 K_A4 K_A4 K_G4},
+    {"FRERE JACQUES", K_C4 K_D4 K_E4 K_C4 K_C4 K_D4 K_E4 K_C4 K_E4 K_F4 K_G4 K_E4 K_F4 K_G4 K_G4 K_A4 K_G4 K_F4
+                      K_E4 K_C4 K_G4 K_A4 K_G4 K_F4 K_E4 K_C4 K_C4 K_G3 K_C4 K_C4 K_G3 K_C4},
+    {"LONDON BRIDGE", K_G4 K_A4 K_G4 K_F4 K_E4 K_F4 K_G4 K_D4 K_E4 K_F4 K_E4 K_F4 K_G4 K_G4 K_A4 K_G4 K_F4 K_E4
+                      K_F4 K_G4 K_D4 K_G4 K_E4 K_C4},
+    {"ODE TO JOY", K_E4 K_E4 K_F4 K_G4 K_G4 K_F4 K_E4 K_D4 K_C4 K_C4 K_D4 K_E4 K_E4 K_D4 K_D4 K_E4 K_E4 K_F4 K_G4
+                   K_G4 K_F4 K_E4 K_D4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_C4},
+    {"JINGLE BELLS", K_E4 K_E4 K_E4 K_E4 K_E4 K_E4 K_E4 K_G4 K_C4 K_D4 K_E4 K_F4 K_F4 K_F4 K_F4 K_F4 K_E4 K_E4 K_E4
+                     K_E4 K_G4 K_G4 K_F4 K_D4 K_C4},
+    {"HAPPY BIRTHDAY", K_G3 K_G3 K_A3 K_G3 K_C4 K_B3 K_G3 K_G3 K_A3 K_G3 K_D4 K_C4 K_G3 K_G3 K_G4 K_E4 K_C4 K_B3
+                       K_A3 K_F4 K_F4 K_E4 K_C4 K_D4 K_C4},
+    {"ITSY BITSY", K_G3 K_C4 K_C4 K_C4 K_D4 K_E4 K_E4 K_E4 K_D4 K_C4 K_D4 K_E4 K_C4 K_E4 K_E4 K_F4 K_G4 K_G4 K_F4
+                   K_E4 K_F4 K_G4 K_E4 K_C4 K_C4 K_D4 K_E4 K_E4 K_D4 K_C4 K_D4 K_E4 K_C4},
+    {"YANKEE DOODLE", K_C4 K_C4 K_D4 K_E4 K_C4 K_E4 K_D4 K_G3 K_C4 K_C4 K_D4 K_E4 K_C4 K_B3 K_G3 K_C4 K_C4 K_D4
+                      K_E4 K_F4 K_E4 K_D4 K_C4 K_B3 K_G3 K_A3 K_B3 K_C4 K_C4},
+    {"OH SUSANNA", K_C4 K_D4 K_E4 K_G4 K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_E4 K_D4 K_C4 K_D4 K_C4 K_D4 K_E4 K_G4
+                   K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_E4 K_D4 K_D4 K_C4},
+    {"AMAZING GRACE", K_G3 K_C4 K_E4 K_C4 K_E4 K_D4 K_C4 K_A3 K_G3 K_G3 K_C4 K_E4 K_C4 K_E4 K_D4 K_G4},
+    {"SILENT NIGHT", K_G4 K_A4 K_G4 K_E4 K_G4 K_A4 K_G4 K_E4 K_D5 K_D5 K_B4 K_C5 K_C5 K_G4 K_A4 K_A4 K_C5 K_B4 K_A4
+                     K_G4 K_A4 K_G4 K_E4 K_A4 K_A4 K_C5 K_B4 K_A4 K_G4 K_A4 K_G4 K_E4 K_D5 K_D5 K_F5 K_D5 K_B4 K_C5
+                     K_E5 K_C5 K_G4 K_E4 K_G4 K_F4 K_D4 K_C4},
+    {"JOY TO WORLD", K_C5 K_B4 K_A4 K_G4 K_F4 K_E4 K_D4 K_C4 K_G4 K_A4 K_A4 K_B4 K_B4 K_C5 K_C5 K_C5 K_B4 K_A4 K_G4
+                     K_G4 K_F4 K_E4 K_C5 K_C5 K_B4 K_A4 K_G4 K_G4 K_F4 K_E4 K_E4 K_E4 K_E4 K_E4 K_E4 K_F4 K_G4 K_F4
+                     K_E4 K_D4 K_D4 K_D4 K_D4 K_D4 K_E4 K_F4 K_E4 K_D4 K_C4},
+    {"AU CLAIR", K_C4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_E4 K_D4 K_D4 K_C4 K_C4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_E4
+                 K_D4 K_D4 K_C4},
 };
 #define KID_NSONGS (sizeof KID_SONGS / sizeof KID_SONGS[0])
 
 static uint32_t kid_song_key(uint32_t song_i, uint32_t i)       /* note i of a song as a key (0 .. 26), 99 past its end */
 {
-    static const uint8_t PC[7] = {9, 11, 0, 2, 4, 5, 7};          /* A .. G */
     const char *s = KID_SONGS[song_i % KID_NSONGS].notes;
-    while (*s) {
-        if (*s >= 'A' && *s <= 'G') {
-            if (!i--)
-                return (uint32_t)(12 * (s[1] - '0' + 1) + PC[*s - 'A']) - 53u;
-            s++;
-        }
-        s++;
-    }
+    for (; *s; s++)
+        if (!i--)
+            return (uint32_t)(uint8_t)*s - 1u;
     return 99u;
 }
 
 /* CHORDS (u/Yablan's idea): lessons of four chords, from first chords to lofi. A chord's keys light up and its name and
  * letters show; holding exactly its keys plays it, says YES and lights the next. With PLAY a slow, swung LOFI beat runs,
  * each chord gets a bar (the bass plays its root) and the next one blinks a beat early. Voiced so the hand barely
- * moves from chord to chord. A token: its name (_ a space) = its notes (+ between) */
+ * moves from chord to chord. A token: its name (_ a space), =, its keys (K_*); a space between tokens */
 typedef struct { const char *name, *chords; } kid_lesson_t;
 static const kid_lesson_t KID_LESSONS[] = {
-    {"FIRST CHORDS", "C_MAJOR=C4+E4+G4 F_MAJOR=C4+F4+A4 G_MAJOR=B3+D4+G4 C_MAJOR=C4+E4+G4"},
-    {"POP FOUR", "C_MAJOR=C4+E4+G4 G_MAJOR=B3+D4+G4 A_MINOR=C4+E4+A4 F_MAJOR=C4+F4+A4"},
-    {"SEVENTHS", "C_MAJ7=C4+E4+G4+B4 A_MIN7=C4+E4+G4+A4 D_MIN7=C4+D4+F4+A4 G_SEVEN=B3+D4+F4+G4"},
-    {"LOFI", "F_MAJ7=F3+A3+C4+E4 E_MIN7=G3+B3+D4+E4 D_MIN7=F3+A3+C4+D4 C_MAJ7=G3+B3+C4+E4"},
-    {"LOFI JAZZ", "D_MIN9=F3+A3+C4+E4 G_13=F3+A3+B3+E4 C_MAJ9=G3+B3+D4+E4 C_MAJ9=G3+B3+D4+E4"},   /* (rootless: the
+    {"FIRST CHORDS", "C_MAJOR=" K_C4 K_E4 K_G4 " "
+        "F_MAJOR=" K_C4 K_F4 K_A4 " "
+        "G_MAJOR=" K_B3 K_D4 K_G4 " "
+        "C_MAJOR=" K_C4 K_E4 K_G4},
+    {"POP FOUR", "C_MAJOR=" K_C4 K_E4 K_G4 " "
+        "G_MAJOR=" K_B3 K_D4 K_G4 " "
+        "A_MINOR=" K_C4 K_E4 K_A4 " "
+        "F_MAJOR=" K_C4 K_F4 K_A4},
+    {"SEVENTHS", "C_MAJ7=" K_C4 K_E4 K_G4 K_B4 " "
+        "A_MIN7=" K_C4 K_E4 K_G4 K_A4 " "
+        "D_MIN7=" K_C4 K_D4 K_F4 K_A4 " "
+        "G_SEVEN=" K_B3 K_D4 K_F4 K_G4},
+    {"LOFI", "F_MAJ7=" K_F3 K_A3 K_C4 K_E4 " "
+        "E_MIN7=" K_G3 K_B3 K_D4 K_E4 " "
+        "D_MIN7=" K_F3 K_A3 K_C4 K_D4 " "
+        "C_MAJ7=" K_G3 K_B3 K_C4 K_E4},
+    {"LOFI JAZZ", "D_MIN9=" K_F3 K_A3 K_C4 K_E4 " "
+        "G_13=" K_F3 K_A3 K_B3 K_E4 " "
+        "C_MAJ9=" K_G3 K_B3 K_D4 K_E4 " "
+        "C_MAJ9=" K_G3 K_B3 K_D4 K_E4},   /* (rootless: the
                                                   * bass plays the root, as lofi keys do) */
 };
 #define KID_NLESSONS (sizeof KID_LESSONS / sizeof KID_LESSONS[0])
@@ -1485,9 +1538,8 @@ static uint32_t kid_lesson_chord(uint32_t lesson, uint32_t i, uint32_t *root, ch
             name[j++] = *s == '_' ? ' ' : *s;
     if (name)
         name[j] = 0;
-    for (; *s && *s != ' '; s++)
-        if (*s >= 'A' && *s <= 'G')
-            keys |= 1u << ((uint32_t)(12 * (s[1] - '0' + 1) + PC[*s - 'A']) - 53u);
+    for (s++; *s && *s != ' '; s++)                              /* (past the =: a byte a key) */
+        keys |= 1u << ((uint32_t)(uint8_t)*s - 1u);
     return keys;
 }
 
@@ -2746,8 +2798,7 @@ static uint16_t kid_band_px(int32_t x, int32_t y)
     int k;
     if (kf.icon >= 0 && x >= 6 && x < 54 && y >= (int32_t)KID_BAND_Y + 5 && y < (int32_t)KID_BAND_Y + 53) {
         uint32_t ix = (uint32_t)(x - 6), iy = (uint32_t)(y - ((int32_t)KID_BAND_Y + 5)), b;   /* the mode's picture */
-        b = KID_ICON_PIX[kf.icon % KID_ICON_N][iy * 24u + (ix >> 1)];
-        b = ix & 1u ? b & 15u : b >> 4;
+        b = kid_row(KID_ICON_ART + (uint32_t)kf.icon % KID_ICON_N, iy)[ix];
         if (b)
             return KID_ICON_PAL[kf.icon % KID_ICON_N][b];
     }

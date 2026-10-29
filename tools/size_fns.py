@@ -22,7 +22,11 @@ SIZE_FILES = ["ui.c", "favorites.c", "menu_items.c", "icons.c", "ui_graph.c", "u
               "editor.c", "editor_preferences.c", "editor_backup.c", "editor_menu.c", "console.c",
               "usb.c", "midi_uart.c", "midi_control.c", "midi_clock.c", "seq.c", "song_chain.c", "chord.c", "motion.c",
               "panel.c", "lcd.c", "gfx.c", "ota.c", "ota_hw.c", "up_fm6.c", "slice_store.c", "params.c", "editor_fm6.c",
-              "ui_layer.c", "ui_name.c", "ui_slice.c", "ui_events.c", "main.c", "libc.c", "storage_hw.c", "engines.c", "fm4_convert.c"]
+              "ui_layer.c", "ui_name.c", "ui_slice.c", "ui_events.c", "main.c", "libc.c", "storage_hw.c", "engines.c", "fm4_convert.c",
+              "kid.c"]
+# Rainbow mode's screen is drawn a pixel at a time (kid.c kid_paint): what it reaches keeps -Os, like the ISR's code,
+# so the frame rate stays where it was (kid.c built for size otherwise: about 4 KB of flash)
+FAST_ROOTS = ("kid_paint",)
 ISR_ROOTS = ("fm1_alnk0_irq", "fm1_timer5_irq")      # hal/fm1_isr.S: the audio ISR, the key / LED scan (+ USB poll)
 DEF = re.compile(r"^(?:static|void|int|uint\w*|int\w*|const)\b[^;=(]*?\b([A-Za-z_]\w*)\s*\(", re.M)
 IR_DEF = re.compile(r"^(define [^\n]*?@\"?([\w.]+)\"?\([^\n]*\)(?: unnamed_addr| local_unnamed_addr)?)( #\d+[^\n]*\{)$",
@@ -57,11 +61,11 @@ IR_BODY = re.compile(r"^define [^\n]*?@\"?([\w.]+)\"?\((.*?)^\}", re.M | re.S)
 IR_REF = re.compile(r"@\"?([\w.]+)\"?")
 
 
-def isr_reach(ir):
-    """the functions an interrupt can run: ISR_ROOTS and, transitively, every function their bodies call or
-    name (a pointer taken there counts as called), from the unoptimised IR (before inlining: a superset)"""
+def isr_reach(ir, roots=ISR_ROOTS):
+    """the functions an interrupt can run: ISR_ROOTS (or other roots) and, transitively, every function their bodies
+    call or name (a pointer taken there counts as called), from the unoptimised IR (before inlining: a superset)"""
     body = {m.group(1): m.group(2) for m in IR_BODY.finditer(ir)}
-    seen, todo = set(), [r for r in ISR_ROOTS if r in body]
+    seen, todo = set(), [r for r in roots if r in body]
     while todo:
         f = todo.pop()
         if f in seen:
@@ -74,7 +78,8 @@ def isr_reach(ir):
 def main(src, dst):
     ir = Path(src).read_text()
     isr = isr_reach(ir)
-    names, hit = size_names() - isr, set()
+    fast = isr_reach(ir, FAST_ROOTS)
+    names, hit = size_names() - isr - fast, set()
 
     def mark(m):
         if m.group(2) not in names:
@@ -83,7 +88,7 @@ def main(src, dst):
         return m.group(1) + " minsize" + m.group(3)
     Path(dst).write_text(IR_DEF.sub(mark, ir))
     print(f"size: {len(hit)} main-loop functions built for size ({len(names) - len(hit)} not in this build; "
-          f"{len(size_names() & isr)} reached from an interrupt kept -Os)")
+          f"{len(size_names() & isr)} reached from an interrupt and {len(size_names() & (fast - isr))} from the drawing kept -Os)")
     return 0
 
 

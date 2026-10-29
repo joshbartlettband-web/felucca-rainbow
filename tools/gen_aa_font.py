@@ -38,7 +38,8 @@ FONTS = Path(__file__).resolve().parents[1] / "fonts"
 LOCAL_INTER = os.path.expanduser("~/Library/Fonts/Inter.ttc")   # 4.001: 0 Regular, 10 Medium, 12 SemiBold
 EXTRAS = [0xA9, 0xB0, 0xB7, 0xC4, 0xD6, 0xDC, 0xE4, 0xF6, 0xFC, 0x2026]  # (c) deg . A: O: U: a: o: u: (Latin-1), ...
 CODE = {0x2026: 0x85}                  # characters outside Latin-1 -> their one-byte code in the firmware
-PHASES, PHASES_L = 4, 2                # horizontal phases per glyph (aa_raster.raster_font): S M, L
+PHASES, PHASES_L = 2, 2                # horizontal phases per glyph (aa_raster.raster_font): S M, L. (Rainbow mode: 2, not
+                                       # 4, for S and M: half-pixel letter spacing, 14.7 KB less, no difference to see)
 # faces stored Huffman-coded (--huff): M and L. S, the most drawn and the least compressible (-15 %), stays
 # 2 px per byte, so the labels draw at full speed
 HUFF = [("M", "L")]

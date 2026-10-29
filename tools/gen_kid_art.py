@@ -2433,21 +2433,7 @@ def main(out, png=None):
         lines.append("    {" + ", ".join(f"0x{v:04X}" for v in pal) + "},")
         data.append(rle(idx))
     lines.append("};")
-    at, n = [], 0
-    for d in data:
-        at.append(n)
-        n += len(d)
-    if n > 0xFFFF:
-        raise SystemExit(f"kid art: {n} B of runs, KID_RLE_AT is 16-bit")
-    lines.append("/* each picture: its 48 rows' lengths in bytes, then the rows, a byte a run (colour << 4 | length - 1),")
-    lines.append(" * a row's clear end left off; kid.c kid_row decodes a row */")
-    lines.append("static const uint16_t KID_RLE_AT[KID_NART] = {" + ", ".join(map(str, at)) + "};")
-    lines.append(f"static const uint8_t KID_RLE[{n}] = {{")
-    for d in data:
-        lines.append("    " + ",".join(str(b) for b in d) + ",")
-    lines.append("};")
-    rle_bytes = n
-    icons = []
+    icons = []                                                   # ALGORITHM's pictures: runs too, after the pictures
     for f in ICONS:
         im, cols, idx = f().im, [], []
         for y in range(N):
@@ -2461,16 +2447,27 @@ def main(out, png=None):
                 idx.append(cols.index(q[:3]) + 1)
         if len(cols) > 15:
             raise SystemExit(f"{f.__name__}: {len(cols)} colours, 15 at most")
-        icons.append(([0] + [rgb565(c) for c in cols] + [0] * (15 - len(cols)),
-                      bytes((idx[i] << 4) | idx[i + 1] for i in range(0, len(idx), 2))))
+        icons.append([0] + [rgb565(c) for c in cols] + [0] * (15 - len(cols)))
+        data.append(rle(idx))
+    at, n = [], 0
+    for d in data:
+        at.append(n)
+        n += len(d)
+    if n > 0xFFFF:
+        raise SystemExit(f"kid art: {n} B of runs, KID_RLE_AT is 16-bit")
     lines.append(f"#define KID_ICON_N {len(icons)}")
-    lines.append("static const uint16_t KID_ICON_PAL[KID_ICON_N][16] = {")
-    for pal, _ in icons:
-        lines.append("    {" + ", ".join(f"0x{v:04X}" for v in pal) + "},")
+    lines.append("#define KID_ICON_ART KID_NART             /* ALGORITHM's picture i is kid_row's picture KID_ICON_ART + i */")
+    lines.append("/* each picture: its 48 rows' lengths in bytes, then the rows, a byte a run (colour << 4 | length - 1),")
+    lines.append(" * a row's clear end left off; kid.c kid_row decodes a row */")
+    lines.append("static const uint16_t KID_RLE_AT[KID_NART + KID_ICON_N] = {" + ", ".join(map(str, at)) + "};")
+    lines.append(f"static const uint8_t KID_RLE[{n}] = {{")
+    for d in data:
+        lines.append("    " + ",".join(str(b) for b in d) + ",")
     lines.append("};")
-    lines.append(f"static const uint8_t KID_ICON_PIX[KID_ICON_N][{N * N // 2}] = {{")
-    for _, d in icons:
-        lines.append("    {" + ",".join(str(b) for b in d) + "},")
+    rle_bytes = n
+    lines.append("static const uint16_t KID_ICON_PAL[KID_ICON_N][16] = {")
+    for pal in icons:
+        lines.append("    {" + ", ".join(f"0x{v:04X}" for v in pal) + "},")
     lines.append("};")
     hat_data = []                                                # the hats, 4 bits a pixel, each with its own palette
     for _, f in HATS:
