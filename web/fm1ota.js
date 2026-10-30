@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
+// installBoot, the Open firmware check and the port names after fm1-base's web/fm1ota.js (MPL-2.0),
+//   Copyright (C) 2026 Charles Vestal, and Chris Farrell (fm-static) for the Open firmware's identities
 //
 // The FM-1 USB-MIDI update protocol over WebMIDI (after tools/fm1_install.py).
 // Step 1: the running firmware (official
@@ -16,6 +18,11 @@ const IS_OTA = (id) => /^ota-/i.test(id.model);
 // names, so a package for one runs on all of them; an FM-1 is another device
 const SMK_FAMILY = /^(ota-)?(SMK-37[ +].*|MKE-P37|STARRYKEY-37.*)$/i;
 export const sameKeyboard = (a, b) => a === b || (SMK_FAMILY.test(a) && SMK_FAMILY.test(b));   // two models
+// M-VAVE's FM-1 Open firmware (V10 and later, autumn 2026) reports "FM-1_80000" and two digits, and its updater takes
+// only M-VAVE's own firmware: nothing else can go over it until the stock firmware is back
+const MVAVE_OPEN_RE = /^FM-1_80000\d\d$/;
+// any other port the person picks on the page is tried too (Updater's allow): a Mac can remember a USB socket's port
+// under another name
 
 // errors carry a code the pages translate: notfound, model, stopped, noloader, lost, noreturn,
 // mismatch (detail: the identity the device reports), badreq
@@ -113,9 +120,10 @@ async function handshake(link, tries = 3) {
 }
 
 export class Updater {
-  constructor(access, log) {
+  constructor(access, log, allow = []) {
     this.access = access;
     this.log = log || (() => {});
+    this.allow = new Set(allow);                  // more port names to try (the page's "under another name")
   }
 
   // every in/out pair with the same port name that answers the handshake
@@ -126,7 +134,8 @@ export class Updater {
              `out: ${outs.map((p) => `"${p.name}" (${p.state})`).join(", ") || "none"}`);
     for (const input of ins) {
       if (input.state === "disconnected") continue;
-      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|(makkuro|snoop|vector|vox) ?37|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear (Melodee: a Felucca fork, same protocol; the other port firmwares by their "37" names,
+      if (!/fm-1|fm1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|(makkuro|snoop|vector|vox) ?37|ota|composite|sinco|usb-midi/i.test(input.name || "") &&
+          !this.allow.has(input.name)) continue;   // never probe other gear (Melodee: a Felucca fork, same protocol; the other port firmwares by their "37" names,
                                                   // so a VOX amp or a Vector synth is left alone)
       const output = outs.find((o) => o.name === input.name && o.state !== "disconnected");
       if (!output) { this.log(`"${input.name}": no output port of the same name`); continue; }
@@ -138,6 +147,17 @@ export class Updater {
       link.close();
     }
     return null;
+  }
+
+  // one port the person picked: its identity, or null when nothing on it answers like an FM-1 (or an SMK-37)
+  async tryPort(input) {
+    const output = [...this.access.outputs.values()].find((o) => o.name === input.name && o.state !== "disconnected");
+    if (!output) return null;
+    try { await input.open(); await output.open(); } catch (_) { return null; }
+    const link = new Link(input, output);
+    const id = await handshake(link, 2);
+    link.close();
+    return id && (/^(ota-)?FM-1$/.test(id.model) || SMK_FAMILY.test(id.model)) ? id : null;
   }
 
   async waitFor(filter, ms) {
@@ -185,6 +205,10 @@ export class Updater {
     const dev = await this.find((id) => !IS_OTA(id));
     if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
     const [model] = product.split("_");
+    if (MVAVE_OPEN_RE.test(dev.id.text)) {
+      dev.link.close();
+      throw fail("open", `the FM-1 runs M-VAVE's Open firmware (${dev.id.text}), which takes only M-VAVE's own firmware`, dev.id.text);
+    }
     if (!sameKeyboard(dev.id.model, model)) { dev.link.close(); throw fail("model", `the device is ${dev.id.text}, the package is for ${product}`); }
     step("start", dev.id.text);
     dev.link.send(UPGRADE);
@@ -205,6 +229,30 @@ export class Updater {
     back.link.close();
     if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
     step("done", back.id.text);
+    return back.id.text;
+  }
+
+  // m-bootloader (github.com/jvitkauskas/m-bootloader, Julius Vitkauskas, MIT) after an install, as fm1-base's
+  // installer does it: the running firmware (product) stages the bootloader's own installer from its package as it
+  // stages an update loader, and restarts into it; that rewrites the boot area only and restarts into the firmware.
+  // It never talks to us: we wait for the firmware to come back. A firmware that will not stage it stops early
+  // ("bootrefused"), and nothing is written. (FM-1 only: m-bootloader is an FM-1 bootloader.)
+  async installBoot(image, product, onStep) {
+    const step = onStep || (() => {});
+    const dev = await this.waitFor((id) => !IS_OTA(id) && id.text === product, 40000);
+    if (!dev) throw fail("noreturn", "the device did not come back: power-cycle it");
+    step("bootstart");
+    dev.link.send(UPGRADE);
+    await sleep(2000);
+    const s = await this.serve(dev.link, image, 0xE0000000, 8000);
+    dev.link.close();
+    if (!s.finished) throw fail(s.lost ? "lost" : "bootrefused", `m-bootloader: the device stopped after ${s.served} requests: nothing was written`);
+    step("bootwrite");
+    await sleep(3000);
+    const back = await this.waitFor((id) => !IS_OTA(id), 40000);
+    if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
+    back.link.close();
+    step("bootdone", back.id.text);
     return back.id.text;
   }
 

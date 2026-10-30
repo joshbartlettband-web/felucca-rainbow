@@ -37,6 +37,16 @@
   <p class="small"><span data-t="brick"></span>
     <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener" style="color:inherit">FM-1-transporter</a></p>
   <p><button id="go" disabled data-t="install"></button></p>
+  <div id="mbootopt" hidden>
+    <p class="small"><label><input id="mboot" type="checkbox"> <span data-t="mboot"></span></label></p>
+    <p class="small"><span data-t="mbootwhy"></span>
+      <a href="https://github.com/jvitkauskas/m-bootloader" target="_blank" rel="noopener" style="color:inherit">github.com/jvitkauskas/m-bootloader</a></p>
+  </div>
+  <details id="pick" style="margin-top:8px">
+    <summary class="small" data-t="pickh"></summary>
+    <p class="small" data-t="pickwhy"></p>
+    <ul id="ports" class="small" style="padding-left:18px"></ul>
+  </details>
   <section style="margin-top:20px">
     <p><label><span data-t="nameTitle"></span><br>
       <input id="kid-name" maxlength="10" autocomplete="off" spellcheck="false"
@@ -65,6 +75,9 @@
     u/theskyisfalling1 (note values on the staff), u/lastapoc (WRITE, after Mario Paint), u/nutty_cartoon (chord names,
     GUESS and FOLLOW), u/ReallyLongLake (the switch that swaps out the look-alikes), u/Yablan (CHORDS, lofi chord lessons) and u/litomanu (the acid friends).
     Thank you! All of them: <a href="https://github.com/@REPO@/blob/main/CREDITS.md" target="_blank" rel="noopener" style="color:inherit">CREDITS.md</a>.<br>
+    The check before installing, the Open firmware message, the port picker and the m-bootloader step follow
+    <a href="https://github.com/charlesvestal/fm1-base" target="_blank" rel="noopener" style="color:inherit">fm1-base</a>'s installer by Charles Vestal (MPL-2.0).
+    m-bootloader by Julius Vitkauskas (MIT).<br>
     M-VAVE and FM-1 are trademarks of their respective owners.<br>
     <span data-t="license"></span> <a href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener" style="color:inherit">github.com/hugelton/Felucca</a></p>
 </main>
@@ -153,6 +166,43 @@ Object.assign(TEXT.en, {
   nameNoDevice: "No FM-1 with Rainbow mode found. Connect it by USB, close other apps that use MIDI, and press Send again.",
   nameNoReply: "The FM-1 did not answer. Install this version first (older ones have no names), then press Send again.",
 });
+/* the check before installing, M-VAVE's Open firmware, a port under another name and m-bootloader (after
+ * fm1-base's installer, Charles Vestal) */
+const APP = "Rainbow mode";
+Object.assign(TEXT.ja, {
+  confirmInstall: "インストールの前に: 書き込み中、FM-1 の画面には UPDATING と進み具合が出るか、暗いままになります。このページに「完了」と出るまで、USB ケーブルを抜いたり電源を切ったりしないでください。数分かかることがあります。書き込みで " + APP + " に保存したものが消えることがあります。残したいものがあれば、先にエディタでバックアップしてください。続けますか？",
+  confirmboot: "ファームウェアの後に m-bootloader を書き込みます。FM-1 はその間にもう一度再起動します。",
+  open: "この FM-1 は M-VAVE の Open ファームウェア（" + "{id}" + "）で動いています。これは M-VAVE 自身のファームウェアしか受け付けません。先に下の「公式V15に戻す」で公式ファームウェアに戻してから、もう一度インストールしてください。",
+  mboot: "m-bootloader も書き込む: 電源を入れるときに PLAY を押したままでリカバリーメニュー、REC でアップデートモード。ファームウェアが起動しないときにも使えます。",
+  mbootwhy: "Julius Vitkauskas によるオープンなブートローダー（MIT）。M-VAVE のブートローダーと置き換わり、ファームウェアを更新しても残ります。公式ファームウェアに戻すと、M-VAVE のものも戻ります。メニューの WIPE USER DATA は、ファームウェアが保存したものをすべて消去します。",
+  bootstart: "m-bootloader を書き込み中", bootwrite: "m-bootloader を書き込み中。FM-1 は自動で再起動します",
+  bootdone: "完了しました（m-bootloader 付き）",
+  bootrefused: APP + " はインストールされましたが、m-bootloader は書き込めませんでした。ほかは何も変わっていません。",
+  pickh: "FM-1 が別の名前になっていませんか？",
+  pickwhy: "パソコンが FM-1 のポートを別の機器の名前で表示することがあります（Mac は USB の差し込み口ごとに名前を覚えます）。このページが自動で問い合わせるのは、FM-1 によくある名前のポートだけです。下の一覧にお使いの FM-1 があれば、「試す」を押してください。",
+  tryport: "試す", pickwait: "問い合わせ中…", pickempty: "ほかの MIDI ポートはありません。",
+  picknone: "{port} からは FM-1 の応答がありません。",
+  pickok: "{port} で {id} が見つかりました。このブラウザが覚えておきます。もう一度インストールを押してください。",
+});
+Object.assign(TEXT.en, {
+  confirmInstall: "Before you install: while it is written, the FM-1's screen shows UPDATING and a bar, or stays dark. Don't unplug the USB cable or switch the FM-1 off until this page says Done. It can take several minutes. Installing can lose what " + APP + " has saved, so if there is something to keep, back it up in the editor first. Go ahead?",
+  confirmboot: "m-bootloader is written after the firmware: the FM-1 restarts once more for it.",
+  open: "This FM-1 runs M-VAVE's Open firmware ({id}), which takes only M-VAVE's own firmware. Put the official firmware back first (Return to official V15, below), then press Install again.",
+  mboot: "Also install m-bootloader: hold PLAY while switching on for a recovery menu, or REC for update mode, even when a firmware won't start.",
+  mbootwhy: "An open bootloader by Julius Vitkauskas (MIT). It replaces M-VAVE's bootloader and stays through firmware updates; going back to the official firmware puts M-VAVE's back too. Its menu's WIPE USER DATA erases everything firmwares have saved.",
+  bootstart: "Installing m-bootloader", bootwrite: "Installing m-bootloader: the FM-1 restarts by itself",
+  bootdone: "Done, with m-bootloader",
+  bootrefused: APP + " is installed, but m-bootloader could not be: nothing else was changed.",
+  pickh: "Is the FM-1 under another name?",
+  pickwhy: "A computer can show an FM-1's port under another device's name (a Mac remembers names by USB socket). This page asks only the ports with an FM-1's usual names by itself. If your FM-1 is in this list, press Try on it.",
+  tryport: "Try", pickwait: "Asking…", pickempty: "No other MIDI ports.",
+  picknone: "No FM-1 answered on {port}.",
+  pickok: "Found {id} on {port}. This browser remembers it. Press Install again.",
+});
+const fillT = (k, v) => t(k).replace(/\{(\w+)\}/g, (_, n) => v[n] ?? "");
+/* a port the person picked once (the picker below): asked by itself from then on */
+const PORT_KEY = "fm1-port";
+const allowPorts = () => { try { const p = localStorage.getItem(PORT_KEY); return p ? [p] : []; } catch (_) { return []; } };
 let lang = (navigator.language || "en").toLowerCase().startsWith("ja") ? "ja" : "en";
 const t = (k) => TEXT[lang][k];
 let lastKey = null, lastArg = "";
@@ -169,6 +219,19 @@ const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (t) => { $("log").textContent += t + "\n"; };
 let image = null;
 const meta = /*META*/;
+let boot = null;
+(async () => {
+  if (!meta.boot || !/^FM-1_/.test(meta.product) || !new URLSearchParams(location.search).has("mboot")) return;
+  try {
+    const r = await fetch(meta.boot.pkg);
+    if (!r.ok) return;
+    const raw = new Uint8Array(await r.arrayBuffer());
+    const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (hex !== meta.boot.sha256 || productOf(raw) !== "FM-1_099") return;
+    boot = logicalImage(raw);
+    $("mbootopt").hidden = false;
+  } catch (_) { /* no m-bootloader: the install goes on without it */ }
+})();
 
 let writing = false, stock = null, stockFileEpoch = 0;
 const lockInstaller = (on) => { writing = on; $("go").disabled = on || !image; $("stock-go").disabled = on || !stock; $("stock-file").disabled = on; $("stock-recovery").disabled = on; };
@@ -189,12 +252,14 @@ window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault
 
 $("go").addEventListener("click", async () => {
   if (writing) return;
+  const withBoot = !!boot && $("mboot").checked;
+  if (!confirm(t("confirmInstall") + (withBoot ? "\n\n" + t("confirmboot") : ""))) return;
   lockInstaller(true);
   let midi;
   try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
   catch (e) { sayK("denied"); lockInstaller(false); return; }
   try {
-    const up = new Updater(midi, log);
+    const up = new Updater(midi, log, allowPorts());
     const total = 74 + 1167;
     const step = (k, a) => {
       log(`${k} ${a ?? ""}`);
@@ -203,21 +268,60 @@ $("go").addEventListener("click", async () => {
       if (k === "loader") sayK("loader");
       if (k === "write") { sayK("write"); $("bar").value = ((74 + a) / total) * 100; }
       if (k === "reboot") sayK("reboot");
-      if (k === "done") { $("bar").value = 100; sayK("done"); if (nameTyped()) setTimeout(() => sendName(6), 1500); }
+      if (k === "done" && !withBoot) { $("bar").value = 100; sayK("done"); if (nameTyped()) setTimeout(() => sendName(6), 1500); }
+      if (k === "bootstart" || k === "bootwrite") sayK(k);
+      if (k === "bootdone") { $("bar").value = 100; sayK("bootdone"); if (nameTyped()) setTimeout(() => sendName(6), 1500); }
+    };
+    const thenBoot = async () => {
+      if (!withBoot) return;
+      try { await up.installBoot(boot, meta.product, step); }
+      catch (e) { log(String(e && e.stack || e)); sayK(e && e.code === "bootrefused" ? "bootrefused" : (e && e.code) || "error", e && e.code ? "" : e && e.message); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
     if (ota) {
       ota.link.close();
-      sayK((await up.resume(image, step, meta.product)) ? "done" : "stopped");
+      const done = await up.resume(image, step, meta.product);
+      if (!done) sayK("stopped"); else if (withBoot) await thenBoot(); else sayK("done");
     } else {
       await up.install(image, meta.product, step);
+      await thenBoot();
     }
   } catch (e) {
-    if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
+    if (e && e.code === "open") say(fillT("open", { id: e.detail }));
+    else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
   }
   lockInstaller(false);
+});
+
+/* Is the FM-1 under another name? Every MIDI port with an input and an output of the same name, each with Try: the
+ * one that answers like an FM-1 is remembered (localStorage) and asked by itself from then on */
+$("pick").addEventListener("toggle", async () => {
+  if (!$("pick").open) return;
+  const list = $("ports");
+  list.textContent = "";
+  let midi;
+  try { midi = await navigator.requestMIDIAccess({ sysex: true }); } catch (e) { sayK("denied"); return; }
+  const outs = [...midi.outputs.values()];
+  const ins = [...midi.inputs.values()].filter((i) => i.state !== "disconnected" && outs.some((o) => o.name === i.name));
+  if (!ins.length) { const li = document.createElement("li"); li.textContent = t("pickempty"); list.append(li); return; }
+  for (const input of ins) {
+    const li = document.createElement("li"), b = document.createElement("button");
+    li.textContent = (input.name || "?") + " ";
+    b.textContent = t("tryport");
+    b.style.padding = "2px 10px";
+    b.addEventListener("click", async () => {
+      if (writing) return;
+      say(t("pickwait"));
+      const id = await new Updater(midi, log).tryPort(input);
+      if (!id) { say(fillT("picknone", { port: input.name })); return; }
+      try { localStorage.setItem(PORT_KEY, input.name); } catch (_) { /* remembered for this visit only */ }
+      say(fillT("pickok", { port: input.name, id: id.text }));
+    });
+    li.append(b);
+    list.append(li);
+  }
 });
 
 $("stock-file").addEventListener("change", async () => {
@@ -252,7 +356,7 @@ $("stock-go").addEventListener("click", async () => {
   try {
     let midi;
     try { midi = await navigator.requestMIDIAccess({sysex:true}); } catch (e) { sayK("denied"); return; }
-    const up = new Updater(midi, log);
+    const up = new Updater(midi, log, allowPorts());
     const step = (k, n) => { log(`${k} ${n ?? ""}`); if (["start","verify","loader","write","reboot","done"].includes(k)) sayK(k); if (k === "done") $("bar").value = 100; };
     const loader = await up.find(id => id.model === "ota-FM-1");
     if (loader) {

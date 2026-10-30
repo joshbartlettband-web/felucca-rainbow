@@ -99,3 +99,12 @@ by those owners.
 ## Radio
 
 Felucca never enables the Bluetooth / Wi-Fi radio of the hardware.
+
+## The installer's m-bootloader step
+
+`web/m-bootloader/fm1-uboot-1.2.fwsc` is m-bootloader 1.2 by Julius Vitkauskas (MIT, `web/m-bootloader/LICENSE`), from
+github.com/jvitkauskas/m-bootloader. The site publishes it next to the firmware with its licence
+(`firmware/m-bootloader-LICENSE.txt`). The installer's m-bootloader step, its check for M-VAVE's Open firmware and its
+port names in `web/fm1ota.js` follow fm1-base's installer by Charles Vestal (MPL-2.0, github.com/charlesvestal/fm1-base),
+which credits Chris Farrell's fm-static for the Open firmware's identities. MPL-2.0 lets that code sit in this GPL-3.0
+project (MPL-2.0, section 3.3).

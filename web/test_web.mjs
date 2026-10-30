@@ -1447,10 +1447,13 @@ const UPGRADE = [0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7];
 
 /* an FM-1 on WebMIDI: identity, then "device asks, host answers" reads of the image */
 class FakeFM1 {
-  constructor(image, { unplugAfter = Infinity, back = ["FM-1_900", "Felucca"] } = {}) {
+  constructor(image, { unplugAfter = Infinity, back = ["FM-1_900", "Felucca"], identity = "FM-1_015", port = "FM-1",
+                       bootloader = false } = {}) {
     this.image = image; this.unplugAfter = unplugAfter; this.served = 0; this.bad = 0; this.back = back;
+    this.bootloader = bootloader;                 // (m-bootloader's installer: staged, then back to the firmware)
     this.access = { inputs: new Map(), outputs: new Map() };
-    this.boot("FM-1_015", "FM-1");
+    this.port = port;
+    this.boot(identity, port);
   }
   boot(identity, name) {
     this.identity = identity; this.waiting = null; this.queue = [];
@@ -1484,7 +1487,8 @@ class FakeFM1 {
       this.waiting = null;
       this.served++;
       if (this.served >= this.unplugAfter) { this.input.state = this.output.state = "disconnected"; return; }
-      if (addr === 0xE0000000) setTimeout(() => this.boot("ota-FM-1_900", "Felucca Update"), 300);
+      if (addr === 0xE0000000 && this.bootloader) { this.bootWritten = true; setTimeout(() => this.boot(this.identity, this.port), 300); }
+      else if (addr === 0xE0000000) setTimeout(() => this.boot("ota-FM-1_900", "Felucca Update"), 300);
       else if (addr === 0xF0000000) setTimeout(() => this.boot(...this.back), 300);
       else this.next();
     }
@@ -1538,6 +1542,24 @@ async function updater() {
   ok(e && e.code === "lost", "fm1ota.js: unplugged in step 1 -> error code 'lost'");
   const e2 = await new Updater({ inputs: new Map(), outputs: new Map() }).install(image, "FM-1_900").then(() => null, (x) => x);
   ok(e2 && e2.code === "notfound", "fm1ota.js: no device -> error code 'notfound'");
+
+  const open = new FakeFM1(image, { identity: "FM-1_8000014", port: "FM1 Community" });
+  const e3 = await new Updater(open.access).install(image, "FM-1_900").then(() => null, (x) => x);
+  ok(e3 && e3.code === "open" && e3.detail === "FM-1_8000014" && open.served === 0,
+    "fm1ota.js: M-VAVE's Open firmware -> 'open', nothing sent");
+
+  const boot = new FakeFM1(image, { identity: "FM-1_900", port: "Felucca", bootloader: true });
+  const bsteps = [];
+  const bgot = await new Updater(boot.access).installBoot(image, "FM-1_900", (k) => bsteps.push(k));
+  ok(bgot === "FM-1_900" && boot.bootWritten && boot.bad === 0 && bsteps.join() === "bootstart,bootwrite,bootdone",
+    "fm1ota.js: m-bootloader after the firmware: staged, then the firmware again");
+
+  const odd = new FakeFM1(image, { port: "USB Audio Device" });
+  const e4 = await new Updater(odd.access).install(image, "FM-1_900").then(() => null, (x) => x);
+  const tried = await new Updater(odd.access).tryPort([...odd.access.inputs.values()][0]);
+  const found = await new Updater(odd.access, null, ["USB Audio Device"]).find((id) => id.model === "FM-1");
+  ok(e4 && e4.code === "notfound" && tried && tried.text === "FM-1_015" && found && found.name === "USB Audio Device",
+    "fm1ota.js: an FM-1 under another port name: tried by hand, then asked by itself");
 }
 
 await editorMock();

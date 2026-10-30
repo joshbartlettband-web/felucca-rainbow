@@ -8,6 +8,8 @@
                               JieLi SDK files under Apache-2.0, see LICENSING.md)
   webapp/installer/index.html index_pkg.html, self-contained (fm1pkg.js, fm1ota.js, metadata inlined)
   webapp/editor/index.html    editor.html (+ fukiai.ttf, FUKIAI-LICENSE.txt)
+  firmware/m-bootloader-X.Y.fwsc  m-bootloader (web/m-bootloader/, MIT), which the installer can write after the
+                              firmware on an FM-1 (its SHA-256 in the installer's metadata)
   src/                        not touched
 
   web/make_site.py build/felucca-X.Y.fwsc X.Y OUT_DIR
@@ -16,6 +18,7 @@ The package must be one made by tools/fm1pkg_make.py (Felucca's own loader, no v
 Its identity (FM-1_9xx) is read from the package; the device must report it after
 the install.
 """
+import hashlib
 import json
 import re
 import shutil
@@ -50,7 +53,15 @@ def main(pkg, version, out):
         strip_module((HERE / "fm1ota.js").read_text(encoding="utf-8")) + "\n" + \
         strip_module((HERE / "fm1backup.js").read_text(encoding="utf-8"))
     name = f"felucca-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
-    meta = json.dumps({"version": version, "product": product, "pkg": "../../firmware/" + name})
+    meta = {"version": version, "product": product, "pkg": "../../firmware/" + name}
+    mboot = sorted((HERE / "m-bootloader").glob("fm1-uboot-*.fwsc"))
+    if mboot:                                      # m-bootloader: the newest, if it is the bootloader's own package
+        braw = mboot[-1].read_bytes()
+        if product_of(braw) != "FM-1_099":
+            raise SystemExit(f"{mboot[-1]}: identity {product_of(braw)!r}, not m-bootloader's installer (FM-1_099)")
+        bname = "m-bootloader-" + mboot[-1].stem.split("-")[-1] + ".fwsc"
+        meta["boot"] = {"pkg": "../../firmware/" + bname, "sha256": hashlib.sha256(braw).hexdigest()}
+    meta = json.dumps(meta)
     for mark in ("/*LIB*/", "/*META*/"):
         if html.count(mark) != 1:
             raise SystemExit(f"index_pkg.html must contain {mark} once; update make_site.py")
@@ -62,6 +73,11 @@ def main(pkg, version, out):
         old.unlink()
     (inst / "index.html").write_text(html, encoding="utf-8")
     shutil.copy(pkg, fw / name)
+    for old in fw.glob("m-bootloader-*"):
+        old.unlink()
+    if mboot:
+        shutil.copy(mboot[-1], fw / json.loads(meta)["boot"]["pkg"].split("/")[-1])
+        shutil.copy(HERE / "m-bootloader" / "LICENSE", fw / "m-bootloader-LICENSE.txt")
     lic = HERE.parent / "LICENSES"                  # the package holds JieLi SDK files (Apache-2.0): their
     (fw / "LICENSES").mkdir(exist_ok=True)          # licence travels next to it, with Felucca's own
     names = sorted(f.name for f in lic.glob("*.txt"))

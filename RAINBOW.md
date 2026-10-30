@@ -336,3 +336,12 @@ still not smooth: draw the still parts (sky, rainbow, grass) once and redraw onl
 - The stars are written to the settings every tenth star and after half a minute of quiet (`settings_save`, which waits for the beat
   to stop). Settings writes are flash erases (about a hundred thousand are promised), so it is worth a look at how often that is
   in real use.
+
+## The installer, after Album 01's
+
+The installer (`web/index_pkg.html`, `web/fm1ota.js`) took four things from Album 01's (fm1-base, Charles Vestal): a
+check before installing (don't unplug, back up first), a clear message when the FM-1 runs M-VAVE's Open firmware (it
+takes only M-VAVE's own firmware, so the official firmware has to go back on first), a list to find an FM-1 that the
+computer shows under another port name, and m-bootloader after the firmware (`web/m-bootloader/`, FM-1 packages only).
+The m-bootloader option stays hidden until it has been tried on an FM-1 running Rainbow mode: add `?mboot` to the
+installer's address to see it. Double Rainbow's installer has the same.
