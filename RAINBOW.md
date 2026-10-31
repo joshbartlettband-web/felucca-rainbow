@@ -273,6 +273,8 @@ repository and its website are public.
 - `web/emu/kid_test.mjs`: checks it in the browser build (`node web/emu/kid_test.mjs build/emu/felucca.wasm`).
 - `landing/`: the site's front page (the one link to share): a demo video, screenshots, the friends and how to try it. The workflow
   copies it to the site's root and fills in the site's address.
+- `landing/readme/`: every control on one page of the site (`/readme/`), a short version of the tables above. When a control
+  changes here, change it there too.
 - `.github/workflows/rainbow.yml`: GitHub builds the firmware and the browser version on every push to
   `main`, tests the browser version, and publishes both to this fork's GitHub Pages site:
   `/webapp/try/` plays it in the browser, `/webapp/installer/` puts it on the FM-1.
