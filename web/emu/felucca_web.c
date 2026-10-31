@@ -499,6 +499,7 @@ EXPORT uint32_t web_kid_wnote(uint32_t c, uint32_t j) { return kw.note[c % KW_CO
 EXPORT uint32_t web_kid_wbeat(void) { return kw.beat; }                             /* (kid_test.mjs: WRITE's beat) */
 EXPORT void web_kid_win(void) { kid_win(0); }                                         /* (kid_test.mjs: a game won) */
 EXPORT uint32_t web_kid_hat(void) { return KID_HAT; }
+EXPORT uint32_t web_kid_knobs(void) { return kid.echo | (uint32_t)kid.wiggle << 8 | (uint32_t)kid.night << 16; }   /* (kid_test.mjs: KNOB 3, 4, 2) */
 EXPORT uint32_t web_kid_cheer(void) { return kid.cheer_n | ((uint32_t)kid.cheer_on << 8); }   /* (kid_test.mjs: the cheer's notes left, and sounding) */
 EXPORT uint32_t web_kid_friend(void) { return kid.fr; }
 EXPORT uint32_t web_kb_chord(uint32_t k, uint32_t i)    /* (kid_test.mjs: the notes key k started, 0 none) */

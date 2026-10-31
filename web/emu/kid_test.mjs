@@ -709,9 +709,16 @@ check("PLAY again stops it", ex.web_playing() === 0);
   for (let i = 0; i < 10; i++) { ex.web_enc(EN.K4, 1); render(80); }
   ex.web_buttons(0); render(2600);
   check("..ten more steps: every hat, then none again", pink(ex) <= bare + 1);
+  const kn = () => ex.web_kid_knobs(), w0 = (kn() >> 8) & 255, e0 = kn() & 255;
   ex.web_enc(EN.K4, 2); render(300);
-  check("KNOB 4 alone is still WIGGLE (no hat)", band() !== name && pink(ex) <= bare + 1);
+  const w1 = (kn() >> 8) & 255;
+  check(`KNOB 4 alone is still WIGGLE (no hat; wiggle ${w0} -> ${w1})`, band() !== name && pink(ex) <= bare + 1 && w1 === Math.min(8, w0 + 2));
   ex.web_enc(EN.K4, -2); render(300);
+  ex.web_enc(EN.K3, 2); render(300);
+  const e1 = kn() & 255;
+  check(`KNOB 3 alone is ECHO (echo ${e0} -> ${e1})`, e1 === Math.min(8, e0 + 2));
+  ex.web_enc(EN.K3, -2); render(300);
+  check("..and back", (kn() & 255) === e0 && ((kn() >> 8) & 255) === w0);
 }
 
 // STARS: each game won is a star (kept a few seconds after the last, so over a power-off); 10 give the STAR hat, 50 the

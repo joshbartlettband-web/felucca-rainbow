@@ -2171,25 +2171,27 @@ static void kid_input(void)
         kid_knobs();
         kid_hint(KH_NIGHT);
     }
+    s = panel_enc(EN_K3);                                         /* (read once: a read takes the turn) */
 #if !BOARD_SMK37
-    if ((s = panel_enc(EN_K3)) != 0 && kid.vol_open) {              /* HOME held 1 s: the STARS */
+    if (s != 0 && kid.vol_open) {                                 /* HOME held 1 s: the STARS */
         any = 1u;
         kid_hint(KH_STARS);
     } else
 #endif
-    if ((s = panel_enc(EN_K3)) != 0 && !kw.on) {
+    if (s != 0 && !kw.on) {
         any = 1u;
         kid.echo = (uint8_t)clamp(kid.echo + s, 0, 8);
         kid_knobs();
         kid_hint(KH_ECHO);
     }
+    s = panel_enc(EN_K4);                                         /* (read once: a read takes the turn) */
 #if !BOARD_SMK37
-    if ((s = panel_enc(EN_K4)) != 0 && kid.vol_open) {              /* HOME held 1 s: the HAT */
+    if (s != 0 && kid.vol_open) {                                 /* HOME held 1 s: the HAT */
         any = 1u;
         kid_hat_step(s);
     } else
 #endif
-    if ((s = panel_enc(EN_K4)) != 0 && !kw.on) {
+    if (s != 0 && !kw.on) {
         any = 1u;
         kid.wiggle = (uint8_t)clamp(kid.wiggle + s, 0, 8);
         kid_knobs();
