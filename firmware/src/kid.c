@@ -379,6 +379,18 @@ enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 enum { KM_ONE, KM_CHOIR, KM_STRUM, KM_ACCORD, KM_GUESS, KM_FOLLOW, KM_CHORDS, KM_COPY, KM_COUNT };
 static const char *const KID_MODE_NAME[KM_COUNT] = {"1 FRIEND", "3 FRIENDS", "STRUM", "ACCORDION", "GUESS", "FOLLOW",
                                                     "CHORDS", "COPY ME"};
+/* a few words on how each one plays, for the grown-up to read out: the card in the staff's panel when ALGORITHM turns,
+ * for KID_HELP_MS or until a key is pressed. Up to 3 lines of 17, the band's capitals (no punctuation in its font) */
+static const char *const KID_HELP[KM_COUNT] = {
+    "EVERY KEY PLAYS\nONE NOTE\nTRY THE KNOBS TOO",
+    "EVERY KEY PLAYS\nA BIG CHORD\nFIND MAGIC ONES",
+    "BLACK KEY CHORDS\nSWEEP THE WHITE\nKEYS TO STRUM",
+    "HOLD A BLACK KEY\nPLAY A TUNE ON\nTHE WHITE KEYS",
+    "A FRIEND SINGS\nFIND THE NOTE\nPLAY HEARS AGAIN",
+    "PLAY THE KEY\nTHAT LIGHTS UP\nSEQ PICKS A SONG",
+    "HOLD ALL THE KEYS\nTHAT LIGHT UP\nSEQ PICKS LESSONS",
+    "LISTEN TO THE\nFRIEND\nTHEN PLAY IT BACK"};
+#define KID_HELP_MS 7000u
 #define KID_LESSON_LEN 4u                /* CHORDS: chords a lesson (kid_lesson_chord), a bar each with the beat */
 static uint32_t kid_lesson_chord(uint32_t lesson, uint32_t i, uint32_t *root, char *name, uint32_t cap);
 _Static_assert(KID_ICON_N == KM_COUNT, "a picture for each of ALGORITHM's modes (tools/gen_kid_art.py ICONS)");
@@ -438,6 +450,7 @@ static struct {
     uint8_t voice0;                     /* the friend's sound's own voice mode (a mono friend: LEGATO) */
     uint8_t full;                       /* draw everything next frame */
     uint32_t hint_ms, key_ms, hop_ms, party_ms, exit_ms, play_ms, bg_ms;
+    uint32_t help_ms;                   /* ALGORITHM turned: its card (KID_HELP) since (fm1_ms | 1), 0 none */
     uint32_t cheer_ms;                  /* the cheer's next note at (a few notes the friend plays when something is won) */
     uint8_t cheer_i, cheer_n, cheer_on; /* .. which note, how many (0 none), sounding */
     uint8_t star_dirty;                 /* the star count changed: written at star_ms + 30 s, every 10 stars, at a secret */
@@ -1478,6 +1491,22 @@ static const kid_song_t KID_SONGS[] = {
                      K_E4 K_D4 K_D4 K_D4 K_D4 K_D4 K_E4 K_F4 K_E4 K_D4 K_C4},
     {"AU CLAIR", K_C4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_E4 K_D4 K_D4 K_C4 K_C4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_E4
                  K_D4 K_D4 K_C4},
+    {"FARMER IN DELL", K_G3 K_C4 K_C4 K_C4 K_C4 K_C4 K_D4 K_E4 K_E4 K_E4 K_E4 K_E4 K_G4 K_G4 K_A4 K_G4 K_E4 K_C4
+                       K_D4 K_E4 K_E4 K_D4 K_D4 K_C4},
+    {"THE SAINTS", K_C4 K_E4 K_F4 K_G4 K_C4 K_E4 K_F4 K_G4 K_C4 K_E4 K_F4 K_G4 K_E4 K_C4 K_E4 K_D4 K_E4 K_E4 K_D4
+                   K_C4 K_C4 K_E4 K_G4 K_G4 K_G4 K_F4 K_E4 K_F4 K_G4 K_E4 K_C4 K_D4 K_C4},
+    {"MICHAEL ROW", K_C4 K_E4 K_G4 K_E4 K_G4 K_A4 K_G4 K_E4 K_G4 K_A4 K_G4 K_E4 K_G4 K_G4 K_E4 K_F4 K_E4 K_D4 K_C4
+                    K_D4 K_E4 K_D4 K_C4},
+    {"CLEMENTINE", K_C4 K_C4 K_C4 K_G3 K_E4 K_E4 K_E4 K_C4 K_C4 K_E4 K_G4 K_G4 K_F4 K_E4 K_D4 K_D4 K_E4 K_F4 K_F4
+                   K_E4 K_D4 K_E4 K_C4 K_C4 K_E4 K_D4 K_G3 K_B3 K_D4 K_C4},
+    {"LIGHTLY ROW", K_G4 K_E4 K_E4 K_F4 K_D4 K_D4 K_C4 K_D4 K_E4 K_F4 K_G4 K_G4 K_G4 K_G4 K_E4 K_E4 K_E4 K_F4 K_D4
+                    K_D4 K_D4 K_C4 K_E4 K_G4 K_G4 K_E4 K_E4 K_E4 K_D4 K_D4 K_D4 K_D4 K_D4 K_E4 K_F4 K_E4 K_E4 K_E4
+                    K_E4 K_E4 K_F4 K_G4 K_G4 K_E4 K_E4 K_E4 K_F4 K_D4 K_D4 K_D4 K_C4 K_E4 K_G4 K_G4 K_C4},
+    {"BRAHMS LULLABY", K_E4 K_E4 K_G4 K_E4 K_E4 K_G4 K_E4 K_G4 K_C5 K_B4 K_A4 K_A4 K_G4 K_D4 K_E4 K_F4 K_D4 K_D4
+                       K_E4 K_F4 K_D4 K_F4 K_B4 K_A4 K_G4 K_B4 K_C5 K_C4 K_C4 K_C5 K_A4 K_F4 K_G4 K_E4 K_C4 K_F4
+                       K_G4 K_A4 K_G4 K_C4 K_C4 K_C5 K_A4 K_F4 K_G4 K_E4 K_C4 K_F4 K_E4 K_D4 K_C4},
+    {"WE WISH YOU", K_G4 K_C5 K_C5 K_D5 K_C5 K_B4 K_A4 K_A4 K_A4 K_D5 K_D5 K_E5 K_D5 K_C5 K_B4 K_G4 K_G4 K_E5 K_E5
+                    K_F5 K_E5 K_D5 K_C5 K_A4 K_G4 K_G4 K_A4 K_D5 K_B4 K_C5},
 };
 #define KID_NSONGS (sizeof KID_SONGS / sizeof KID_SONGS[0])
 
@@ -2146,6 +2175,7 @@ static void kid_input(void)
         any = 1u;
         kid_mode_set((uint32_t)clamp((int32_t)kid.mode + (s > 0 ? 1 : -1), 0, KM_COUNT - 1));
         kid_hint(KH_CHORD);
+        kid.help_ms = fm1_ms | 1u;                /* .. and how it plays, on a card */
     }
     if ((s = panel_enc(EN_SELECT)) != 0) {
         any = 1u;
@@ -2289,6 +2319,10 @@ static struct {
     uint16_t ink, bg, bg2;
     int8_t meter;                       /* dots lit (HINT), -1 none */
     uint8_t staff;                      /* the staff shows */
+    uint8_t card, card_n;               /* .. as ALGORITHM's card instead (KID_HELP): it shows, its lines */
+    int16_t card_y;                     /* .. its first line's top */
+    const char *card_s[3];              /* .. each line's start */
+    uint8_t card_len[3];                /* .. and length */
     uint8_t st_ty[KID_ST_N];            /* .. each entry's note value (KT_*) */
     uint8_t st_bar[KID_ST_N];           /* .. a barline after it (its note ends a 4/4 measure, or crosses into the next) */
     int8_t st_lo[KID_ST_N], st_hi[KID_ST_N];   /* .. its lowest and highest head (steps) */
@@ -3365,6 +3399,26 @@ static uint32_t kid_staff_setup(uint32_t now)
 {
     static const char *const MARK[5] = {"15MB", "8VB", 0, "8VA", "15MA"};
     uint32_t i, j, sig = 7, pos;
+    kf.card = 0;
+    if (kid.help_ms && ((int32_t)(now - kid.help_ms) >= (int32_t)KID_HELP_MS || (int32_t)(kid.key_ms - kid.help_ms) > 0))
+        kid.help_ms = 0;                                  /* (the card goes after a while, or at the first key; signed:
+                                                           * a frame's now can be a moment before the turn) */
+    if (kid.help_ms) {                                    /* ALGORITHM's card: its lines, centred in the panel */
+        const char *p = KID_HELP[kid.mode % KM_COUNT];
+        kf.card = 1;
+        kf.staff = 1;
+        kf.card_n = 0;
+        while (*p && kf.card_n < 3u) {
+            const char *e = p;
+            while (*e && *e != '\n')
+                e++;
+            kf.card_s[kf.card_n] = p;
+            kf.card_len[kf.card_n++] = (uint8_t)(e - p);
+            p = *e ? e + 1 : e;
+        }
+        kf.card_y = (int16_t)(KID_ST_Y0 + (KID_ST_Y1 - KID_ST_Y0 - ((int32_t)kf.card_n * 18 - 4)) / 2);
+        return 0xCA4D0000u + kid.mode;
+    }
     kf.staff = kid.st_n && now - kid.st_ms < KID_ST_MS;
     if (!kf.staff) {
         kid.st_n = 0;
@@ -3420,6 +3474,15 @@ static uint16_t kid_staff_px(int32_t x, int32_t y)
         return pic;
     if (!kid_staff_in(x, y, 2, 4))
         return KID_INK;
+    if (kf.card) {                                                    /* ALGORITHM's card: a few words, 2x capitals */
+        int32_t li = (y - kf.card_y) / 18;
+        if (y >= kf.card_y && li < (int32_t)kf.card_n && y - kf.card_y - li * 18 < 14) {
+            int32_t n = kf.card_len[li], x0 = 120 - (n * 12 - 2) / 2, ci = (x - x0) / 12;
+            if (x >= x0 && ci < n && kid_char_ink(kf.card_s[li][ci], x0 + ci * 12, kf.card_y + li * 18, 2, x, y))
+                return KID_INK;
+        }
+        return kid_mix(pic, KID_WHITE, 214u);
+    }
     if (i >= 1 && i <= (int32_t)kid.st_n && (x - 44) % 21 == 0 && y >= 24 && y <= 48 && kf.st_bar[i - 1])
         return KID_INK;                                               /* a barline after slot i - 1: its measure is full */
     if (i >= 0 && i < (int32_t)kid.st_n) {                           /* the notes of this slot */

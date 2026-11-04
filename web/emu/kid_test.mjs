@@ -156,6 +156,15 @@ const lo = Math.min(...levels), hi = Math.max(...levels), pmin = Math.min(...pea
 check(`all ${NF} friends sound, alike to the ear (within ${(hi - lo).toFixed(1)} dB; peaks ${pmin.toFixed(3)} .. ${pmax.toFixed(3)})`, pmin > 0.04 && hi - lo < 7);
 check("MASTER all the way up stays at about half (no friend peaks over 0.3)", pmax < 0.3);
 
+// ALGORITHM's card: a few words on how the mode plays, in the staff's panel, until a key (or 7 s)
+ex.web_enc(EN.ALGO, 1); render(300);
+const card1 = ex.web_kid_card();
+ex.web_keys(1 << 7); render(150); ex.web_keys(0); render(300);
+const card2 = ex.web_kid_card();
+ex.web_enc(EN.ALGO, -1); render(300);
+const card3 = ex.web_kid_card(); render(7500);
+check(`ALGORITHM: its card shows (${card1}), goes at a key (${card2}), and after 7 s (${ex.web_kid_card()})`,
+      card1 === 2 && card2 === 0 && card3 === 1 && ex.web_kid_card() === 0);
 // 3 FRIENDS: every friend sings the whole chord, the mono ones too (their legato is for 1 FRIEND); a drum friend, one drum
 const DRUMS = new Set([12, 46, 47, 48, 49, 90]), thin = [], chordLv = [];
 ex.web_enc(EN.ALGO, 3); render(100);
