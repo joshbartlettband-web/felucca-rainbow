@@ -25,6 +25,7 @@ Thank you to the people who suggested these on r/MVaveFM1:
 | u/Yablan | Learning really basic lofi chords | **CHORDS** (ALGORITHM): lessons from first chords to lofi, the chord's keys lit and named, and a slow, swung LOFI beat to practice over |
 | u/litomanu | 303-style acid sounds | **SCIENTIST**, **FLYTRAP** and **SUNFLOWER** on ANALOG's ACID (the Scientist set like a TD-3), and the **ACID** beat with a 303-style line |
 | u/ReallyLongLake | A secret setting that turns off the characters based on TV and film ones | **LOOK-ALIKES** (HOME held 1 s, then PRESETS left / right): swaps them for original stand-ins with the same sounds (a spider, a fox, a bat, an alien and more), kept over power-off |
+| u/Competitive_Tank_150 | Note names as Do Re Mi, the way they are taught in Brazil | **NOTE NAMES**: HOME held 1 s, then KNOB 2 |
 
 The characters are original drawings in the spirit of the suggestions, not copies. They are credited on the website and on the
 installer page too.

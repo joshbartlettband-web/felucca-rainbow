@@ -37,6 +37,7 @@ at the next power-on.
 | HOME held 1 s, then KNOB 4 | The HAT: ten hats (party, crown, top hat, rainbow bucket, wizard, beanie, western, chef, propeller, flowers) any friend can wear, or none; the band names it. Kept over power-off. Each friend's hat sits on whatever counts as its head (found from the picture: the first row wide enough to be a head, so ears, horns and a whale's spout are passed over; a few placed by hand), sized to that head, and may rise above the picture. (On the SMK-37: not yet.) |
 | HOME held 1 s, then KNOB 3 | The STARS (below): how far the next secret is. |
 | HOME held 1 s, then PRESETS | The grown-ups' LOOK-ALIKES: left swaps the friends drawn after TV and film characters for original stand-ins, right brings them back (below). |
+| HOME held 1 s, then KNOB 2 | The grown-ups' NOTE NAMES: the band says DO RE MI FA SOL LA SI instead of C D E F G A B, and back on the next turn (an idea from u/Competitive_Tank_150 in Brazil). Chords too (DO MI SOL, LA# MAJOR). Kept over power-off. KNOB 2 alone is still day and night. |
 | MASTER | Volume, up to the VOLUME the grown-ups chose (about half, unless changed). |
 
 ## ALGORITHM: how the keys play
