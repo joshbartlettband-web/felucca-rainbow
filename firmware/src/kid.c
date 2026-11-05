@@ -328,6 +328,13 @@ static const char *const KID_FX_NAME[KX_COUNT] = {"HICCUP", "BACKWARDS", "SLEEPY
 
 /* the twelve notes from C: their letters and colours */
 static const char *const KID_NOTE[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+/* .. or as many countries say them (DO RE MI: the grown-ups' NOTE NAMES, HOME held 1 s, then KNOB 2; an idea from
+ * u/Competitive_Tank_150 in Brazil). Kept in a spare settings byte: favorites.factory[13][18] (SLICE's favourites,
+ * two presets, never past byte 0), 1 = DO RE MI, anything else C D E */
+static const char *const KID_SOLFA[12] = {"DO", "DO#", "RE", "RE#", "MI", "FA", "FA#", "SOL", "SOL#", "LA", "LA#", "SI"};
+#define KID_DOREMI_BYTE (favorites.factory[13][18])
+#define KID_DOREMI (KID_DOREMI_BYTE == 1u)
+static const char *kid_note_name(uint32_t pc) { return (KID_DOREMI ? KID_SOLFA : KID_NOTE)[pc % 12u]; }
 static const uint16_t KID_NOTE_COL[12] = {
     RGB(236, 40, 52), RGB(246, 92, 40), RGB(255, 140, 26), RGB(255, 184, 30), RGB(255, 218, 36), RGB(130, 214, 56),
     RGB(70, 196, 110), RGB(30, 176, 150), RGB(70, 120, 210), RGB(146, 84, 226), RGB(196, 84, 210), RGB(242, 86, 176),
@@ -372,7 +379,7 @@ static const int8_t KID_SIN[32] = {0, 25, 49, 71, 90, 106, 117, 125, 127, 125, 1
                                    0, -25, -49, -71, -90, -106, -117, -125, -127, -125, -117, -106, -90, -71, -49, -25};
 
 enum { KH_NONE, KH_SIZE, KH_NIGHT, KH_ECHO, KH_WIGGLE, KH_SPEED, KH_CHORD, KH_SPARKLE, KH_BEAT, KH_VOLUME, KH_NEWSONG, KH_SONG,
-       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND, KH_NEWSKY };
+       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND, KH_NEWSKY, KH_NOTES };
 enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 /* ALGORITHM: how the keys play (kid_mode_set). CHOIR: three friends sing a chord; STRUM: an Omnichord (seq.c
  * kb_strum_map); GUESS: an ear game; FOLLOW: songs to learn, the next key lit */
@@ -2191,7 +2198,17 @@ static void kid_input(void)
         }
         kid_hint(KH_SIZE);
     }
-    if ((s = panel_enc(EN_K2)) != 0) {
+    s = panel_enc(EN_K2);                                         /* (read once: a read takes the turn) */
+#if !BOARD_SMK37
+    if (s != 0 && kid.vol_open) {                                 /* HOME held 1 s: NOTE NAMES, C D E or DO RE MI */
+        any = 1u;
+        KID_DOREMI_BYTE = KID_DOREMI ? 0u : 1u;
+        settings_save();
+        kid.full = 1;
+        kid_hint(KH_NOTES);
+    } else
+#endif
+    if (s != 0) {
         any = 1u;
         uint32_t n = (uint32_t)clamp(kid.night + s, 0, 8);
         if (n != kid.night) {
@@ -2311,9 +2328,9 @@ static struct {
     const char *txt;
     kid_txt_t bt;                       /* the band's text */
     kid_txt_t bt2;                      /* .. its second line (a long name: two lines), sc 0 = none */
-    char l1[16], l2[16];
+    char l1[24], l2[24];
     char cname[12];                     /* CHORDS: the chord's name */
-    uint16_t ccol[16];                  /* KB_CHORD: the colour of each of l1's letters */
+    uint16_t ccol[24];                  /* KB_CHORD: the colour of each of l1's letters */
     int8_t icon;                        /* ALGORITHM's mode as a picture at the band's left (KID_ICON_*), -1 none */
     int16_t ol;                         /* its outline (px) */
     uint16_t ink, bg, bg2;
@@ -2502,8 +2519,8 @@ static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *nam
                 break;
             }
     }
-    for (i = 0; i < n && p < kf.l1 + 12; i++) {
-        const char *l = KID_NOTE[pcs[i]];
+    for (i = 0; i < n && p < kf.l1 + 18; i++) {                   /* (DO RE MI: up to 4 letters a note) */
+        const char *l = kid_note_name(pcs[i]);
         if (i)
             *p++ = ' ';
         for (; *l; l++, p++) {
@@ -2515,23 +2532,30 @@ static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *nam
     *p = 0;
     kf.band = KB_CHORD;
     kf.txt = kf.bt.s = kf.l1;
-    kf.bt.sc = (int16_t)(str_len(kf.l1) * 24u - 4u <= 232u ? 4 : 3);
+    kf.bt.sc = (int16_t)(str_len(kf.l1) * 24u - 4u <= 232u ? 4 : str_len(kf.l1) * 18u - 3u <= 232u ? 3 : 2);
     w = str_len(kf.l1) * 6u * (uint32_t)kf.bt.sc - (uint32_t)kf.bt.sc;
     kf.bt.x = (int16_t)((240 - (int32_t)w) / 2);
     kf.bt.y = (int16_t)(q ? KID_BAND_Y + 4 : KID_BAND_Y + 15);
     kf.bt2.sc = 0;
     if (q) {
-        if (named) {
-            str_cpy(kf.l2, named, sizeof kf.l2);
+        if (named) {                                              /* (a lesson's name: its root as DO RE MI too) */
+            const char *rest = named;
+            while (*rest >= 'A' && *rest <= 'G')
+                rest++;
+            if (*rest == '#')
+                rest++;
+            str_cpy(kf.l2, rest != named ? kid_note_name(root) : "", sizeof kf.l2);
+            p = kf.l2 + str_len(kf.l2);
+            str_cpy(p, rest, sizeof kf.l2 - (uint32_t)(p - kf.l2));
         } else {
-            str_cpy(kf.l2, KID_NOTE[root], sizeof kf.l2);
+            str_cpy(kf.l2, kid_note_name(root), sizeof kf.l2);
             p = kf.l2 + str_len(kf.l2);
             *p++ = ' ';
             str_cpy(p, q, sizeof kf.l2 - (uint32_t)(p - kf.l2));
         }
         kf.bt2.s = kf.l2;
-        kf.bt2.sc = 3;
-        kf.bt2.x = (int16_t)((240 - (int32_t)(str_len(kf.l2) * 18u - 3u)) / 2);
+        kf.bt2.sc = (int16_t)(str_len(kf.l2) * 18u - 3u <= 232u ? 3 : 2);
+        kf.bt2.x = (int16_t)((240 - (int32_t)(str_len(kf.l2) * 6u * (uint32_t)kf.bt2.sc - (uint32_t)kf.bt2.sc)) / 2);
         kf.bt2.y = KID_BAND_Y + 34;
         sig = sig * 31u + root * 7u + (uint32_t)(q[1]);
     }
@@ -2625,7 +2649,7 @@ static uint32_t kid_play_band(uint32_t now)
         if (kid.f_done_ms)
             return kid_band_word("YAY!", 6, RGB(56, 170, 80), 0x704u);
         pc = (53u + nk) % 12u;
-        kid_band_word(KID_NOTE[pc], 7, kid_mix(KID_NOTE_COL[pc], KID_WHITE, 170u), 0);
+        kid_band_word(kid_note_name(pc), 7, kid_mix(KID_NOTE_COL[pc], KID_WHITE, 170u), 0);
         kf.ink = KID_NOTE_COL[pc];
         kf.bg2 = kid_mix(KID_NOTE_COL[pc], KID_WHITE, 90u);
         kf.ol = 3;
@@ -2638,7 +2662,7 @@ static uint32_t kid_play_band(uint32_t now)
 static uint32_t kid_band_setup(uint32_t now)
 {
     uint32_t sig, len, w;
-    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
+    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_NOTES || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
                kid.hint == KH_NEWFRIEND || kid.hint == KH_NEWSKY) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
     int hint = kid.hint != KH_NONE && now - kid.hint_ms < 1500u;
     kf.meter = -1;
@@ -2665,7 +2689,7 @@ static uint32_t kid_band_setup(uint32_t now)
         uint32_t pc = KID_OUTER_PC(now) >= 0 ? (uint32_t)KID_OUTER_PC(now) :
                       (53u + (uint32_t)kid.key) % 12u;    /* key 0 is F (seq.c kb_map: 53 + k) */
         kf.band = KB_NOTE;
-        kf.txt = KID_NOTE[pc];
+        kf.txt = kid_note_name(pc);
         kf.bt.sc = 7;                                     /* (the band's own: as big as fits) */
         kf.ol = 3;
         kf.ink = KID_NOTE_COL[pc];
@@ -2717,6 +2741,7 @@ static uint32_t kid_band_setup(uint32_t now)
             v = -1;
             break;
         case KH_LOOK: kf.txt = KID_VOL_BYTE & KID_HIDE_BIT ? "LOOK-ALIKES OFF" : "LOOK-ALIKES ON"; v = -1; break;
+        case KH_NOTES: kf.txt = KID_DOREMI ? "DO RE MI" : "C D E"; v = -1; break;
         case KH_HAT: kf.txt = KID_HAT ? KID_HAT_NAME[KID_HAT - 1u] : "NO HAT"; v = -1; break;
         case KH_NEWHAT: case KH_NEWFRIEND: case KH_NEWSKY: v = -1; break;
         case KH_STARS: {                                  /* how far the next secret is (no digits in the band's font) */
