@@ -9,7 +9,7 @@ const EN = { SELECT: 0, ALGO: 1, PRESETS: 2, K1: 3, K2: 4, K3: 5, K4: 6 };
 const K = { F3: 0, G3: 2, A3: 4, B3: 6, C: 7, D: 9, E: 11, F: 12, G: 14, A: 16, B: 18, C2: 19, D2: 21, E2: 23, F2: 24, G2: 26 };
 const NF = 94;                                                     // the friends on PRESETS (the secret one waits for 50 stars)
 const FR = { COW: 76, SHARK: 79, TRICERATOPS: 85, FIRE_TRUCK: 91, PIANO_PAL: 73, SAX_CAT: 75, SCIENTIST: 58, KING_AXOLOTL: 66,
-             DRAGON_DUCK: 62, HELICOPTER: 93 };
+             DRAGON_DUCK: 62, HELICOPTER: 93, BUNNY: 24, SNAIL: 82 };
 const BEAT = { LOFI: 11, ACID: 12, BREAK: 20 }, SKY = { STREET: 10, SEA: 11, RAIN: 12, FIREWORKS: 13 };
 const { instance } = await WebAssembly.instantiate(fs.readFileSync(wasmPath), {});
 const ex = instance.exports, mem = ex.memory;
@@ -50,77 +50,84 @@ const copyMe = (t, n, step = 420) => { let done = 0, busy = false; watch(t, (ms)
   return false; }); };
 const Q = 500;                                                     // a beat at 120 BPM
 
+// FOLLOW: the lit key pressed, n times, a step apart
+const follow = (t, n, step) => { let done = 0, next = 0; watch(t, (ms) => {
+  if (ms < next) return false;
+  const lit = ex.web_lit_keys() & 0x7FFFFFF;
+  if (lit) { const k = 31 - Math.clz32(lit & -lit); note(ms, k, step - 90); done++; }
+  next = ms + step; return done >= n; }); };
+
 // cold open: a tune, straight away
 go(0, FR.KING_AXOLOTL);
 C(0, "Rainbow mode", "a free music toy for little hands, on the M-VAVE FM-1");
 tune(700, [K.E, K.E, K.F, K.G, K.G, K.F, K.E, K.D, K.C, K.C, K.D, K.E, K.E, K.D, K.D], 290);
-// 1. the friends: 36 more since the last video
+// 1. hats that fit, then the friends in them
 let t = 5400;
-const FRS = [[FR.COW, "the farm, the sea, bugs, dinosaurs, food and things that go", (s) => tune(s, [K.C, K.E, K.G, K.E], 300)],
-             [FR.SHARK, "a shark", (s) => tune(s, [K.E, K.F, K.E, K.F, K.E, K.F], 190)],
-             [FR.TRICERATOPS, "a triceratops with a tuba's honk", (s) => tune(s, [K.C, K.G3, K.C, K.E], 300)],
-             [FR.FIRE_TRUCK, "a fire truck with a siren", (s) => { note(s, K.C, 500); note(s + 550, K.G, 500); }],
-             [FR.PIANO_PAL, "Piano Pal plays a real piano recording", (s) => tune(s, [K.C, K.E, K.G, K.C2], 280)],
-             [FR.SAX_CAT, "and Sax Cat a real saxophone", (s) => tune(s, [K.G, K.A, K.C2, K.A, K.G], 230)]];
-FRS.forEach(([f, sub, play], i) => { go(t, f); C(t, "1. Meet 94 friends", sub); play(t + 400); t += 1900; });
-// 2. skies
-C(t, "2. New skies", "REC: the street, under the sea, rain, fireworks");
-[SKY.STREET, SKY.SEA, SKY.RAIN, SKY.FIREWORKS].forEach((s, i) => seek(t + i * 1200, B.REC, () => ex.web_kid_scene(), s));
-tune(t + 300, [K.C, null, K.E, null, K.G, null, K.E, null, K.C], 480);
-t += 5200;
-// 3. hats
-C(t, "3. A hat for every friend", "for grown-ups: HOME held 1 s, then KNOB 4. Ten hats");
+C(t, "1. A hat for every friend", "for grown-ups: hold HOME, then turn KNOB 4");
 at(t, () => ex.web_buttons(1 << B.HOME));
-[0, 1, 2, 3].forEach((i) => turn(t + 1300 + i * 750, EN.K4, 1));
-at(t + 1300 + 4 * 750, () => ex.web_buttons(0));
-t += 5300;
-// 4. beats
+[0, 1, 2, 3].forEach((i) => turn(t + 1300 + i * 700, EN.K4, 1));
+at(t + 1300 + 4 * 700, () => ex.web_buttons(0));
+t += 4900;
+const FRS = [[FR.BUNNY, "it sits on the head, not the ears", (s) => tune(s, [K.C, K.E, K.G, K.E], 280)],
+             [FR.SNAIL, "the snail's head is its eyes", (s) => tune(s, [K.E, K.D, K.C], 360)],
+             [FR.SHARK, "a shark wears it at the front", (s) => tune(s, [K.E, K.F, K.E, K.F, K.E, K.F], 180)],
+             [FR.FIRE_TRUCK, "a fire truck wears it on the roof", (s) => { note(s, K.C, 450); note(s + 500, K.G, 450); }],
+             [FR.COW, "94 friends, each one fitted", (s) => tune(s, [K.G, K.E, K.C, K.E], 280)]];
+FRS.forEach(([f, sub, play]) => { go(t, f); C(t, "1. A hat for every friend", sub); play(t + 400); t += 1800; });
+// 2. 3 FRIENDS: a major chord on every key, and the card that says so
 go(t, FR.PIANO_PAL);
-tap(t + 500, B.PLAY);
-seek(t + 900, B.SEQ, () => ex.web_kid_beat(), BEAT.LOFI);
-C(t, "4. 21 beats", "LOFI: slow and swung, for a piano");
-hold(t + 1500, [K.F3, K.A3, K.C, K.E], 1500); hold(t + 3100, [K.G3, K.B3, K.D, K.E], 1400);
-t += 4800;
-go(t, FR.SCIENTIST);
-seek(t + 800, B.SEQ, () => ex.web_kid_beat(), BEAT.ACID);
-C(t, "4. 21 beats", "ACID: four on the floor, for the Scientist's squelch");
-tune(t + 1400, [K.C, K.C, K.C2, K.C, K.E, K.C, K.G, K.C2], 240);
-t += 3800;
-seek(t, B.SEQ, () => ex.web_kid_beat(), BEAT.BREAK);
-C(t, "4. 21 beats", "BREAK: Felucca's own drum loop");
-tune(t + 800, [K.C, null, K.E, K.G, null, K.A, K.G, null], 250);
-tap(t + 3200, B.PLAY);
-t += 3600;
-// 5. CHORDS, a lesson: its tenth star opens the STAR hat
-go(t, FR.PIANO_PAL);
-turn(t + 300, EN.ALGO, 6, 80);
-at(t + 300, () => ex.web_kid_stars_set(9));
-C(t, "5. CHORDS: chord lessons", "the next chord lights up. Hold its keys");
-chords(t + 1200, 4);
-C(t + 5500, "5. CHORDS: chord lessons", "a lesson won is a star. Ten stars: a new hat!");
-t += 8200;
-// 6. COPY ME: two rounds, and the 25th star opens the northern lights
-turn(t, EN.ALGO, 1);
-at(t, () => ex.web_kid_stars_set(23));
-C(t, "6. COPY ME", "the friend plays a pattern, you play it back");
-copyMe(t + 400, 2);
-C(t + 9600, "6. COPY ME", "every round is a star. 25 stars: a secret sky!");
-t += 12600;
-// 7. WRITE, loop and layer
+turn(t + 200, EN.ALGO, 1);
+C(t, "2. Magic chords", "turn ALGORITHM and a card says how the keys play");
+t += 2800;
+C(t, "2. Magic chords", "every key is a major chord now, black keys too");
+hold(t + 200, [K.C], 600); hold(t + 900, [K.E], 700);
+C(t + 1800, "2. Magic chords", "try C, then G#, A# and back to C");
+hold(t + 2000, [K.C], 500); hold(t + 2600, [15], 500); hold(t + 3200, [17], 500); hold(t + 3800, [K.C2], 1100);
+t += 5400;
+// 3. a beat under it
+tap(t, B.PLAY);
+seek(t + 300, B.SEQ, () => ex.web_kid_beat(), BEAT.LOFI);
+C(t, "3. 21 beats", "PLAY for a beat, SEQ for the next one");
+hold(t + 1000, [K.C], 900); hold(t + 2000, [K.A], 900); hold(t + 3000, [K.F], 900); hold(t + 4000, [K.G], 900);
+tap(t + 5200, B.PLAY);
+t += 5600;
+// 4. FOLLOW: 24 songs now
+turn(t, EN.ALGO, 4, 80);
+C(t, "4. FOLLOW: songs to learn", "the next key lights up. Take your time");
+for (let i = 0; i < 18; i++) tap(t + 2800 + i * 120, B.SEQ);      // (to the new ones: WHEN THE SAINTS)
+C(t + 2800, "4. FOLLOW: songs to learn", "24 songs now, like When the Saints");
+follow(t + 5400, 16, 330);
+t += 11200;
+// 5. COPY ME, and a secret sky at 25 stars
+turn(t, EN.ALGO, 2);
+at(t, () => ex.web_kid_stars_set(24));
+C(t, "5. COPY ME", "listen to the friend, then play it back");
+copyMe(t + 2400, 1);
+C(t + 7200, "5. COPY ME", "every game won is a star. 25: a secret sky");
+t += 9800;
+// 6. DO RE MI
 turn(t, EN.ALGO, -7, 80);
+C(t, "6. DO RE MI", "for grown-ups: hold HOME, then turn KNOB 2");
+at(t + 600, () => ex.web_buttons(1 << B.HOME));
+turn(t + 1900, EN.K2, 1);
+at(t + 2600, () => ex.web_buttons(0));
+C(t + 3400, "6. DO RE MI", "the note names many countries learn first");
+tune(t + 3600, [K.C, K.D, K.E, K.F, K.G, K.A, K.B, K.C2], 330);
+hold(t + 6400, [K.C, K.E, K.G], 1200);
+t += 8200;
+// 7. WRITE, loop and layer
 go(t, FR.DRAGON_DUCK);
 tap(t + 800, B.SAVE);
-C(t, "7. Write a song: loop and layer", "PLAY a loop, and play into it as it goes round");
+C(t, "7. Write a song", "SAVE, then PLAY a loop and play into it");
 tap(t + 1500, B.PLAY);
 tune(t + 1900, [K.C, null, K.E, null, K.G, null, K.E, null], 500);
-C(t + 6000, "7. Write a song: loop and layer", "PRESETS: another friend for the next layer");
 turn(t + 6000, EN.PRESETS, 1);
+C(t + 6000, "7. Write a song", "PRESETS: another friend for the next layer");
 tune(t + 6300, [null, K.C2, null, K.B, null, K.G, null, K.A], 500);
-t += 11800;
+t += 11000;
 tap(t, B.PLAY); tap(t + 300, B.SAVE);
-// the summary, over a beat and three friends
+// the summary, over a beat
 go(t + 400, FR.HELICOPTER);
-turn(t + 500, EN.ALGO, 1);
 tap(t + 1100, B.PLAY);
 C(t, "New since the last video", "__LIST__");
 const items = 8, gap = 1450;
@@ -140,9 +147,9 @@ for (let f = 0; f < frames; f++) {
   if (ev.length !== sorted) { const rest = ev.splice(e).sort((a, b) => a[0] - b[0]); ev.push(...rest); sorted = ev.length; }
   while (e < ev.length && ev[e][0] <= now) { ev[e++][1](); if (ev.length !== sorted) { const rest = ev.splice(e).sort((a, b) => a[0] - b[0]); ev.push(...rest); sorted = ev.length; } }
   for (let i = watchers.length - 1; i >= 0; i--) if (watchers[i](now)) watchers.splice(i, 1);
-  if (navTo !== null) {
-    const cur = ex.web_kid_friend();
-    if (cur === navTo) navTo = null; else ex.web_enc(EN.PRESETS, (navTo - cur + NF) % NF <= NF / 2 ? 1 : -1);
+  if (navTo !== null) {                                            // (straight there, as if PRESETS had turned)
+    if (ex.web_kid_friend() !== navTo) ex.web_kid_friend_set(navTo);
+    navTo = null;
   }
   for (let k = 0; k < SPF; k += 147) {
     ex.web_render(147);
