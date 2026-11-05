@@ -504,6 +504,7 @@ EXPORT uint32_t web_kid_card(void) { return kf.card ? 1u + kid.mode : 0u; }   /*
 EXPORT uint32_t web_kid_knobs(void) { return kid.echo | (uint32_t)kid.wiggle << 8 | (uint32_t)kid.night << 16; }   /* (kid_test.mjs: KNOB 3, 4, 2) */
 EXPORT uint32_t web_kid_cheer(void) { return kid.cheer_n | ((uint32_t)kid.cheer_on << 8); }   /* (kid_test.mjs: the cheer's notes left, and sounding) */
 EXPORT uint32_t web_kid_friend(void) { return kid.fr; }
+EXPORT void web_kid_friend_set(uint32_t f) { if (f < KID_N) kid_friend(f); }   /* (tools/video: straight to a friend) */
 EXPORT uint32_t web_kb_chord(uint32_t k, uint32_t i)    /* (kid_test.mjs: the notes key k started, 0 none) */
 { return k < 27u && i < kb_chn[k] ? kb_chord[k][i] : 0u; }
 EXPORT uint32_t web_voices(uint32_t t)                  /* (kid_test.mjs: a track's sounding voices) */

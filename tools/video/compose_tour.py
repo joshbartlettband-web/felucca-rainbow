@@ -14,10 +14,10 @@ NOTE = [(236, 40, 52), (246, 92, 40), (255, 140, 26), (255, 184, 30), (255, 218,
 LETTER = {0: "C", 2: "D", 4: "E", 5: "F", 7: "G", 9: "A", 11: "B"}
 T1, T2, T3, TL, TK = font(64, b"ExtraBold"), font(34, b"Medium"), font(26, b"SemiBold"), font(40, b"Bold"), font(22, b"Bold")
 meta = json.load(open("captions.json")); caps = meta["captions"]; fps = meta["fps"]; n = meta["frames"]; KEYS = meta["keys"]
-ITEMS = ["36 more friends: 94 in all", "Piano, flute and sax: real recordings",
-         "Ten hats, for any friend", "Five new skies, one of them secret",
-         "21 beats: LOFI, ACID, a real drum break", "CHORDS and COPY ME: two new games",
-         "Stars to win, and the secrets they open", "WRITE: loop and layer as it plays"]
+ITEMS = ["Hats that fit every friend's head", "3 FRIENDS: a major chord on every key",
+         "A card that says how each mode plays", "FOLLOW: 24 songs to learn",
+         "Note names as DO RE MI, if you like", "Echo and wiggle on KNOB 3 and 4 again",
+         "Every control on one web page", "Runs on the SMK-37 keyboard too"]
 SX, SY, SS = 108, 196, 864                    # the FM-1's screen: 240 px at 3.6x
 KX0, KX1, KY0, KY1 = 40, 1040, 1106, 1270     # the keyboard: F3 .. G5, 16 white keys
 
