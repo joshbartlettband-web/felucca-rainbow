@@ -371,7 +371,7 @@ static const uint8_t KID_FONT[][7] = {
     {0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00}, {0x0E, 0x11, 0x01, 0x06, 0x04, 0x00, 0x04},   /* - ? */
     {0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08}, {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C},   /* 7 9 */
     {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02},                                               /* 4 */
-    /* accented capitals (a translated build, tools/gen_kid_lang.py: bytes 0x80 .. 0x8B in its strings): the accent on
+    /* accented capitals (a translated build, tools/gen_kid_lang.py: bytes 0x80 .. 0x9A in its strings): the accent on
      * two rows over a five-row letter; the cedilla under a six-row C */
     {0x02, 0x04, 0x0E, 0x11, 0x1F, 0x11, 0x11}, {0x08, 0x04, 0x0E, 0x11, 0x1F, 0x11, 0x11},   /* \x80 A acute, \x81 A grave */
     {0x04, 0x0A, 0x0E, 0x11, 0x1F, 0x11, 0x11}, {0x05, 0x0A, 0x0E, 0x11, 0x1F, 0x11, 0x11},   /* \x82 A circumflex, \x83 A tilde */
@@ -379,12 +379,20 @@ static const uint8_t KID_FONT[][7] = {
     {0x04, 0x0A, 0x1F, 0x10, 0x1E, 0x10, 0x1F}, {0x02, 0x04, 0x0E, 0x04, 0x04, 0x04, 0x0E},   /* \x86 E circumflex, \x87 I acute */
     {0x02, 0x04, 0x0E, 0x11, 0x11, 0x11, 0x0E}, {0x04, 0x0A, 0x0E, 0x11, 0x11, 0x11, 0x0E},   /* \x88 O acute, \x89 O circumflex */
     {0x05, 0x0A, 0x0E, 0x11, 0x11, 0x11, 0x0E}, {0x02, 0x04, 0x11, 0x11, 0x11, 0x11, 0x0E},   /* \x8A O tilde, \x8B U acute */
+    {0x08, 0x04, 0x1F, 0x10, 0x1E, 0x10, 0x1F}, {0x0A, 0x00, 0x1F, 0x10, 0x1E, 0x10, 0x1F},   /* \x8C E grave, \x8D E diaeresis */
+    {0x04, 0x0A, 0x0E, 0x04, 0x04, 0x04, 0x0E}, {0x0A, 0x00, 0x0E, 0x04, 0x04, 0x04, 0x0E},   /* \x8E I circumflex, \x8F I diaeresis */
+    {0x08, 0x04, 0x0E, 0x04, 0x04, 0x04, 0x0E}, {0x05, 0x0A, 0x11, 0x19, 0x15, 0x13, 0x11},   /* \x90 I grave, \x91 N tilde */
+    {0x08, 0x04, 0x0E, 0x11, 0x11, 0x11, 0x0E}, {0x08, 0x04, 0x11, 0x11, 0x11, 0x11, 0x0E},   /* \x92 O grave, \x93 U grave */
+    {0x04, 0x0A, 0x11, 0x11, 0x11, 0x11, 0x0E}, {0x0A, 0x00, 0x11, 0x11, 0x11, 0x11, 0x0E},   /* \x94 U circumflex, \x95 U diaeresis */
+    {0x0A, 0x00, 0x0E, 0x11, 0x1F, 0x11, 0x11}, {0x0A, 0x00, 0x0E, 0x11, 0x11, 0x11, 0x0E},   /* \x96 A diaeresis, \x97 O diaeresis */
+    {0x04, 0x0A, 0x04, 0x0A, 0x11, 0x1F, 0x11}, {0x0F, 0x14, 0x14, 0x1F, 0x14, 0x14, 0x17},   /* \x98 A ring, \x99 AE */
+    {0x01, 0x0E, 0x13, 0x15, 0x19, 0x0E, 0x10},                                               /* \x9A O slash */
 };
 static int32_t kid_glyph_of(char c)
 {
     if (c >= 'A' && c <= 'Z')
         return c - 'A';
-    if ((uint8_t)c >= 0x80u && (uint8_t)c <= 0x8Bu)               /* (an accented capital: a translated build) */
+    if ((uint8_t)c >= 0x80u && (uint8_t)c <= 0x9Au)               /* (an accented capital: a translated build) */
         return 37 + ((uint8_t)c - 0x80);
     return c == '1' ? 26 : c == '3' ? 27 : c == '#' ? 28 : c == '!' ? 29 : c == '5' ? 30 : c == '8' ? 31 : c == '-' ? 32 : c == '?' ? 33 : c == '7' ? 34 : c == '9' ? 35 : c == '4' ? 36 : -1;
 }
@@ -393,7 +401,7 @@ static const int8_t KID_SIN[32] = {0, 25, 49, 71, 90, 106, 117, 125, 127, 125, 1
                                    0, -25, -49, -71, -90, -106, -117, -125, -127, -125, -117, -106, -90, -71, -49, -25};
 
 enum { KH_NONE, KH_SIZE, KH_NIGHT, KH_ECHO, KH_WIGGLE, KH_SPEED, KH_CHORD, KH_SPARKLE, KH_BEAT, KH_VOLUME, KH_NEWSONG, KH_SONG,
-       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND, KH_NEWSKY, KH_NOTES };
+       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND, KH_NEWSKY, KH_NOTES, KH_STAFF };
 enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 /* ALGORITHM: how the keys play (kid_mode_set). CHOIR: three friends sing a chord; STRUM: an Omnichord (seq.c
  * kb_strum_map); GUESS: an ear game; FOLLOW: songs to learn, the next key lit */
@@ -785,6 +793,10 @@ static void kid_beat_load(void)
 }
 
 #define KID_HAT_BYTE (favorites.factory[13][19])
+/* the STAFF (HOME held 1 s, then KNOB 1 right or left): the music staff over the friend, on or off, kept in a spare setting byte
+ * (favorites.factory[13][31], after the name's): 1 is off, anything else on. An idea from Josh. */
+#define KID_STAFF_BYTE (favorites.factory[13][31])
+#define KID_STAFF (KID_STAFF_BYTE != 1u)
 
 /* STARS and secrets: each game won (the cheer's) is a star, kept over power-off (favorites.factory[13][15..17]: the
  * count, low and high, and a check byte; written every 10 stars, at each secret, after half a minute of quiet and on leaving: not at every one, to spare the flash). 10 stars: the STAR hat; 25: the secret sky, AURORA; 50: the secret friend (KID_SECRET_FR). HOME held 1 s,
@@ -2203,7 +2215,17 @@ static void kid_input(void)
         song.g[G_BPM] = (int16_t)clamp(song.g[G_BPM] + s * 5, 60, 180);
         kid_hint(KH_SPEED);
     }
-    if ((s = panel_enc(EN_K1)) != 0 && !kw.on) { /* two detents an octave: a small hand turns a lot */
+    s = panel_enc(EN_K1);                                         /* (read once: a read takes the turn) */
+#if !BOARD_SMK37
+    if (s != 0 && kid.vol_open) {                                 /* HOME held 1 s: the STAFF, on or off */
+        any = 1u;
+        KID_STAFF_BYTE = s > 0 ? 0u : 1u;                         /* (right: on, left: off) */
+        settings_save();
+        kid.full = 1;
+        kid_hint(KH_STAFF);
+    } else
+#endif
+    if (s != 0 && !kw.on) {                      /* two detents an octave: a small hand turns a lot */
         any = 1u;
         kid.acc = (int8_t)clamp(kid.acc + s, -2, 2);
         if (kid.acc >= 2 || kid.acc <= -2) {
@@ -2494,7 +2516,10 @@ static const char *kid_drum_word(uint32_t key, uint16_t *col)
 
 static uint32_t kid_band_word(const char *s, int16_t sc, uint16_t bg, uint32_t sig)   /* a word alone in the band */
 {
-    uint32_t w = str_len(s) * 6u * (uint32_t)sc - (uint32_t)sc;
+    uint32_t w;
+    while (sc > 3 && str_len(s) * 6u * (uint32_t)sc - (uint32_t)sc > 232u)   /* (a longer word, in a translation) */
+        sc--;
+    w = str_len(s) * 6u * (uint32_t)sc - (uint32_t)sc;
     kf.band = KB_NAME;
     kf.txt = kf.bt.s = s;
     kf.bt.sc = sc;
@@ -2677,7 +2702,7 @@ static uint32_t kid_play_band(uint32_t now)
 static uint32_t kid_band_setup(uint32_t now)
 {
     uint32_t sig, len, w;
-    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_NOTES || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
+    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_NOTES || kid.hint == KH_STAFF || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
                kid.hint == KH_NEWFRIEND || kid.hint == KH_NEWSKY) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
     int hint = kid.hint != KH_NONE && now - kid.hint_ms < 1500u;
     kf.meter = -1;
@@ -2687,7 +2712,7 @@ static uint32_t kid_band_setup(uint32_t now)
         kf.band = KB_NAME;
         kf.txt = hint && kid.hint == KH_BEAT ? (kw.beat ? KID_BEATS[(kw.beat - 1u) % KB_COUNT].name : "NO BEAT") :
                  hint && kid.hint == KH_NEWSONG ? "NEW SONG" : song.playing ? "LOOP" : "WRITE";
-        kf.bt.sc = str_len(kf.txt) * 24u - 4u <= 176u ? 4 : 3;
+        kf.bt.sc = str_len(kf.txt) * 24u - 4u <= 176u ? 4 : str_len(kf.txt) * 18u - 3u <= 176u ? 3 : 2;   /* (2: a translation) */
         kf.ink = KID_WHITE;
         kf.bg = RGB(150, 110, 230);
         kf.bg2 = RGB(120, 84, 200);
@@ -2730,7 +2755,7 @@ static uint32_t kid_band_setup(uint32_t now)
         sig = 0x400u | kid.fxk;
     } else if (kid.hint != KH_NONE && now - kid.hint_ms < 1500u) {
         static const char *const WORD[] = {"", "", "DAY", "ECHO", "WIGGLE", "", "", "SPARKLE", "", "VOLUME", "", "", "", "", "STARS",
-                                           "NEW HAT!", "NEW FRIEND!", "NEW SKY!"};
+                                           "NEW HAT!", "NEW FRIEND!", "NEW SKY!", "", ""};
         int32_t v = 0;
         kf.band = KB_HINT;
         kf.txt = WORD[kid.hint];
@@ -2757,6 +2782,7 @@ static uint32_t kid_band_setup(uint32_t now)
             break;
         case KH_LOOK: kf.txt = KID_VOL_BYTE & KID_HIDE_BIT ? "LOOK-ALIKES OFF" : "LOOK-ALIKES ON"; v = -1; break;
         case KH_NOTES: kf.txt = KID_DOREMI ? "DO RE MI" : "C D E"; v = -1; break;
+        case KH_STAFF: kf.txt = KID_STAFF ? "STAFF ON" : "STAFF OFF"; v = -1; break;
         case KH_HAT: kf.txt = KID_HAT ? KID_HAT_NAME[KID_HAT - 1u] : "NO HAT"; v = -1; break;
         case KH_NEWHAT: case KH_NEWFRIEND: case KH_NEWSKY: v = -1; break;
         case KH_STARS: {                                  /* how far the next secret is (no digits in the band's font) */
@@ -3377,12 +3403,13 @@ static int32_t kid_hello_line(const char *s, int32_t sc, int32_t top, uint32_t f
     return -1;
 }
 
+static const char KID_HI[] = "HI!";          /* the hello without a name (a longer word, in a translation, draws smaller) */
 static uint16_t kid_hello_px(int32_t x, int32_t y)
 {
     int32_t c;
     if (kid.hello_name[0] ? (c = kid_hello_line("HI", 7, 14, 0u, x, y)) >= 0 ||
                             (c = kid_hello_line(kid.hello_name, kid.hello_sc, 76, 2u, x, y)) >= 0
-                          : (c = kid_hello_line("HI!", 8, 34, 0u, x, y)) >= 0)
+                          : (c = kid_hello_line(KID_HI, sizeof KID_HI > 5 ? 6 : 8, sizeof KID_HI > 5 ? 42 : 34, 0u, x, y)) >= 0)
         return (uint16_t)c;
 #if BOARD_SMK37
     if (y >= 190 && (c = kid_hello_line("RAINBOW", 3, 196, 3u, x, y)) >= 0)
@@ -3459,7 +3486,7 @@ static uint32_t kid_staff_setup(uint32_t now)
         kf.card_y = (int16_t)(KID_ST_Y0 + (KID_ST_Y1 - KID_ST_Y0 - ((int32_t)kf.card_n * 18 - 4)) / 2);
         return 0xCA4D0000u + kid.mode;
     }
-    kf.staff = kid.st_n && now - kid.st_ms < KID_ST_MS;
+    kf.staff = KID_STAFF && kid.st_n && now - kid.st_ms < KID_ST_MS;   /* (the grown-ups' STAFF off: none) */
     if (!kf.staff) {
         kid.st_n = 0;
         return 0;

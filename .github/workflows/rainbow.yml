@@ -2,7 +2,8 @@
 #   firmware:  the FM-1 package (JieLi toolchain + three files of the AC79 SDK, cached after the first run)
 #   browser:   the same firmware compiled to WebAssembly (Felucca in the browser)
 #   publish:   the site: /webapp/installer/ flashes the FM-1, /webapp/try/ runs it in the browser
-# Portuguese (tools/lang/pt.py): its own firmware package and browser build, published under /pt/ (landing/pt/).
+# Other languages (LANGS, each a tools/lang/LL.py): each its own firmware package and browser build, published under
+# /LL/ with its own page (landing/LL/ where there is one, else web/make_lang_page.py makes it).
 # Two firmware packages: the public one (a plain "HI!" at power-up) goes on the site's installer; with the secrets
 # KID_NAME (a child's name) and PRIVATE_PATH (a long random word) set, a second one that greets them by name goes to a
 # private address on the same site: https://USER.github.io/REPO/PRIVATE_PATH/ (not listed anywhere, not indexed;
@@ -33,6 +34,7 @@ env:
   SDK_TAG: AC79NN_SDK_V1.2.1_2023-12-13   # the SDK version build.py was tested with
   EMSDK_VERSION: 3.1.74
   BUILD_TAG: rb                           # added to the version, so ABOUT shows this is our build (v1.0.5.2-rb)
+  LANGS: pt de fr es it nl sv no da       # Rainbow mode's other languages (tools/lang/LL.py)
 
 jobs:
   firmware:
@@ -109,13 +111,15 @@ jobs:
           mkdir -p out/public
           cp "build/felucca-$rel.fwsc" out/public/
 
-      - name: Build the Portuguese firmware (its own package, tools/lang/pt.py)
+      - name: Build the other languages' firmware (a package each, tools/lang/LL.py)
         run: |
           export AC79_SDK="$HOME/ac79-sdk"
           rel="${{ steps.ver.outputs.release }}"
-          ./build.sh --release "$rel" --lang pt
-          mkdir -p out/public-pt
-          cp "build/felucca-pt-$rel.fwsc" out/public-pt/
+          for l in $LANGS; do
+            ./build.sh --release "$rel" --lang "$l"
+            mkdir -p "out/public-$l"
+            cp "build/felucca-$l-$rel.fwsc" "out/public-$l/"
+          done
 
       - name: Build the private firmware (only when KID_NAME and PRIVATE_PATH are both set)
         env:
@@ -186,15 +190,18 @@ jobs:
           if [ -f web/emu/kid_test.mjs ]; then node web/emu/kid_test.mjs build/emu/felucca.wasm; fi
           mv build/emu build/emu-en
 
-      - name: Build and test the Portuguese browser version
+      - name: Build and test the other languages' browser versions
         run: |
           ~/emsdk/emsdk activate "$EMSDK_VERSION" >/dev/null
           . ~/emsdk/emsdk_env.sh >/dev/null
-          KID_LANG=pt python3 -c "import sys; sys.path.insert(0, 'tools'); import build; build.generate()"
-          python3 tools/gen_kid_lang.py pt build/gen/kid_lang.c
-          EMU_PREVIEW=0 EMU_CFLAGS=-DKID_LANG=1 sh web/emu/build.sh
-          node web/emu/kid_test.mjs build/emu/felucca.wasm
-          mv build/emu build/emu-pt
+          for l in $LANGS; do
+            KID_LANG=$l python3 -c "import sys; sys.path.insert(0, 'tools'); import build; build.generate()"
+            python3 tools/gen_kid_lang.py "$l" build/gen/kid_lang.c
+            EMU_PREVIEW=0 EMU_CFLAGS=-DKID_LANG=1 sh web/emu/build.sh
+            node web/emu/kid_test.mjs build/emu/felucca.wasm
+            mkdir -p build/langs
+            mv build/emu "build/langs/$l"
+          done
 
       - uses: actions/upload-artifact@v4
         with:
@@ -204,8 +211,8 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: browser-pt
-          path: build/emu-pt
+          name: browser-langs
+          path: build/langs
           if-no-files-found: error
 
   publish:
@@ -224,11 +231,18 @@ jobs:
           name: browser
           path: site/webapp/try
 
-      - name: Get the Portuguese browser build
+      - name: Get the other languages' browser builds
         uses: actions/download-artifact@v4
         with:
-          name: browser-pt
-          path: site/pt/webapp/try
+          name: browser-langs
+          path: langs
+
+      - name: Each language's browser version, under /LL/
+        run: |
+          for l in $LANGS; do
+            mkdir -p "site/$l/webapp/try"
+            cp -r "langs/$l/." "site/$l/webapp/try/"
+          done
 
       - name: Get the firmware
         if: needs.firmware.result == 'success'
@@ -273,14 +287,17 @@ jobs:
           fi
           if [ -f "$pub" ]; then
             python3 web/make_site.py "$pub" "$prel" site
-            ptpub=$(ls fw-pinned/public-pt/felucca-pt-*.fwsc 2>/dev/null | head -n 1)   # (the Portuguese installer: pinned
-            ptrel="$prel"                                                                  #  too, when that run made one)
-            if [ -z "$ptpub" ]; then ptpub=$(ls fw/public-pt/felucca-pt-*.fwsc 2>/dev/null | head -n 1); ptrel="$rel"; fi
-            if [ -n "$ptpub" ]; then
-              python3 web/make_site.py "$ptpub" "$ptrel" pt-site
-              rm -f pt-site/index.html                                            # (landing/pt/ is that page)
-              cp -r pt-site/. site/pt/
-            fi
+            for l in $LANGS; do                                                # (each language's installer: pinned
+              lpub=$(ls fw-pinned/public-$l/felucca-$l-*.fwsc 2>/dev/null | head -n 1)   #  too, when that run made one)
+              lrel="$prel"
+              if [ -z "$lpub" ]; then lpub=$(ls fw/public-$l/felucca-$l-*.fwsc 2>/dev/null | head -n 1); lrel="$rel"; fi
+              if [ -n "$lpub" ]; then
+                python3 web/make_site.py "$lpub" "$lrel" lang-site
+                rm -f lang-site/index.html                                     # (the language's own page is that)
+                cp -r lang-site/. "site/$l/"
+                rm -rf lang-site
+              fi
+            done
             if [ -f "fw/private/felucca-$rel.fwsc" ] && [ -n "$PRIVATE_PATH" ]; then
               python3 web/make_site.py "fw/private/felucca-$rel.fwsc" "$rel" private-site
               find private-site -name '*.html' -exec sed -i 's|<meta charset="utf-8">|<meta charset="utf-8"><meta name="robots" content="noindex">|' {} +
@@ -303,9 +320,12 @@ jobs:
                                                                  # Buy Me a Coffee ...); none, no tip card
         run: |
           cp -r landing/. site/
+          for l in $LANGS; do                         # (a language with no page of its own in landing/ gets one made)
+            [ -f "landing/$l/index.html" ] || python3 web/make_lang_page.py "$l" "site/$l/index.html"
+          done
           repo="${{ github.repository }}"
           sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" -e "s|@REPO@|$repo|g" site/index.html
-          sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" site/pt/index.html
+          for l in $LANGS; do sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" "site/$l/index.html"; done
           find site -name '*.html' -exec sed -i "s|@REPO@|$repo|g" {} +   # (the installers' credits)
           if [ -z "$PIN" ]; then                      # (the note about a pinned installer is only there while it is pinned)
             perl -0pi -e 's/\s*<!--PIN-->.*?<!--\/PIN-->//s' site/index.html
