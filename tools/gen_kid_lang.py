@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ACCENTS = "ÁÀÂÃÇÉÊÍÓÔÕÚ"                  # kid.c KID_FONT 37 .. 48, bytes 0x80 .. 0x8B
+ACCENTS = "ÁÀÂÃÇÉÊÍÓÔÕÚÈËÎÏÌÑÒÙÛÜÄÖÅÆØ"   # kid.c KID_FONT 37 .., bytes 0x80 .. 0x9A
 SOLFA = {"do": 0, "re": 2, "mi": 4, "fa": 5, "sol": 7, "la": 9, "si": 11}
 KEYS = ["F3", "FS3", "G3", "GS3", "A3", "AS3", "B3", "C4", "CS4", "D4", "DS4", "E4", "F4", "FS4", "G4", "GS4", "A4",
         "AS4", "B4", "C5", "CS5", "D5", "DS5", "E5", "F5", "FS5", "G5"]   # kid.c K_*: key 0 is F3 (MIDI 53)
@@ -45,6 +45,33 @@ def enc(s):
 def shown(s):
     """how long a word is on the screen (an accented capital is one byte)"""
     return len(s)
+
+
+ONE_LINE = {"KICK", "SNARE", "CLAP", "HI-HAT", "OPEN HAT", "RIM", "COWBELL", "CYMBAL", "TOM", "CONGA", "CLAVE", "CYM",
+            "SHAKER"}                     # (kid_drum_word: the band says them on one line, so 13 letters at most)
+WRITE_WORDS = {"NO BEAT", "NEW SONG", "WRITE", "LOOP", "DANCE", "MARCH", "SPOOKY", "ROCK", "DISCO", "HIP HOP", "TRAIN",
+               "SAMBA", "REGGAE", "LULLABY", "HOEDOWN", "LOFI", "ACID", "POLKA"}   # (kid.c KID_BEATS: the beats' names)
+
+
+def fits(code, src, en, tr):
+    """does a word fit across the screen (240 px, 6 px a letter at scale 1) where kid.c draws it"""
+    n = shown(tr)
+    m = re.search(r'\{"%s", (\d+), \d+, (\d)\}' % re.escape(en), src)     # (the name screen's lines: x, y, scale)
+    if m:
+        ok = n * 6 * int(m[2]) - int(m[2]) <= 238 - int(m[1])
+    elif en in WRITE_WORDS and n > 14:                                         # (WRITE: beside the friend, scale 2)
+        ok = False
+    elif en in ("HI!", "HI"):                                                  # (the hello: scale 6 alone, 7 with a name)
+        ok = n <= (6 if en == "HI!" else 5)
+    elif n <= 13:                                                              # (the band: scale 3 at the smallest)
+        ok = True
+    else:                                                                      # (or two lines, split at a space)
+        cuts = [i for i, ch in enumerate(tr) if ch == " "]                     #  as kid.c: the one nearest the middle
+        cut = min(cuts, key=lambda i: abs(i - n // 2)) if cuts else 0
+        ok = bool(cut) and en not in ONE_LINE and 'kid_band_word("%s"' % en not in src and \
+            max(shown(tr[:cut]), shown(tr[cut + 1:])) <= 13
+    if not ok:
+        raise SystemExit(f"gen_kid_lang: {code}: {tr!r} (for {en!r}) is too wide for the screen")
 
 
 def solfa_keys(text, shift):
@@ -94,7 +121,13 @@ def main(code, out):
             ls = tr.split("\\n")
             if len(ls) > 3 or max(shown(x) for x in ls) > 17:
                 raise SystemExit(f"gen_kid_lang: {code}: {tr!r}: a card has 3 lines of 17 at most")
+        else:
+            fits(code, src, en, tr)
         src = src.replace(lit, '"' + enc(tr) + '"')
+    for a, b in getattr(L, "SUBS", {}).items():    # (whole pieces of code to swap, each exactly once: H for B)
+        if src.count(a) != 1:
+            raise SystemExit(f"gen_kid_lang: {code}: {a!r} is in kid.c {src.count(a)} times, not once")
+        src = src.replace(a, b)
     i = src.index("static const kid_song_t KID_SONGS[] = {")
     j = src.index("\n};", i)
     songs = [song_line(n, solfa_keys(t, sh)) for n, sh, _, t in L.SOLFA_SONGS] + \

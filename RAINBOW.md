@@ -38,6 +38,7 @@ at the next power-on.
 | HOME held 1 s, then KNOB 3 | The STARS (below): how far the next secret is. |
 | HOME held 1 s, then PRESETS | The grown-ups' LOOK-ALIKES: left swaps the friends drawn after TV and film characters for original stand-ins, right brings them back (below). |
 | HOME held 1 s, then KNOB 2 | The grown-ups' NOTE NAMES: the band says DO RE MI FA SOL LA SI instead of C D E F G A B, and back on the next turn (an idea from u/Competitive_Tank_150 in Brazil). Chords too (DO MI SOL, LA# MAJOR). Kept over power-off. KNOB 2 alone is still day and night. |
+| HOME held 1 s, then KNOB 1 | The grown-ups' STAFF: left hides the music staff over the friend (STAFF OFF), right brings it back (STAFF ON). Kept over power-off, in favorites.factory[13][31]. KNOB 1 alone still makes the friend big or small. The cards and WRITE's big staff still show. |
 | MASTER | Volume, up to the VOLUME the grown-ups chose (about half, unless changed). |
 
 ## ALGORITHM: how the keys play
@@ -267,20 +268,30 @@ repository and its website are public.
 
 ## Other languages
 
-Each language is its own firmware file, so nothing has to be cut to fit: the English package and the Portuguese one each carry
-only their own words. `./build.sh --lang pt` builds `build/felucca-pt-X.Y.fwsc`.
+Each language is its own firmware file, so nothing has to be cut to fit: each package carries only its own words and songs.
+`./build.sh --lang de` builds `build/felucca-de-X.Y.fwsc`. There are nine: Portuguese (pt), Spanish (es), French (fr), Italian
+(it), German (de), Dutch (nl), Swedish (sv), Norwegian (no) and Danish (da). The workflow's `LANGS` lists them.
 
-- `tools/lang/pt.py` holds everything that changes: the words on the screen (`WORDS`), the friends' and hats' names (`NAMES`,
-  `HATS`), the FOLLOW songs (`SOLFA_SONGS` in do re mi, `SONGS` in note names), and `DOREMI = True` so the note names start as
-  DO RE MI (the grown-ups' switch still turns them to C D E).
+- `tools/lang/LL.py` holds everything that changes: the words on the screen (`WORDS`), the friends' and hats' names (`NAMES`,
+  `HATS`), the FOLLOW songs (`SOLFA_SONGS` in do re mi, `SONGS` in note names), `DOREMI` (True: the note names start as DO RE
+  MI, as in Portuguese, Spanish, French and Italian; the grown-ups' switch still turns them to C D E), `SUBS` (pieces of code
+  to swap: German and the Nordic languages say H for B) and `PAGE` (the words of its page on the site).
 - `tools/gen_kid_lang.py` copies `kid.c` to `build/gen/kid_lang.c` with each displayed string swapped. It stops if a string it
-  expects is not in `kid.c` any more, or if a word has a letter the band's font can't draw, or a card or song name is too long.
+  expects is not in `kid.c` any more, if a word has a letter the band's font can't draw, or if a word, card or song name is
+  too long for where the screen shows it.
   Only words on the screen are swapped, never the names kid.c looks presets or kit lanes up by.
 - `tools/gen_kid_art.py` reads `KID_LANG` and writes the translated names under the pictures.
-- The band's font has the accented capitals Portuguese needs (Á À Â Ã Ç É Ê Í Ó Ô Õ Ú), as bytes 0x80 to 0x8B.
+- The band's font has the accented capitals these languages need (Á À Â Ã Ç É Ê Í Ó Ô Õ Ú È Ë Î Ï Ì Ñ Ò Ù Û Ü Ä Ö Å Æ Ø),
+  as bytes 0x80 to 0x9A. A longer hello (HALLO!, SALUT!) draws a little smaller, and so do band words like STAR! when the
+  translation is longer.
+- The songs: Portuguese's from Cifra Visual's recorder pages. The others' from the scores in Wikipedia's articles on them,
+  with `tools/wiki_song.py LL "Article" [block] [NAME]` (it renders the article's LilyPond to MIDI and reads the tune back;
+  needs lilypond and mido, and only for adding songs). Then a few known everywhere, as in the English list. German and French
+  Wikipedia have many children's songs with scores. The other languages' have few, so their lists are shorter for now.
 
-A new language is a new `tools/lang/LL.py` plus a build line in the workflow. The site puts the Portuguese installer and browser
-version under `/pt/`, next to its own page (`landing/pt/`). The installer and browser pages around it are still in English.
+A new language is a new `tools/lang/LL.py` and its code in `LANGS`. The site puts each language's installer and browser
+version under `/LL/`, next to its page: `landing/pt/` for Portuguese, made by `web/make_lang_page.py` for the rest. The
+installer and browser pages around them are still in English.
 
 ## Where it lives
 

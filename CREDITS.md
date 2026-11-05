@@ -36,6 +36,12 @@ installer page too.
 The 15 Brazilian songs in the Portuguese version's FOLLOW are copied note for note from the recorder pages of
 [Cifra Visual](https://www.cifravisual.com.br/flauta-doce), which marks each one as public domain (domínio público).
 
+## The songs in the other languages
+
+The German, French, Spanish, Italian, Dutch, Swedish, Norwegian and Danish versions' FOLLOW songs are read note for note from
+the scores in Wikipedia's articles on them (named in each `tools/lang/LL.py`). The tunes are traditional or long out of
+copyright: the newest are Carl Nielsen's (died 1931) and Ole Jacobsen's (died 1921) Danish ones.
+
 ## Melodee
 
 The eight Prophet-style friends (Elephant to Camel) were nudged by [Melodee](https://github.com/keremimo/melodee), Kerem Kilic's

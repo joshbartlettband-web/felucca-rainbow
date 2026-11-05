@@ -171,6 +171,17 @@ check("MASTER all the way up stays at about half (no friend peaks over 0.3)", pm
   ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.K2, 1); render(200); ex.web_buttons(0); render(2600);
   check(`..and again: back to ${first} (D is ${say(1 << 9)})`, say(1 << 9) === first);
 }
+// STAFF: HOME held 1 s, then KNOB 1 left: no staff when a key plays; right: it comes back. KNOB 1 alone still sizes
+{
+  const INK = ((52 >> 3) << 11) | ((26 >> 2) << 5) | (58 >> 3);
+  const lines = () => px(150, 24) === INK && px(150, 36) === INK && px(150, 48) === INK;
+  const key = () => { render(7000); ex.web_keys(1 << 12); render(150); const l = lines(); ex.web_keys(0); render(300); return l; };
+  const grown = (d) => { ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.K1, d); render(200); ex.web_buttons(0); render(2600); };
+  const on0 = key();
+  grown(-1); const off = key();
+  grown(1); const on1 = key();
+  check(`STAFF: a key shows it (${on0}); HOME held, KNOB 1 left: none (${off}); right: back (${on1})`, on0 && !off && on1);
+}
 // ALGORITHM's card: a few words on how the mode plays, in the staff's panel, until a key (or 7 s)
 ex.web_enc(EN.ALGO, 1); render(300);
 const card1 = ex.web_kid_card();
@@ -471,7 +482,8 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_keys(1 << 14); render(300);                                          // G: its own note
   check("ACCORDION: a white key plays its own note (G teal, no chord)", bandHas(G_TEAL) && !bandHas(C_RED));
   ex.web_keys(0); render(1500);
-  algo(1);
+  ex.web_kid_friend_set(59); render(1200);       // (a friend that sings: HOME's surprise friend above is anyone, and
+  algo(1);                                        //  the bass, drum and noise friends cheer with no notes, on purpose)
   render(400);
   peak = 0; render(1200);
   shot("guess");

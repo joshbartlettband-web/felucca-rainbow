@@ -2412,8 +2412,10 @@ def main(out, png=None):
         name = tr_name(en)
         if not re.fullmatch(r"[A-Z\u00c0-\u00dd-]+( [A-Z\u00c0-\u00dd-]+)*", name):
             raise SystemExit(f"{name!r}: capitals, hyphens and single spaces only (the band's font)")
-        if len(name) * 18 - 3 > 232 and (" " not in name or len(name) > 15 or
-                                          max(len(w) for w in name.split(" ", 1)) * 18 - 3 > 232):
+        cuts = [i for i, ch in enumerate(name) if ch == " "]     # (kid.c splits at the space nearest the middle)
+        cut = min(cuts, key=lambda i: abs(i - len(name) // 2)) if cuts else 0
+        if len(name) * 18 - 3 > 232 and (not cut or len(name) > 15 or
+                                          max(cut, len(name) - cut - 1) * 18 - 3 > 232):
             raise SystemExit(f"{name}: too long for the band, even on two lines")
     pics = []
     for name, f in FRIENDS + list(STAND_INS.values()):  # (the stand-ins after the friends: KID_N .. KID_NART - 1)
