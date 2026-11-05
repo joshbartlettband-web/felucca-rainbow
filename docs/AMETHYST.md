@@ -29,20 +29,37 @@ That's the whole game, and it's enough to lose an evening to.
 
 ## 2. Where to build it
 
-Album 01 is the closest thing to this, so I'd start there.
+On [Melodee](https://github.com/keremimo/melodee), by Kerem Kilic (Ellic Studio). Josh likes the depth of its engines,
+and between them they make every sound on this plan. Melodee is a modified version of Felucca by Leo
+Kuroshita, Hügelton Instruments, and it's GPL-3.0, so Amethyst would be too.
 
-Album is built on [fm1-base](https://github.com/charlesvestal/fm1-base) by Charles Vestal (MPL-2.0, so an app on it can
-be MIT like Album). It already has what Amethyst needs most: the photo pipeline (`album/tools/photos.py`, 16 colors a
-photo, about 18 KB each), a synth with detuned saws, a reverse reverb and a fuzz, a beat for every patch with fills and
-an auto bass on the kick. Its template is 77 KB of the 581 KB app slot, and the flash's data area
-(0x97000 to 0xDFFFF, 292 KB, shared with the saved settings) is there for samples.
+Here's what Amethyst would take from it, engine by engine. Section 10 says who wrote each part.
 
-Felucca, the base of this repo, is the other choice. It has a SLICE engine that already plays a break a slice a step,
-a DRUM engine and a full sequencer. But it carries 13 engines, it's GPL-3.0, and Rainbow mode filled it to 97%. A DnB
-toy would spend most of its time hiding what Felucca does.
+| Melodee part | What it does for drum and bass |
+| --- | --- |
+| PROPHET | Two oscillators with hard sync, Poly-Mod and a four-pole filter (SSI or Curtis): the Reese bass, the hoover, the pads and the stabs. Eight voices a track with both cores running |
+| CZ-1 | Casio's phase distortion, with eight-step envelopes on each line. Hard, hollow basses, and its resonant windows make the growls for UNDERPASS |
+| SID | A 6581 or 8580 at the register level. The rough edge for PIRATE, and ring mod for the siren |
+| DRUM | 808, 909, CR-78, SID and FM kits. A 909 kick layered under the break, to give it a punch the old recordings don't have |
+| SLOOP punch FX | 27 master effects on held keys: REWIND, STOP, HALF, LOOP 1/16, KILL LOW, FADE OUT, CRUSH, ECHO. Most of Amethyst's buttons are already in here |
+| Both cores | Melodee renders voices on the FM-1's second core, which is what gives PROPHET its eight voices |
 
-So: a new repo on fm1-base, with Album's photo code and synth as the starting point. It could even be Album 02, if Josh
-wants Amethyst to be the next record in that series.
+Amethyst would sit on top of Melodee the way Rainbow mode sits on Felucca: one file of its own (`amethyst.c`, like
+`kid.c`) and a few small hooks, so Melodee's updates can still be merged in. A grown-up's button combination could open
+the full Melodee underneath, as HOME and SAVE held do in Rainbow mode.
+
+Two things Melodee doesn't have. It took out its SAMPLE and SLICE engines in 0.11, so a break player has to come back:
+Felucca's SLICE (Leo Kuroshita's) is the place to start, cut down to one job. And there's very little room left.
+Melodee 1.6.1's own build log says image 532,136 B of a 581,564 B slot (49 KB free), and RAM .data+.bss 97,016 B of
+98,304 (1.3 KB free). Section 7 is about where the room comes from.
+
+The other way would be [fm1-base](https://github.com/charlesvestal/fm1-base) by Charles Vestal, as Album 01 is built:
+lean (its template is 77 KB), with Album's photo code ready. But PROPHET and CZ-1 lean on Melodee's voice allocator,
+its second-core worker and its audio arena. Porting them out would be a second project, and every Melodee fix after
+that would have to be carried over by hand.
+
+Before forking, I'd write to Kerem. Melodee releases often, and it's his work; he may have ideas, or reasons, we
+don't know about.
 
 ## 3. How it plays
 
@@ -60,12 +77,12 @@ Two rules make it easy. The break never stops unless you stop it, and the keys c
 | KNOB 2 FOG | Reverb and delay. Fog rolls over the picture |
 | KNOB 3 GRIT | Crushed and driven. The picture goes grainy |
 | KNOB 4 MOSS | Darker and softer, rain and crackle under it. The picture goes green |
-| FX (hold) | BUILD: a snare roll and a riser while held. Let go and it drops on the next bar |
-| SCL | REWIND: the record pulled back and the tune started again from bar 1 |
-| ENV | HALF TIME, on and off |
-| LFO | TAPE STOP |
+| FX (hold) | BUILD: the break loops at 1/8, then 1/16, then 1/32 (SLOOP's LOOP), with the bass killed (KILL LOW) and a high-pass rising. Let go and it drops on the next bar |
+| SCL | REWIND (SLOOP's): the record pulled back, then the tune starts again from bar 1 |
+| ENV | HALF (SLOOP's), on and off |
+| LFO | STOP (SLOOP's tape stop) |
 | EDIT | Drums off and on (the bass carries on) |
-| GLO | A dub siren, played on the keys while held |
+| GLO | A dub siren on SID, played on the keys while held |
 | ARP | How the keys play: BASS AND CHORDS, ALL BASS, ALL CHORDS |
 | SEQ | The break on or off |
 | REC | Records four bars of what you play, then loops it. Again to add a layer |
@@ -81,16 +98,20 @@ FX for the build is the one I'd test first with real people. If the drop doesn't
 
 Eight to start. Each one is a place, a break, a bass and a set of chords, tuned to sound like that place.
 
-| # | Stage | The place | Break | Bass | Tempo |
-| --- | --- | --- | --- | --- | --- |
-| 1 | CANAL | A brick bridge over the water at night, moss in the mortar | A busy, bright break | Reese, slow | 174 |
-| 2 | ARCHES | A rave under a railway arch, lasers from the back | A hard, chopped break | Reese, fast and driven | 174 |
-| 3 | PIRATE | A tower block with an aerial and a red light on top | A rough old break | Sub, with a hoover on the chords | 170 |
-| 4 | NIGHT BUS | Rain on the top deck's window, the city going past | A light two-step | Round sub | 172 |
-| 5 | MOSS | Concrete, moss and amethyst growing out of it | A soft, swung break | Warm sub, slow slides | 170 |
-| 6 | UNDERPASS | A tiled tunnel and a CCTV camera | A cold, dry roller | Neuro growl | 175 |
-| 7 | ROOFTOP | The skyline at first light | A rolling, open break | Sub and a pad | 172 |
-| 8 | FOG | The river under the bridges, nothing quite in focus | A break far off in the reverb | Long sub notes | 168 |
+| # | Stage | The place | Break | Bass | Chords | Tempo |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | CANAL | A brick bridge over the water at night, moss in the mortar | A busy, bright break | PROPHET Reese, slow | PROPHET pad | 174 |
+| 2 | ARCHES | A rave under a railway arch, lasers from the back | A hard, chopped break, a 909 kick under it | PROPHET Reese, fast and driven | PROPHET hoover | 174 |
+| 3 | PIRATE | A tower block with an aerial and a red light on top | A rough old break | SID sub | PROPHET hoover | 170 |
+| 4 | NIGHT BUS | Rain on the top deck's window, the city going past | A light two-step | PROPHET round sub | FM6 electric piano | 172 |
+| 5 | MOSS | Concrete, moss and amethyst growing out of it | A soft, swung break | CZ-1 warm sub, slow slides | CZ-1 bells | 170 |
+| 6 | UNDERPASS | A tiled tunnel and a CCTV camera | A cold, dry roller | CZ-1 growl | SID stabs | 175 |
+| 7 | ROOFTOP | The skyline at first light | A rolling, open break | PROPHET sub | PROPHET strings | 172 |
+| 8 | FOG | The river under the bridges, nothing quite in focus | A break far off in the reverb | PROPHET long sub notes | FM6 glass | 168 |
+
+Every sound here would be a new program of our own. Melodee ships Sequential's 200 Prophet-5 programs and Casio's 64
+CZ-1 tones, but its own LICENSING.md says the rights to both stay with their makers. Amethyst would leave them out,
+which also frees some flash.
 
 ## 5. The breaks, and what we can ship
 
@@ -118,7 +139,7 @@ this way from its own drums, so the idea is tested.
 A drummer would be the best part of this. Eight breaks in an afternoon, released CC0 with their name on them, and other
 FM-1 projects could use them too.
 
-The bass, the chords and the siren need no samples: they're synthesized, like Album's patches. London's own sounds
+The bass, the chords and the siren need no samples: Melodee's engines make them. London's own sounds
 need care. The Underground's announcements belong to TfL, so a train or a station would have to be recorded by us.
 
 ## 6. The look
@@ -150,35 +171,66 @@ costs almost nothing, a big moving blur costs a lot. Each idea above was picked 
 
 ## 7. Will it fit
 
-Rough numbers, to be measured on the first build:
+This is the hard part on Melodee. Its 1.6.1 build leaves 49 KB of flash and 1.3 KB of RAM. Amethyst's own pieces:
 
 | Part | Size |
 | --- | --- |
-| fm1-base template | 77 KB |
-| Album's synth and screen code, cut down | about 100 KB (a guess, to measure) |
-| 9 pictures (8 stages and the hello), at Album's average | about 165 KB |
+| The toy layer (`amethyst.c`), screens and controls | about 40 KB (Rainbow mode's `kid.c` without its pictures is a guide; to measure) |
+| A break player, cut down from Felucca's SLICE | a few KB of code, under 100 B of RAM a voice |
 | A drum kit of 12 hits at 22 kHz, 4-bit (about 11 KB a second) | about 55 KB |
 | The breaks as patterns | under 2 KB |
-| Real breaks, two bars each at 174 (about 30 KB each), if the drummer happens | 240 KB for eight, in the data area |
-| App slot / data area | 581 KB / 292 KB |
+| Real breaks, two bars each at 174 (about 30 KB each), if the drummer happens | 240 KB for eight |
+| 9 photos (8 stages and the hello) at Album's average of 18 KB | about 165 KB |
+| Drawn stages instead of photos | a few KB each |
 
-It fits without Bluetooth. Bluetooth MIDI costs 124 KB more, so it's a maybe. Whether the installer can write the data
-area or the drums have to ride inside the app needs checking in fm1-base.
+Where the room could come from, all to be measured:
+
+1. Sequential's and Casio's factory sounds, which Amethyst wouldn't ship anyway. The Prophet file alone is 31,800 B.
+2. Parts of Melodee a DnB toy won't use: USB Host, the four extra MIDI tracks, the 70 microtonal scales, most of the
+   editing pages. They'd stay in Melodee, just not in this build.
+3. The flash's storage area. Melodee keeps 32 projects there; Amethyst needs eight stages and a loop each. The drums
+   and the photos could live in what's left over.
+
+If photos don't fit, the drawn stages do. That's the trade-off to settle early: Melodee's engines and Album's photos
+both want the same flash.
 
 ## 8. First steps
 
-1. Answer the questions below.
-2. Make the repo on fm1-base and get a blank build installing from a web page, as Album does.
-3. One stage, end to end: a picture, a break on the kit, a Reese bass on the white keys, the slices on the black keys.
-4. BUILD and the drop. Play it for people and watch their faces.
-5. The other seven stages, then REC, then the moss.
+1. Answer the questions below, and write to Kerem.
+2. Fork Melodee, leave out the factory sounds we can't ship, and get it installing from our own web page.
+3. Measure what's free after step 2, then decide photos or drawn stages.
+4. One stage, end to end: a picture, a break, a PROPHET Reese on the white keys, the slices on the black keys.
+5. BUILD and the drop. Play it for people and watch their faces.
+6. The other seven stages, then REC, then the moss.
 
 ## 9. Questions for Josh and the friend
 
 1. Who is the friend, and what do they want to bring: tracks, photos, drawings, a drummer, their own sound?
-2. Is this its own firmware, or Album 02?
+2. Melodee underneath, as I suggest here, or fm1-base like Album? On Melodee it would be its own firmware, not Album 02.
 3. Photos or drawings for the stages? If photos, whose, and are they of London?
 4. Who is it for: people who already make DnB, or anyone who picks up an FM-1? It changes how much stays hidden.
 5. Is there a drummer who'd record eight breaks?
 6. 174 and A minor everywhere, or a tempo and key for each stage?
 7. Is "Amethyst" staying? It could also be the name of the first stage, and the crystal on the hello.
+
+## 10. Credits
+
+Amethyst would be built from other people's work, and each of them gets named on the website, the installer page and
+in CREDITS.md, as Rainbow mode does.
+
+- Melodee by Kerem Kilic (Ellic Studio, [@keremimo](https://github.com/keremimo)), a modified version of Felucca by Leo
+  Kuroshita ([@kurogedelic](https://github.com/kurogedelic)), Hügelton Instruments. Kerem wrote PROPHET, CZ-1, SID, the
+  808, CR-78, SID and FM drum kits, the second-core audio worker, and Melodee's integration of everything below.
+- CZ-1's sound core, `cz_native.c`: Devin Acker's uPD933 emulation from MAME (BSD-3-Clause), adapted by Kerem.
+- SID follows reSID (Dag Lem) and its measurements of real 6581 and 8580 chips.
+- The 909: Charles Vestal's [fm1-x0x](https://github.com/charlesvestal/fm1-x0x), which credits 9W9 by athousanddetails,
+  derived from ER99 by Matthew Cieplak.
+- The SLOOP punch FX: isod89's [sloop-fm1](https://github.com/isod89/sloop-fm1), with band-kill filters from Leo
+  Kuroshita's Felucca DSP.
+- FM6: MSFA (Apache-2.0) and Dexed (GPL-3.0), restated in C.
+- The break player: Felucca's SLICE engine, by Leo Kuroshita.
+- The drums: Versilian Studios' Virtuosity Drums (CC0), and the drummer, if there is one.
+- The look: Album 01, Josh's, and fm1-base by Charles Vestal for anything taken from it.
+
+Each file keeps the notices its authors put on it. Melodee's LICENSING.md lists who wrote what, file by file, and
+Amethyst's would carry that list forward.
