@@ -358,6 +358,8 @@ def main():
     ap.add_argument("--model", choices=sorted(MODELS), default=None,
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
+    ap.add_argument("--lang", metavar="LL", default=None,
+                    help="Rainbow mode in another language, tools/lang/LL.py (e.g. pt): its own package, NAME-LL")
     a = ap.parse_args()
     BOARD = (a.board or os.environ.get("BOARD") or "fm1").lower().replace("-", "")
     if BOARD not in BOARD_PREFIX:
@@ -374,6 +376,14 @@ def main():
         PRODUCT = PRODUCT.replace(MODELS["pro"], MODELS[model])
         BOARD_PREFIX[BOARD] = BOARD_PREFIX[BOARD].replace(MODELS["pro"], MODELS[model])
         stem += "-" + model
+    if a.lang:                      # another language: the names (gen_kid_art.py) and kid.c's words (gen_kid_lang.py)
+        if not re.fullmatch(r"[a-z]{2}", a.lang) or not (SRC / "tools" / "lang" / f"{a.lang}.py").exists():
+            raise SystemExit(f"--lang {a.lang}: no tools/lang/{a.lang}.py")
+        os.environ["KID_LANG"] = a.lang
+        BOARD_DEFS[BOARD] = [*BOARD_DEFS[BOARD], "-DKID_LANG=1"]
+        stem += "-" + a.lang
+    else:
+        os.environ.pop("KID_LANG", None)
     name = f"{stem}.fwsc"
     if a.release:                   # one digit each: the identity has room for two (X.Y.Z and X.Y.Z.W keep X.Y's)
         m = re.fullmatch(r"(\d)\.(\d)(?:\.\d){0,2}(-[A-Za-z0-9]+)?", a.release)
@@ -391,6 +401,8 @@ def main():
         gen, ldr = ex.submit(generate), ex.submit(build_loader)
         gen.result()
         ota = ldr.result()
+    if a.lang:
+        subprocess.run([sys.executable, SRC / "tools" / "gen_kid_lang.py", a.lang, GEN / "kid_lang.c"], check=True)
     img, syms, dis, rt = build_app()
     errors, notes = check(img, syms, dis, rt)
     hal_err = mmio_check()

@@ -330,10 +330,14 @@ static const char *const KID_FX_NAME[KX_COUNT] = {"HICCUP", "BACKWARDS", "SLEEPY
 static const char *const KID_NOTE[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 /* .. or as many countries say them (DO RE MI: the grown-ups' NOTE NAMES, HOME held 1 s, then KNOB 2; an idea from
  * u/Competitive_Tank_150 in Brazil). Kept in a spare settings byte: favorites.factory[13][18] (SLICE's favourites,
- * two presets, never past byte 0), 1 = DO RE MI, anything else C D E */
+ * two presets, never past byte 0): 1 = DO RE MI, 2 = C D E, anything else the build's own (C D E; DO RE MI in a
+ * translated build that says so, KID_DOREMI_FIRST) */
 static const char *const KID_SOLFA[12] = {"DO", "DO#", "RE", "RE#", "MI", "FA", "FA#", "SOL", "SOL#", "LA", "LA#", "SI"};
 #define KID_DOREMI_BYTE (favorites.factory[13][18])
-#define KID_DOREMI (KID_DOREMI_BYTE == 1u)
+#ifndef KID_DOREMI_FIRST
+#define KID_DOREMI_FIRST 0               /* 1: DO RE MI until the grown-ups pick C D E (a build in another language) */
+#endif
+#define KID_DOREMI (KID_DOREMI_FIRST ? KID_DOREMI_BYTE != 2u : KID_DOREMI_BYTE == 1u)   /* (2: C D E picked) */
 static const char *kid_note_name(uint32_t pc) { return (KID_DOREMI ? KID_SOLFA : KID_NOTE)[pc % 12u]; }
 static const uint16_t KID_NOTE_COL[12] = {
     RGB(236, 40, 52), RGB(246, 92, 40), RGB(255, 140, 26), RGB(255, 184, 30), RGB(255, 218, 36), RGB(130, 214, 56),
@@ -367,11 +371,21 @@ static const uint8_t KID_FONT[][7] = {
     {0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00}, {0x0E, 0x11, 0x01, 0x06, 0x04, 0x00, 0x04},   /* - ? */
     {0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08}, {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C},   /* 7 9 */
     {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02},                                               /* 4 */
+    /* accented capitals (a translated build, tools/gen_kid_lang.py: bytes 0x80 .. 0x8B in its strings): the accent on
+     * two rows over a five-row letter; the cedilla under a six-row C */
+    {0x02, 0x04, 0x0E, 0x11, 0x1F, 0x11, 0x11}, {0x08, 0x04, 0x0E, 0x11, 0x1F, 0x11, 0x11},   /* \x80 A acute, \x81 A grave */
+    {0x04, 0x0A, 0x0E, 0x11, 0x1F, 0x11, 0x11}, {0x05, 0x0A, 0x0E, 0x11, 0x1F, 0x11, 0x11},   /* \x82 A circumflex, \x83 A tilde */
+    {0x0E, 0x11, 0x10, 0x10, 0x11, 0x0E, 0x04}, {0x02, 0x04, 0x1F, 0x10, 0x1E, 0x10, 0x1F},   /* \x84 C cedilla, \x85 E acute */
+    {0x04, 0x0A, 0x1F, 0x10, 0x1E, 0x10, 0x1F}, {0x02, 0x04, 0x0E, 0x04, 0x04, 0x04, 0x0E},   /* \x86 E circumflex, \x87 I acute */
+    {0x02, 0x04, 0x0E, 0x11, 0x11, 0x11, 0x0E}, {0x04, 0x0A, 0x0E, 0x11, 0x11, 0x11, 0x0E},   /* \x88 O acute, \x89 O circumflex */
+    {0x05, 0x0A, 0x0E, 0x11, 0x11, 0x11, 0x0E}, {0x02, 0x04, 0x11, 0x11, 0x11, 0x11, 0x0E},   /* \x8A O tilde, \x8B U acute */
 };
 static int32_t kid_glyph_of(char c)
 {
     if (c >= 'A' && c <= 'Z')
         return c - 'A';
+    if ((uint8_t)c >= 0x80u && (uint8_t)c <= 0x8Bu)               /* (an accented capital: a translated build) */
+        return 37 + ((uint8_t)c - 0x80);
     return c == '1' ? 26 : c == '3' ? 27 : c == '#' ? 28 : c == '!' ? 29 : c == '5' ? 30 : c == '8' ? 31 : c == '-' ? 32 : c == '?' ? 33 : c == '7' ? 34 : c == '9' ? 35 : c == '4' ? 36 : -1;
 }
 
@@ -2202,7 +2216,7 @@ static void kid_input(void)
 #if !BOARD_SMK37
     if (s != 0 && kid.vol_open) {                                 /* HOME held 1 s: NOTE NAMES, C D E or DO RE MI */
         any = 1u;
-        KID_DOREMI_BYTE = KID_DOREMI ? 0u : 1u;
+        KID_DOREMI_BYTE = KID_DOREMI ? 2u : 1u;
         settings_save();
         kid.full = 1;
         kid_hint(KH_NOTES);
@@ -2466,9 +2480,10 @@ static const char *kid_drum_word(uint32_t key, uint16_t *col)
     const char *w;
     if (ty >= 16u) {                                              /* a model kit: its piece in the lane */
         lane = ty & 7u;
-        w = drum_lane_name(t, lane);
-        w = str_eq(w, "HATCL") ? "HI-HAT" : str_eq(w, "HATOP") ? "OPEN HAT" : str_eq(w, "CYM") ? "CYMBAL" :
-            str_eq(w, "BELL") ? "COWBELL" : w;
+        static const uint8_t STD_OF[8] = {0, 2, 3, 4, 5, 6, 8, 10};   /* a lane as the band says it (STD: a translated
+                                                  * build's words too, so no lane name is compared with a word) */
+        w = drum_lane_name(t, lane);                              /* (the kit's swaps: CONGA, CLAVE, CYM) */
+        w = STD[str_eq(w, "CONGA") ? 7u : str_eq(w, "CLAVE") ? 9u : str_eq(w, "CYM") ? 11u : STD_OF[lane]];
     } else {
         lane = LANE_OF[ty % DVT_COUNT];
         w = STD[ty % DVT_COUNT];

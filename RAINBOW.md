@@ -265,6 +265,23 @@ They are stored a row at a time as runs of one colour (`KID_RLE`: 54 KB for all 
 The characters are original drawings in the spirit of the ones children love, not copies, because this
 repository and its website are public.
 
+## Other languages
+
+Each language is its own firmware file, so nothing has to be cut to fit: the English package and the Portuguese one each carry
+only their own words. `./build.sh --lang pt` builds `build/felucca-pt-X.Y.fwsc`.
+
+- `tools/lang/pt.py` holds everything that changes: the words on the screen (`WORDS`), the friends' and hats' names (`NAMES`,
+  `HATS`), the FOLLOW songs (`SOLFA_SONGS` in do re mi, `SONGS` in note names), and `DOREMI = True` so the note names start as
+  DO RE MI (the grown-ups' switch still turns them to C D E).
+- `tools/gen_kid_lang.py` copies `kid.c` to `build/gen/kid_lang.c` with each displayed string swapped. It stops if a string it
+  expects is not in `kid.c` any more, or if a word has a letter the band's font can't draw, or a card or song name is too long.
+  Only words on the screen are swapped, never the names kid.c looks presets or kit lanes up by.
+- `tools/gen_kid_art.py` reads `KID_LANG` and writes the translated names under the pictures.
+- The band's font has the accented capitals Portuguese needs (Á À Â Ã Ç É Ê Í Ó Ô Õ Ú), as bytes 0x80 to 0x8B.
+
+A new language is a new `tools/lang/LL.py` plus a build line in the workflow. The site puts the Portuguese installer and browser
+version under `/pt/`, next to its own page (`landing/pt/`). The installer and browser pages around it are still in English.
+
 ## Where it lives
 
 - `installer-pin.txt`: a rollback switch for the public installer. A run number in it makes the site's installer offer that earlier

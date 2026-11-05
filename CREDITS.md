@@ -26,9 +26,15 @@ Thank you to the people who suggested these on r/MVaveFM1:
 | u/litomanu | 303-style acid sounds | **SCIENTIST**, **FLYTRAP** and **SUNFLOWER** on ANALOG's ACID (the Scientist set like a TD-3), and the **ACID** beat with a 303-style line |
 | u/ReallyLongLake | A secret setting that turns off the characters based on TV and film ones | **LOOK-ALIKES** (HOME held 1 s, then PRESETS left / right): swaps them for original stand-ins with the same sounds (a spider, a fox, a bat, an alien and more), kept over power-off |
 | u/Competitive_Tank_150 | Note names as Do Re Mi, the way they are taught in Brazil | **NOTE NAMES**: HOME held 1 s, then KNOB 2 |
+| u/Competitive_Tank_150 | Brazilian songs | **Rainbow mode in Portuguese** (its own firmware, on the site at /pt/): Do Re Mi from the start and 15 Brazilian children's songs in FOLLOW |
 
 The characters are original drawings in the spirit of the suggestions, not copies. They are credited on the website and on the
 installer page too.
+
+## The Brazilian songs
+
+The 15 Brazilian songs in the Portuguese version's FOLLOW are copied note for note from the recorder pages of
+[Cifra Visual](https://www.cifravisual.com.br/flauta-doce), which marks each one as public domain (domínio público).
 
 ## Melodee
 

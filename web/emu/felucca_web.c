@@ -156,7 +156,11 @@ static void lcd_init(void) {}
 #include "../../firmware/src/ui_menu.c"
 #include "../../firmware/src/ui_input.c"
 #include "../../firmware/src/ui_layer.c"
+#if KID_LANG                            /* (EMU_CFLAGS=-DKID_LANG=1: build/gen/kid_lang.c, tools/gen_kid_lang.py) */
+#include "kid_lang.c"
+#else
 #include "../../firmware/src/kid.c"
+#endif
 
 /* ------------------------------------------------------------ the flash --- */
 static uint32_t web_flash_writes;
@@ -500,6 +504,7 @@ EXPORT uint32_t web_kid_wbeat(void) { return kw.beat; }                         
 EXPORT void web_kid_win(void) { kid_win(0); }                                         /* (kid_test.mjs: a game won) */
 EXPORT uint32_t web_kid_hat(void) { return KID_HAT; }
 EXPORT uint32_t web_kid_txt(uint32_t i) { return kf.txt && i < str_len(kf.txt) ? (uint32_t)(uint8_t)kf.txt[i] : 0u; }   /* (kid_test.mjs: the band's word) */
+EXPORT uint32_t web_kid_song_key(uint32_t song, uint32_t i) { return kid_song_key(song, i); }   /* (kid_test.mjs: FOLLOW's songs, in any language) */
 EXPORT uint32_t web_kid_card(void) { return kf.card ? 1u + kid.mode : 0u; }   /* (kid_test.mjs: ALGORITHM's card, mode + 1) */
 EXPORT uint32_t web_kid_knobs(void) { return kid.echo | (uint32_t)kid.wiggle << 8 | (uint32_t)kid.night << 16; }   /* (kid_test.mjs: KNOB 3, 4, 2) */
 EXPORT uint32_t web_kid_cheer(void) { return kid.cheer_n | ((uint32_t)kid.cheer_on << 8); }   /* (kid_test.mjs: the cheer's notes left, and sounding) */
