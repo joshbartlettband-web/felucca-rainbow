@@ -255,6 +255,10 @@ draw. The lasers are lines. The frame is drawn only round the edge.
 The venue's name is its label, in kipatchi's style: THE END, WEST CENTRAL STREET; TURNMILLS, CLERKENWELL. A name on a
 photo of the building is a caption. The clubs' logos and flyers still stay out.
 
+There's a playable sketch of four of these stages in `amethyst/preview/index.html`: the screen, the 27 keys, BUILD,
+the drop, the rewind call, the VIP and the moss. Its sound is made by the browser, not by Melodee, so it shows the
+idea and not the firmware. Open it from a local web server (`python3 -m http.server -d docs/amethyst/preview`).
+
 ### Photos of the real London that are free to use
 
 There are more than I expected. Wikimedia Commons has 2000s photos of the clubs' buildings, the night buses and the
