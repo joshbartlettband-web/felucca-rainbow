@@ -103,7 +103,11 @@
 #include "ui_menu.c"
 #include "ui_input.c"
 #include "ui_layer.c"              /* the quick layers (FX GLO SCL EDIT REC held; SEQ TOOLS: ui_tools.c) */
+#if KID_LANG                            /* (build.py --lang: kid.c in another language, tools/gen_kid_lang.py) */
+#include "kid_lang.c"
+#else
 #include "kid.c"                   /* Rainbow mode (FELUCCA_KID): the toy for a small child, on from power-up */
+#endif
 
 /* --------------------------------------------- storage, update, editor --- */
 #if FELUCCA_FLASH

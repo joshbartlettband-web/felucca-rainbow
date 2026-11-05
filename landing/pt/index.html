@@ -1,0 +1,144 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only
+     Rainbow mode in Portuguese. The workflow (.github/workflows/rainbow.yml) copies it to /pt/ next to the Portuguese
+     installer and browser build, and fills in @SITE@ and @REPO@. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rainbow mode em português</title>
+<meta name="description" content="Um brinquedo musical para o M-VAVE FM-1, todo em português. Notas em Dó Ré Mi, 94 amigos e 15 cantigas brasileiras. É grátis, e dá para experimentar no navegador.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Rainbow mode em português">
+<meta property="og:description" content="Um brinquedo musical para o M-VAVE FM-1, todo em português. Notas em Dó Ré Mi, 94 amigos e 15 cantigas brasileiras. É grátis, e dá para experimentar no navegador.">
+<meta property="og:image" content="@SITE@/pt/tela-2.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23241830'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23ec3440'/%3E%3Crect x='3' y='6' width='10' height='2' fill='%23ffd82e'/%3E%3Crect x='3' y='9' width='10' height='2' fill='%2350c85a'/%3E%3Crect x='3' y='12' width='10' height='1' fill='%233880f4'/%3E%3C/svg%3E">
+<style>
+  /* the palette: the FM-1 screen's own colors on a deep plum */
+  :root {
+    --bg: #241830; --panel: #2f2040; --panel-2: #3a2850; --ink: #fff; --soft: #d6c4ec; --dim: #9c86bb;
+    --red: #ec3440; --orange: #ff8c1e; --yellow: #ffd82e; --green: #50c85a; --blue: #3880f4; --purple: #9658e2;
+    --font: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 18px/1.55 var(--font); }
+  a { color: var(--yellow); }
+  .stripe { height: 10px; background: linear-gradient(90deg, var(--red) 0 16.66%, var(--orange) 0 33.33%, var(--yellow) 0 50%,
+            var(--green) 0 66.66%, var(--blue) 0 83.33%, var(--purple) 0); }
+  main, footer { width: 100%; max-width: 920px; margin: 0 auto; padding-inline: 16px; }
+  h1 { font-size: clamp(2.6rem, 9vw, 4.4rem); line-height: 1.02; margin: 40px 0 12px; letter-spacing: -.02em; }
+  h1 span:nth-child(1) { color: var(--red); } h1 span:nth-child(2) { color: var(--orange); }
+  h1 span:nth-child(3) { color: var(--yellow); } h1 span:nth-child(4) { color: var(--green); }
+  h1 span:nth-child(5) { color: var(--blue); } h1 span:nth-child(6) { color: var(--purple); }
+  h2 { font-size: 1.7rem; line-height: 1.15; margin: 56px 0 14px; }
+  .lede { font-size: 1.25rem; color: var(--soft); max-width: 36em; margin: 0 0 24px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 32px; }
+  .btn { display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 14px; font-weight: 700;
+         text-decoration: none; color: var(--bg); background: var(--yellow); }
+  .btn.alt { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--purple); }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .hero > div { margin-bottom: 28px; }
+  video { display: block; width: 100%; max-width: 440px; height: auto; aspect-ratio: 4 / 5; margin: 0 auto; border-radius: 18px;
+          background: var(--panel); }
+  .screens { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 0; padding: 0; list-style: none; }
+  .screens li { background: var(--panel); border-radius: 16px; overflow: hidden; }
+  .screens img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+  .screens p { margin: 0; padding: 10px 14px 14px; font-size: .95rem; color: var(--soft); line-height: 1.35; }
+  .screens b { display: block; color: var(--ink); font-size: 1.05rem; }
+  .facts { display: grid; gap: 12px; padding: 0; margin: 0; list-style: none; }
+  .facts li { padding-left: 28px; position: relative; }
+  .facts li::before { content: ""; position: absolute; left: 0; top: .5em; width: 14px; height: 14px; border-radius: 50%; background: var(--c, var(--yellow)); }
+  .facts li:nth-child(1) { --c: var(--red); } .facts li:nth-child(2) { --c: var(--orange); } .facts li:nth-child(3) { --c: var(--yellow); }
+  .facts li:nth-child(4) { --c: var(--green); } .facts li:nth-child(5) { --c: var(--blue); } .facts li:nth-child(6) { --c: var(--purple); }
+  .poster { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; border-radius: 18px; image-rendering: auto; }
+  .cards { display: grid; gap: 16px; }
+  .card { background: var(--panel); border-radius: 18px; padding: 22px 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.25rem; }
+  .card p { margin: 0 0 14px; color: var(--soft); }
+  .card .btn { min-height: 48px; padding: 0 22px; }
+  .card.tip { margin-top: 16px; box-shadow: inset 0 0 0 2px var(--yellow); }
+  .card small { display: block; margin-top: 12px; color: var(--dim); font-size: .9rem; line-height: 1.4; }
+  details { background: var(--panel); border-radius: 14px; padding: 4px 18px; margin: 12px 0 0; }
+  summary { cursor: pointer; padding: 14px 0; font-weight: 700; }
+  details p { margin: 0 0 14px; color: var(--soft); }
+  footer { margin-top: 64px; padding-block: 28px 44px; color: var(--dim); font-size: .95rem; border-top: 1px solid var(--panel-2); }
+  footer p { margin: 0 0 10px; }
+  @media (min-width: 640px) {
+    body { font-size: 19px; }
+    .screens { grid-template-columns: repeat(3, 1fr); }
+    .cards { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .hero { display: grid; grid-template-columns: 1.15fr 1fr; gap: 36px; align-items: center; }
+    .hero > div { margin-bottom: 0; }
+    video { margin: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<main>
+  <section>
+    <h1><span>R</span><span>a</span><span>i</span><span>n</span><span>b</span><span>o</span><span>w</span> mode</h1>
+    <p class="lede">Um brinquedo musical para mãos pequenas, agora em português. É um firmware grátis que transforma o sintetizador M-VAVE FM-1 em algo que uma criança pequena consegue tocar. Nesta versão tudo na tela está em português, as notas aparecem em Dó Ré Mi, e o modo SIGA tem 15 cantigas brasileiras.</p>
+    <div class="buttons">
+      <a class="btn" href="webapp/try/">Experimente no navegador</a>
+      <a class="btn alt" href="webapp/installer/">Instalar no FM-1</a>
+      <a class="btn alt" href="../" lang="en">In English</a>
+    </div>
+    <p class="lede" style="font-size:1rem;margin:0">Não tem um FM-1? Dá para tocar mesmo assim, com as teclas na tela ou o teclado do computador. As páginas do instalador e do navegador ainda estão em inglês, mas o brinquedo fala português.</p>
+  </section>
+
+  <h2>Na tela do FM-1</h2>
+  <ul class="screens">
+    <li><img src="tela-1.png" width="480" height="480" alt="Um arco-íris, um patinho e um grande OI!"><p><b>Oi!</b>Um oi toda vez que liga</p></li>
+    <li><img src="tela-2.png" width="480" height="480" alt="Um unicórnio debaixo do arco-íris, com UNICÓRNIO embaixo"><p><b>94 amigos</b>Gire PRESETS para conhecer todos</p></li>
+    <li><img src="tela-3.png" width="480" height="480" alt="Um cavalo-marinho no fundo do mar, com CAVALO MARINHO embaixo"><p><b>Nomes em português</b>Do PATINHO ao CAVALO MARINHO</p></li>
+    <li><img src="tela-4.png" width="480" height="480" alt="Três bonecos de neve e um cartão: CADA TECLA TOCA UM ACORDE, ACHE OS MÁGICOS"><p><b>Um cartão para cada modo</b>Para os adultos lerem junto</p></li>
+    <li><img src="tela-5.png" width="480" height="480" alt="Um boneco de neve e as notas DO MI SOL sobre DO MAIOR"><p><b>Dó Ré Mi</b>Até os acordes têm nome</p></li>
+    <li><img src="tela-6.png" width="480" height="480" alt="Três robôs com chapéu de festa, com FESTA embaixo"><p><b>Chapéus</b>Ganhe estrelas para abrir</p></li>
+  </ul>
+
+  <h2>O que tem dentro</h2>
+  <ul class="facts">
+    <li>Cada tecla mostra a sua nota, grande e na sua cor, como os sininhos da aula de música. As notas aparecem em Dó Ré Mi. Quem preferir C D E segura HOME por um segundo e gira o KNOB 2.</li>
+    <li>São 94 amigos, cada um com o seu desenho, som, céu e batida favorita. Patos, um unicórnio, um T-Rex, um caminhão de bombeiros com sirene, um piano que toca uma gravação de piano de verdade.</li>
+    <li>O modo SIGA acende a próxima tecla de 20 músicas. São 15 cantigas brasileiras: Ciranda Cirandinha, Atirei o Pau no Gato, Marcha Soldado, Cai Cai Balão, Escravos de Jó, Peixe Vivo, Borboletinha, O Cravo e a Rosa, Pirulito que Bate Bate, A Canoa Virou, O Sapo Não Lava o Pé, Alecrim Dourado, Meu Limão Meu Limoeiro, Terezinha de Jesus e Boi da Cara Preta. E mais Brilha Brilha Estrelinha, Parabéns, Ode à Alegria, Bate o Sino e Noite Feliz.</li>
+    <li>21 batidas, do Disco e Reggae ao Lofi e ao Acid. A linha de baixo sempre combina com as teclas que a criança aperta.</li>
+    <li>Tem jogos também. ADIVINHE é um jogo de ouvido. ACORDES ensina acordes, do primeiro DÓ MAIOR às sétimas. Em ME IMITE o amigo toca uma sequência e a criança repete.</li>
+    <li>Cada jogo ganho vale uma estrela, e as estrelas abrem segredos. Com dez estrelas vem um chapéu novo. Com 25 aparece a aurora boreal.</li>
+    <li>SAVE abre uma pauta grande para compor músicas. Cada tecla põe um amigo na pauta, e PLAY canta tudo de volta.</li>
+    <li>Para os adultos: segure HOME e aperte OCT- ou OCT+ para limitar o volume. Para sair do Rainbow mode, segure HOME e SAVE juntos por 3 segundos.</li>
+  </ul>
+
+  <h2>Experimente</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>No navegador</h3>
+      <p>O mesmo firmware, direto no navegador. Funciona no computador, no celular e no tablet.</p>
+      <a class="btn" href="webapp/try/">Abrir a demonstração</a>
+      <small>Ligue o som. Talvez seja preciso tocar na tela uma vez para começar.</small>
+    </div>
+    <div class="card">
+      <h3>Num M-VAVE FM-1</h3>
+      <p>Ligue o FM-1 no USB e aperte Install. Leva mais ou menos um minuto.</p>
+      <a class="btn alt" href="webapp/installer/">Abrir o instalador</a>
+      <small>Precisa do Chrome ou do Edge num computador ou celular Android, e de um cabo USB. Safari e iPhone não funcionam. Para voltar ao firmware oficial, o instalador tem a seção "Return to official V15".</small>
+    </div>
+  </div>
+
+  <h2>Obrigado</h2>
+  <ul class="facts">
+    <li><b>u/Competitive_Tank_150</b>, do Brasil, pediu as notas em Dó Ré Mi e as músicas brasileiras. Esta versão existe por causa desse pedido.</li>
+    <li>As cantigas foram tiradas das partituras de flauta doce do <a href="https://www.cifravisual.com.br/flauta-doce">Cifra Visual</a>, todas em domínio público.</li>
+  </ul>
+  <p style="color:var(--soft);font-size:.95rem">Achou uma palavra estranha ou quer outra cantiga? Conte para a gente no r/MVaveFM1.</p>
+</main>
+<footer>
+  <p>O Rainbow mode é feito sobre o <a href="https://github.com/hugelton/Felucca">Felucca</a>, o firmware de sintetizador do FM-1 de Leo Kuroshita e Hügelton Instruments. É um projeto de fã: a M-VAVE não fez e não endossa. Instalar firmware é sempre por sua conta e risco.</p>
+  <p>É grátis e de código aberto, sob a GPL-3.0. O código está em <a href="https://github.com/@REPO@">github.com/@REPO@</a>.</p>
+</footer>
+</body>
+</html>

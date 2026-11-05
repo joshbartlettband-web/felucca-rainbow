@@ -161,13 +161,15 @@ check("MASTER all the way up stays at about half (no friend peaks over 0.3)", pm
 {
   const txt = () => { let t = ""; for (let i = 0; i < 24; i++) { const c = ex.web_kid_txt(i); if (!c) break; t += String.fromCharCode(c); } return t; };
   const say = (keys) => { ex.web_keys(keys); render(200); const t = txt(); ex.web_keys(0); render(1200); return t; };
-  const n0 = ex.web_kid_knobs() >> 16 & 255;
+  const n0 = ex.web_kid_knobs() >> 16 & 255, first = say(1 << 9);   // (C D E to start; DO RE MI in a build that says so)
+  const doremi = first === "RE";
   ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.K2, 1); render(200); const said = txt(); ex.web_buttons(0); render(2600);
   const d = say(1 << 9), ceg = say(1 << 7 | 1 << 11 | 1 << 14);
-  check(`NOTE NAMES: HOME held, KNOB 2: "${said}"; D is ${d}, C E G is ${ceg}, and day and night did not move`,
-        said === "DO RE MI" && d === "RE" && ceg === "DO MI SOL" && (ex.web_kid_knobs() >> 16 & 255) === n0);
+  check(`NOTE NAMES: D was ${first}; HOME held, KNOB 2: "${said}"; D is ${d}, C E G is ${ceg}, day and night unmoved`,
+        (first === "D" || first === "RE") && said === (doremi ? "C D E" : "DO RE MI") && d === (doremi ? "D" : "RE") &&
+        ceg === (doremi ? "C E G" : "DO MI SOL") && (ex.web_kid_knobs() >> 16 & 255) === n0);
   ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.K2, 1); render(200); ex.web_buttons(0); render(2600);
-  check(`..and again: back to C D E (D is ${say(1 << 9)})`, say(1 << 9) === "D");
+  check(`..and again: back to ${first} (D is ${say(1 << 9)})`, say(1 << 9) === first);
 }
 // ALGORITHM's card: a few words on how the mode plays, in the staff's panel, until a key (or 7 s)
 ex.web_enc(EN.ALGO, 1); render(300);
@@ -489,14 +491,19 @@ check("PLAY again stops it", ex.web_playing() === 0);
   render(1500);
   algo(1);
   render(400);
-  check("FOLLOW: the first note's key lights (TWINKLE: C)", ((ex.web_lit_keys() >> 7) & 1) === 1);
-  ex.web_keys(1 << 7); render(150); ex.web_keys(0); render(200);
-  ex.web_keys(1 << 7); render(150); ex.web_keys(0); render(300);
-  check("pressed twice: the next note (G) lights", ((ex.web_lit_keys() >> 14) & 1) === 1 && !((ex.web_lit_keys() >> 7) & 1));
-  ex.web_keys(1 << 2); render(150); ex.web_keys(0); render(300);
-  check("a wrong key: nothing moves on", ((ex.web_lit_keys() >> 14) & 1) === 1);
-  tapb(B.SEQ); render(200);
-  check("SEQ: the next song (MARY starts on E)", ((ex.web_lit_keys() >> 11) & 1) === 1);
+  {                                                // (the songs as the build has them: TWINKLE first in English)
+    const sk = (song, i) => ex.web_kid_song_key(song, i), k0 = sk(0, 0);
+    let i = 0;
+    while (sk(0, i) === k0) i++;
+    const k1 = sk(0, i), wrong = [0, 1, 2, 3].find((k) => k !== k1);
+    check(`FOLLOW: the first note's key lights (key ${k0})`, ((ex.web_lit_keys() >> k0) & 1) === 1);
+    for (let j = 0; j < i; j++) { ex.web_keys(1 << k0); render(150); ex.web_keys(0); render(250); }
+    check(`pressed ${i} time(s): the next note (key ${k1}) lights`, ((ex.web_lit_keys() >> k1) & 1) === 1 && !((ex.web_lit_keys() >> k0) & 1));
+    ex.web_keys(1 << wrong); render(150); ex.web_keys(0); render(300);
+    check("a wrong key: nothing moves on", ((ex.web_lit_keys() >> k1) & 1) === 1);
+    tapb(B.SEQ); render(200);
+    check(`SEQ: the next song (it starts on key ${sk(1, 0)})`, ((ex.web_lit_keys() >> sk(1, 0)) & 1) === 1);
+  }
   // CHORDS (u/Yablan): a lesson's chord lights up with its name; exactly its keys say YES and light the next; four make
   // the loop; SEQ the next lesson; PLAY the LOFI beat, a bar a chord
   algo(1);
@@ -585,7 +592,8 @@ check("PLAY again stops it", ex.web_playing() === 0);
   peak = 0;
   tapb(B.PLAY); render(2200);
   shot("write2");
-  check(`PLAY: the song plays (peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.05);
+  check(`PLAY: the song plays (peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.03);   // (silence is ~0; a
+                                                  // song 0.05 or so: the friend's own level and phase move it a little)
   tapb(B.PLAY); render(500);
   for (let i = 0; i < 18; i++) tapb(B.SEQ);                                   // (a late beat: it needs 5 bits to be kept)
   const wb = ex.web_kid_wbeat();
