@@ -162,11 +162,11 @@ check("MASTER all the way up stays at about half (no friend peaks over 0.3)", pm
   const txt = () => { let t = ""; for (let i = 0; i < 24; i++) { const c = ex.web_kid_txt(i); if (!c) break; t += String.fromCharCode(c); } return t; };
   const say = (keys) => { ex.web_keys(keys); render(200); const t = txt(); ex.web_keys(0); render(1200); return t; };
   const n0 = ex.web_kid_knobs() >> 16 & 255, first = say(1 << 9);   // (C D E to start; DO RE MI in a build that says so)
-  const doremi = first === "RE";
+  const doremi = first !== "D";                                  // (RE, or a translation's: レ)
   ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.K2, 1); render(200); const said = txt(); ex.web_buttons(0); render(2600);
   const d = say(1 << 9), ceg = say(1 << 7 | 1 << 11 | 1 << 14);
   check(`NOTE NAMES: D was ${first}; HOME held, KNOB 2: "${said}"; D is ${d}, C E G is ${ceg}, day and night unmoved`,
-        (first === "D" || first === "RE") && said === (doremi ? "C D E" : "DO RE MI") && d === (doremi ? "D" : "RE") &&
+        first.length > 0 && said === (doremi ? "C D E" : "DO RE MI") && d === (doremi ? "D" : "RE") &&
         ceg === (doremi ? "C E G" : "DO MI SOL") && (ex.web_kid_knobs() >> 16 & 255) === n0);
   ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.K2, 1); render(200); ex.web_buttons(0); render(2600);
   check(`..and again: back to ${first} (D is ${say(1 << 9)})`, say(1 << 9) === first);

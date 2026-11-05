@@ -2391,7 +2391,7 @@ def lang_names():
     band can draw them (gen_kid_lang.enc); none: as they are here"""
     code = os.environ.get("KID_LANG", "")
     if not code:
-        return (lambda n: n), (lambda n: n), (lambda n: n)
+        return (lambda n: n), (lambda n: n), (lambda n: n), 6
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import gen_kid_lang
     L = gen_kid_lang.lang(code)
@@ -2399,23 +2399,23 @@ def lang_names():
         if n not in table:
             raise SystemExit(f"tools/lang/{code}.py: no name for {n}")
         return table[n]
-    return (lambda n: look(L.NAMES, n)), (lambda n: look(L.HATS, n)), gen_kid_lang.enc
+    return (lambda n: look(L.NAMES, n)), (lambda n: look(L.HATS, n)), gen_kid_lang.enc, gen_kid_lang.ADV
 
 
 def main(out, png=None):
-    tr_name, tr_hat, enc = lang_names()
+    tr_name, tr_hat, enc, adv = lang_names()        # (adv: a letter's step, 8 for kana)
     names = [n for n, _ in FRIENDS]
     for k in STAND_INS:
         if k not in names:
             raise SystemExit(f"STAND_INS: {k} is not a friend")
     for en, _ in FRIENDS + list(STAND_INS.values()):     # the band shows the name: one line at scale 4 or 3, or two at 3
         name = tr_name(en)
-        if not re.fullmatch(r"[A-Z\u00c0-\u00dd-]+( [A-Z\u00c0-\u00dd-]+)*", name):
+        if not re.fullmatch(r"[A-Z\u00c0-\u00dd\u3041-\u30fc-]+( [A-Z\u00c0-\u00dd\u3041-\u30fc-]+)*", name):
             raise SystemExit(f"{name!r}: capitals, hyphens and single spaces only (the band's font)")
         cuts = [i for i, ch in enumerate(name) if ch == " "]     # (kid.c splits at the space nearest the middle)
         cut = min(cuts, key=lambda i: abs(i - len(name) // 2)) if cuts else 0
-        if len(name) * 18 - 3 > 232 and (not cut or len(name) > 15 or
-                                          max(cut, len(name) - cut - 1) * 18 - 3 > 232):
+        if len(name) * 3 * adv - 3 > 232 and (not cut or len(name) > 15 or
+                                              max(cut, len(name) - cut - 1) * 3 * adv - 3 > 232):
             raise SystemExit(f"{name}: too long for the band, even on two lines")
     pics = []
     for name, f in FRIENDS + list(STAND_INS.values()):  # (the stand-ins after the friends: KID_N .. KID_NART - 1)
