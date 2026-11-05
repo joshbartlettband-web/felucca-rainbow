@@ -1,12 +1,12 @@
 # Amethyst: drum and bass for the FM-1
 
-Amethyst is a working name for a new FM-1 firmware Josh is making with a friend. It plays drum and bass, and it is set
+Amethyst is a working name for a new FM-1 firmware Josh is making with kipatchi, whose concept and look it is. It plays drum and bass, and it is set
 in a London a few years from now: wet streets, sodium lamps, tower blocks, and moss growing over all the concrete. A
 break is always running. You play the bass and the chords over it, chop the break on the black keys, and hold a button
 to build up to the drop.
 
 Nothing here is built yet. This is the plan to talk over before any code. The questions at the end need answers from
-Josh and the friend first.
+Josh and kipatchi first.
 
 ![Eight mock screens: CANAL, ARCHES, PIRATE, NIGHT BUS, MOSS, the break's slices, CCTV and the hello](amethyst/sheet.png)
 
@@ -17,15 +17,18 @@ from `tools/amethyst/mockups.py`, so they can be redrawn as the ideas change.
 
 ## 1. A minute with it
 
-You switch it on and the stone glows. The first stage is CANAL: a brick bridge over the water, a lamp far down the
-tunnel. The break is already rolling at 174.
+You switch it on and the stone glows. The first stage is FRIDAY, 2001: a club's doors on a December night, the street
+violet and wet. The break is already rolling at 174.
 
 You hold a low white key and a Reese bass growls under the break. Every white key fits, because they're all in A minor,
 so nothing can go wrong. You tap the black keys and the break stutters: each one plays a slice of it, the way jungle
 producers chopped breaks on an Akai sampler in 1994.
 
 You hold FX. A snare roll climbs and the picture whites out. Let go, and on the next bar the kick and bass drop back in.
-That's the whole game, and it's enough to lose an evening to.
+Lighters go up on the screen and SCL starts to flash: the crowd wants a rewind. Press it, the record spins back, and
+the drop comes round again. That's the whole game, and it's enough to lose an evening to.
+
+Where all this comes from, and who made it, is in [amethyst/CULTURE.md](amethyst/CULTURE.md). Read that first.
 
 ## 2. Where to build it
 
@@ -37,8 +40,8 @@ Here's what Amethyst would take from it, engine by engine. Section 10 says who w
 
 | Melodee part | What it does for drum and bass |
 | --- | --- |
-| PROPHET | Two oscillators with hard sync, Poly-Mod and a four-pole filter (SSI or Curtis): the Reese bass, the hoover, the pads and the stabs. Eight voices a track with both cores running |
-| CZ-1 | Casio's phase distortion, with eight-step envelopes on each line. Hard, hollow basses, and its resonant windows make the growls for UNDERPASS |
+| PROPHET | Two oscillators with hard sync, Poly-Mod and a four-pole filter (SSI or Curtis): the hoover, a driven Reese, the pads and the stabs. Eight voices a track with both cores running |
+| CZ-1 | Casio's phase distortion, with eight-step envelopes on each line. Kevin Saunderson made the first Reese bass on a Casio CZ in 1988, so this is where Amethyst's Reese lives. Its resonant windows make the growls for UNDERPASS |
 | SID | A 6581 or 8580 at the register level. The rough edge for PIRATE, and ring mod for the siren |
 | DRUM | 808, 909, CR-78, SID and FM kits. A 909 kick layered under the break, to give it a punch the old recordings don't have |
 | SLOOP punch FX | 27 master effects on held keys: REWIND, STOP, HALF, LOOP 1/16, KILL LOW, FADE OUT, CRUSH, ECHO. Most of Amethyst's buttons are already in here |
@@ -71,43 +74,74 @@ Two rules make it easy. The break never stops unless you stop it, and the keys c
 | White keys F4 to G5 (9) | Chords: a minor ninth, a major seventh and so on, one a key, in the stage's own voicing |
 | Black keys (11) | Slices of the break, one each, in order. Tap a few and you're chopping |
 | PRESETS | The stage: its picture, its break, its bass, its chords and its tempo |
-| SELECT | The tempo, 160 to 180. The break is pitched with it, as a sampler did, not stretched |
+| SELECT | The tempo, 140 to 180. The break is pitched with it, as producers did on an Akai, not stretched |
 | ALGORITHM | The break's pattern: AS PLAYED, CHOPPED, HALF TIME, ROLLER, TWO-STEP |
 | KNOB 1 WOBBLE | The bass filter moves, slow to fast. The picture breathes with it |
 | KNOB 2 FOG | Reverb and delay. Fog rolls over the picture |
-| KNOB 3 GRIT | Crushed and driven. The picture goes grainy |
+| KNOB 3 GRIT | Crushed and driven, down to an S950's 12 bits and its rough time-stretch. The picture goes grainy |
 | KNOB 4 MOSS | Darker and softer, rain and crackle under it. The picture goes green |
 | FX (hold) | BUILD: the break loops at 1/8, then 1/16, then 1/32 (SLOOP's LOOP), with the bass killed (KILL LOW) and a high-pass rising. Let go and it drops on the next bar |
-| SCL | REWIND (SLOOP's): the record pulled back, then the tune starts again from bar 1 |
+| SCL | REWIND (SLOOP's): the record spun back by hand, then the drop again. Flashes when the crowd is calling for one |
 | ENV | HALF (SLOOP's), on and off |
 | LFO | STOP (SLOOP's tape stop) |
 | EDIT | Drums off and on (the bass carries on) |
 | GLO | A dub siren on SID, played on the keys while held |
 | ARP | How the keys play: BASS AND CHORDS, ALL BASS, ALL CHORDS |
 | SEQ | The break on or off |
-| REC | Records four bars of what you play, then loops it. Again to add a layer |
+| REC | Records four bars of what you play, then loops it. Again to add a layer. Held: the TAPE PACK (below) |
 | PLAY | Start and stop |
 | SAVE | Keeps the stage's knobs and your loop |
-| HOME | The stage back where it started |
+| HOME | The stage back where it started. Held: its sleeve notes |
 | OCT- / OCT+ | The bass an octave down or up |
 | MASTER | Volume |
 
 FX for the build is the one I'd test first with real people. If the drop doesn't feel good, the rest won't save it.
 
+### The night's rituals
+
+These come straight from the scene (CULTURE.md has the history of each). They're what turn a groovebox into a night
+out.
+
+![The rituals: a rewind call with lighters up, a shout-out on a phone, a dubplate with its VIP label, a tape pack, and FRIDAY's sleeve notes](amethyst/rituals/sheet.png)
+
+1. The rewind. After a drop that landed (BUILD held for at least a bar, let go on the one), the crowd calls for it:
+   lighters on the screen, SCL flashing, and the call in plain letters: REWIND, COME AGAIN, PULL UP. Answer it and the
+   record spins back. Leave it and the call fades after eight bars. A rewind has to be earned, as at a dance.
+2. The dubplate. Rewind a stage three times and its VIP is cut for you: a dubplate on the screen with a handwritten
+   label, and from then on that stage has a second version (another bassline, the break flipped). VIP is what the
+   scene called it: a variation in production, a version only one DJ had. Kept in the settings, like Rainbow mode's
+   stars.
+3. The shout-outs. Now and then a text arrives on a little phone at the corner of the screen, the way listeners texted
+   the pirates: "big up the E8 lot," "rewind that." Made-up names, real postcodes.
+4. The tape pack. REC held records the whole session to the computer over USB (Melodee already records its stereo
+   output there), and the screen shows the session as a tape pack: the stages played, the time, the number of rewinds,
+   on an airbrushed cover of our own.
+5. The sleeve notes. HOME held shows three lines about the stage's year and place, and who made it happen. The scene
+   gets credited inside the firmware, not only on the website.
+6. The MC. The calls are text to start with. If an MC will record a few (REWIND, COME AGAIN, FROM THE TOP) with their
+   name on them, they'd take about 11 KB a second each and be worth every byte.
+
 ## 4. The stages
 
-Eight to start. Each one is a place, a break, a bass and a set of chords, tuned to sound like that place.
+Ten, in order: a night out through the years, from a rave under the arches in 1989 to a London overgrown with moss
+ten years from now. Each one is a year and a place, with the break, bass and tempo of its time. The names are ours;
+the real places and people are in the sleeve notes.
 
-| # | Stage | The place | Break | Bass | Chords | Tempo |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | CANAL | A brick bridge over the water at night, moss in the mortar | A busy, bright break | PROPHET Reese, slow | PROPHET pad | 174 |
-| 2 | ARCHES | A rave under a railway arch, lasers from the back | A hard, chopped break, a 909 kick under it | PROPHET Reese, fast and driven | PROPHET hoover | 174 |
-| 3 | PIRATE | A tower block with an aerial and a red light on top | A rough old break | SID sub | PROPHET hoover | 170 |
-| 4 | NIGHT BUS | Rain on the top deck's window, the city going past | A light two-step | PROPHET round sub | FM6 electric piano | 172 |
-| 5 | MOSS | Concrete, moss and amethyst growing out of it | A soft, swung break | CZ-1 warm sub, slow slides | CZ-1 bells | 170 |
-| 6 | UNDERPASS | A tiled tunnel and a CCTV camera | A cold, dry roller | CZ-1 growl | SID stabs | 175 |
-| 7 | ROOFTOP | The skyline at first light | A rolling, open break | PROPHET sub | PROPHET strings | 172 |
-| 8 | FOG | The river under the bridges, nothing quite in focus | A break far off in the reverb | PROPHET long sub notes | FM6 glass | 168 |
+| # | Stage | Year | After | The picture | Break | Bass | Chords | Tempo |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | ARCHES | 1989 | Rage at Heaven, under Charing Cross | Drawn: an arch, lasers, the crowd | Hardcore: a busy break, an 808 kick | PROPHET hoover | FM6 rave piano | 145 |
+| 2 | ROOF | 1992 | Kool FM on the Nightingale Estate | The Heygate at night, a red light on the aerial | Ragga jungle | SID sub, a dub siren | none, just the siren | 160 |
+| 3 | DARKSIDE | 1994 | "Terrorist," and the Reese | Turnmills at night | Chopped hard | CZ-1 Reese, as Kevin Saunderson made his | a low pad | 165 |
+| 4 | SUNDAY | 1995 | The Metalheadz Sunday Sessions in Hoxton | Drawn: a blue room, smoke | Rolling, chopped | CZ-1 Reese, slow | PROPHET strings | 166 |
+| 5 | VELVET | 1996 | Speed and Swerve; liquid, later | The Barbican Conservatory | Soft and swung | PROPHET round sub | FM6 electric piano | 172 |
+| 6 | CLOCKWORK | 1997 | Amon Tobin's *Bricolage* on Ninja Tune; kipatchi's overgrown steampunk | Drawn: gears under moss, amethyst growing out | Jazz breaks, chopped fine, with recorded sounds for drums | PROPHET round sub | FM6 vibraphone | 168 |
+| 7 | UNDERPASS | 1997 | Techstep at No U-Turn, then neurofunk | Drawn: CCTV on a tiled tunnel | Cold two-step | CZ-1 growl | SID stabs | 174 |
+| 8 | FRIDAY | 2001 | FABRICLIVE, Playaz, Valve's 52 subs, The End | The End, December 2007 | A roller, a 909 kick under it | PROPHET Reese, driven | PROPHET hoover | 174 |
+| 9 | NIGHT BUS | 2007 | Burial's *Untrue* | A night bus, 2006 | Half time, rain and crackle | PROPHET sub | FM6 glass | 172 |
+| 10 | MOSS | 2036 | Ours: the London Amethyst imagines | Abney Park, and crystals growing | All of the above, softened | CZ-1 warm sub | CZ-1 bells | 170 |
+
+The pictures are the Commons photos from section 6 where one fits, drawn where none does. Going forward through the
+stages is going forward in time, so a jam can be a history lesson nobody notices they're getting.
 
 Every sound here would be a new program of our own. Melodee ships Sequential's 200 Prophet-5 programs and Casio's 64
 CZ-1 tones, but its own LICENSING.md says the rights to both stay with their makers. Amethyst would leave them out,
@@ -148,7 +182,7 @@ Album 01 is the starting point: one full-screen picture a stage, 16 colors, the 
 with the sound. Here's how each idea could carry it, with its sketch.
 
 1. Photos, as Album 01 does (CANAL). Real London at night, cut to 16 colors. The rows waver with the bass, FOG
-   blurs them, the brightest colors flash on the kick. It needs photos: the friend's, Josh's, or ones we can license.
+   blurs them, the brightest colors flash on the kick. It needs photos: kipatchi's, Josh's, or ones we can license.
 2. Rave stages (ARCHES). Drawn, not photographed: an arch, a warehouse, a roof. Lasers and strobes run on the beat,
    and the crowd jumps on the drop. Every stage can be the same club on a different night.
 3. Pirate radio (PIRATE). PRESETS turns a tuning dial, with a bar of static between stations. Each stage is a
@@ -162,8 +196,38 @@ with the sound. Here's how each idea could carry it, with its sketch.
 7. CCTV (CAM 04). A grainy camera on an underpass, the bar count as the timestamp. The picture glitches when you
    chop. The most noir of the lot.
 
-My pick would be photos for the stages, with the rave lights drawn over them on the beat, the chop layer on the black
-keys, and the moss growing as you play. The pirate dial makes a good way to move between stages.
+That was before kipatchi's look came in, below. With it, my pick is kipatchi's display as the frame, photos and
+drawings in its panels, the rave lights on the beat, the chop layer on the black keys, and the moss growing as you play.
+
+### kipatchi's look: overgrown steampunk on a grunge display
+
+kipatchi put it in two lines: Amon Tobin is like overgrown steampunk, and then a retro-futurist grunge display over it.
+The brief on the torn note in her reference picture was "London pirate radio stations, rainy alleyways at 3 AM,
+cyberpunk future-noir." That picture was made by an AI and is only a mood; nothing here copies it.
+
+![Three screens in kipatchi's look: the hello as four lettered panels, CLOCKWORK's gears under moss and amethyst, and ROOF with its aerial and ON AIR box](amethyst/overgrown/sheet.png)
+
+What it asks of the screen:
+
+- Moss and verdigris over brass and copper: gears that still turn, wires hanging loose, crystals growing out of the
+  machine. The palette gets copper, brass and verdigris beside the violet, the moss green and the sodium orange.
+- The screen is a display someone built by hand: panels with a letter in the corner (A, B, C, D), circuit traces in
+  the gaps, grain and scratches.
+- Every stage has a two-line label in place of Album's band: a name and a line under it. FRIDAY, THE DOORS AT 3 AM.
+  ROOF, STILL BROADCASTING. MOSS, OVERGROWN. CLOCKWORK, OVERGROWN, STILL TURNING.
+- Torn paper notes, written by hand, for the things the screen says out loud: the sleeve notes, the shout-outs, a
+  stage's first line.
+- ON AIR boxes, waveforms on scraps of screen, a microphone, a record: the pirate station's kit, worn.
+
+Why Amon Tobin fits: his records were built out of other sounds, the way this look is built out of other machines.
+*Bricolage* (1997) was chopped jazz breaks on Ninja Tune, a London label. *Foley Room* (2007) was made from his own
+field recordings. For *ISAM* (2011), the Birmingham sculptor Tessa Farmer made the artwork, and their show *Control
+Over Nature* opened at London's Crypt Gallery in May 2011.
+
+It gives Amethyst a tenth stage, CLOCKWORK (section 4), whose drums are recorded sounds: a clock, keys, a kettle,
+gears, rain on a skylight, all recorded by us and given away as CC0.
+
+The hello becomes four of these panels, with the names that made it along the bottom: JOSH & KIPATCHI.
 
 ### Photos of the real London that are free to use
 
@@ -225,7 +289,7 @@ This is the hard part on Melodee. Its 1.6.1 build leaves 49 KB of flash and 1.3 
 | A drum kit of 12 hits at 22 kHz, 4-bit (about 11 KB a second) | about 55 KB |
 | The breaks as patterns | under 2 KB |
 | Real breaks, two bars each at 174 (about 30 KB each), if the drummer happens | 240 KB for eight |
-| 9 photos (8 stages and the hello) at Album's average of 18 KB | about 165 KB |
+| 11 pictures (10 stages and the hello), photos at 17 to 28 KB, drawn ones a few KB | about 150 KB |
 | Drawn stages instead of photos | a few KB each |
 
 Where the room could come from, all to be measured:
@@ -233,7 +297,7 @@ Where the room could come from, all to be measured:
 1. Sequential's and Casio's factory sounds, which Amethyst wouldn't ship anyway. The Prophet file alone is 31,800 B.
 2. Parts of Melodee a DnB toy won't use: USB Host, the four extra MIDI tracks, the 70 microtonal scales, most of the
    editing pages. They'd stay in Melodee, just not in this build.
-3. The flash's storage area. Melodee keeps 32 projects there; Amethyst needs eight stages and a loop each. The drums
+3. The flash's storage area. Melodee keeps 32 projects there; Amethyst needs ten stages and a loop each. The drums
    and the photos could live in what's left over.
 
 If photos don't fit, the drawn stages do. That's the trade-off to settle early: Melodee's engines and Album's photos
@@ -244,24 +308,28 @@ both want the same flash.
 1. Answer the questions below, and write to Kerem.
 2. Fork Melodee, leave out the factory sounds we can't ship, and get it installing from our own web page.
 3. Measure what's free after step 2, then decide photos or drawn stages.
-4. One stage, end to end: a picture, a break, a PROPHET Reese on the white keys, the slices on the black keys.
-5. BUILD and the drop. Play it for people and watch their faces.
-6. The other seven stages, then REC, then the moss.
+4. One stage, FRIDAY, end to end: a picture, a break, a Reese on the white keys, the slices on the black keys.
+5. BUILD, the drop and the rewind call. Play it for people and watch their faces.
+6. The other nine stages, then the dubplates, the tape pack and the moss.
 
-## 9. Questions for Josh and the friend
+## 9. Questions for Josh and kipatchi
 
-1. Who is the friend, and what do they want to bring: tracks, photos, drawings, a drummer, their own sound?
+1. What else does kipatchi want to bring: photos, drawings, sounds, people? And how much of the look should she draw by hand?
 2. Melodee underneath, as I suggest here, or fm1-base like Album? On Melodee it would be its own firmware, not Album 02.
 3. Photos or drawings for the stages? If photos, whose, and are they of London?
 4. Who is it for: people who already make DnB, or anyone who picks up an FM-1? It changes how much stays hidden.
 5. Is there a drummer who'd record eight breaks?
-6. 174 and A minor everywhere, or a tempo and key for each stage?
-7. Is "Amethyst" staying? It could also be the name of the first stage, and the crystal on the hello.
+6. A minor everywhere, or a key for each stage?
+7. Is there an MC who'd record a few calls, and someone from London's scene who'd read CULTURE.md and the sleeve
+   notes before it goes out?
+8. Is "Amethyst" staying? It could also be the name of the first stage, and the crystal on the hello.
 
 ## 10. Credits
 
-Amethyst would be built from other people's work, and each of them gets named on the website, the installer page and
-in CREDITS.md, as Rainbow mode does.
+Amethyst is Josh's and kipatchi's: kipatchi for the concept and the look, Josh for the rest. Her name goes on the
+hello, the website, the installer page and CREDITS.md as kipatchi.
+
+It would be built from other people's work, and each of them gets named in the same places, as Rainbow mode does.
 
 - Melodee by Kerem Kilic (Ellic Studio, [@keremimo](https://github.com/keremimo)), a modified version of Felucca by Leo
   Kuroshita ([@kurogedelic](https://github.com/kurogedelic)), Hügelton Instruments. Kerem wrote PROPHET, CZ-1, SID, the
@@ -276,6 +344,7 @@ in CREDITS.md, as Rainbow mode does.
 - The break player: Felucca's SLICE engine, by Leo Kuroshita.
 - The drums: Versilian Studios' Virtuosity Drums (CC0), and the drummer, if there is one.
 - The look: Album 01, Josh's, and fm1-base by Charles Vestal for anything taken from it.
+- The history: everyone in CULTURE.md, from Ruddy Redwood in 1968 on, named in the sleeve notes of their stage.
 
 Each file keeps the notices its authors put on it. Melodee's LICENSING.md lists who wrote what, file by file, and
 Amethyst's would carry that list forward.

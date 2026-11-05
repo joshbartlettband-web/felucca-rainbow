@@ -19,3 +19,8 @@ CC BY-SA 2.0 as a whole, because two of them are.
 
 Changed from the originals: cropped square, scaled down, recolored (night, violet and moss), reduced to
 16 colors, and the name, year and license written across the top.
+
+Other sketches built on these pictures, under the same licenses: `../rituals/rewind.png` and `../rituals/sleeve.png`
+(on `the-end.png`, CC BY 2.0), `../rituals/shoutout.png` (on `night-bus.png`, CC BY-SA 2.0), and
+`../overgrown/hello.png` (on `night-bus.png`, `the-end.png`, `heygate.png` and `abney-park.png`, so CC BY-SA 2.0).
+The rituals and overgrown sheets are CC BY-SA 2.0 as a whole for the same reason.
