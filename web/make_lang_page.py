@@ -57,7 +57,7 @@ def main(code, out):
   </ul>
 
   <h2>{e(P['songs'])}</h2>
-  <p class="lede" style="font-size:1rem">{e(", ".join(songs))}</p>
+  <p class="lede" style="font-size:1rem">{e(P.get("sep", ", ").join(songs))}</p>
   <p style="color:var(--soft);font-size:.95rem">{e(P['source'])}</p>
 </main>
 <footer>

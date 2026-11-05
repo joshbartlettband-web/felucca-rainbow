@@ -34,7 +34,7 @@ env:
   SDK_TAG: AC79NN_SDK_V1.2.1_2023-12-13   # the SDK version build.py was tested with
   EMSDK_VERSION: 3.1.74
   BUILD_TAG: rb                           # added to the version, so ABOUT shows this is our build (v1.0.5.2-rb)
-  LANGS: pt de fr es it nl sv no da       # Rainbow mode's other languages (tools/lang/LL.py)
+  LANGS: pt de fr es it nl sv no da ja    # Rainbow mode's other languages (tools/lang/LL.py)
 
 jobs:
   firmware:

@@ -36,6 +36,12 @@ installer page too.
 The 15 Brazilian songs in the Portuguese version's FOLLOW are copied note for note from the recorder pages of
 [Cifra Visual](https://www.cifravisual.com.br/flauta-doce), which marks each one as public domain (domínio público).
 
+## Japanese
+
+The Japanese version's kana are from the Misaki Gothic 2nd font by Num Kadoma (<https://littlelimit.net/misaki.htm>),
+which is free to use, change and pass on (`LICENSES/Misaki.txt`). Its FOLLOW songs are read from the scores in Japanese
+Wikipedia's articles on them (and German Wikipedia's for ちょうちょう, かっこう and きよしこのよる).
+
 ## The songs in the other languages
 
 The German, French, Spanish, Italian, Dutch, Swedish, Norwegian and Danish versions' FOLLOW songs are read note for note from

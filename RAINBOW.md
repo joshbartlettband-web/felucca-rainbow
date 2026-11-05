@@ -269,8 +269,8 @@ repository and its website are public.
 ## Other languages
 
 Each language is its own firmware file, so nothing has to be cut to fit: each package carries only its own words and songs.
-`./build.sh --lang de` builds `build/felucca-de-X.Y.fwsc`. There are nine: Portuguese (pt), Spanish (es), French (fr), Italian
-(it), German (de), Dutch (nl), Swedish (sv), Norwegian (no) and Danish (da). The workflow's `LANGS` lists them.
+`./build.sh --lang de` builds `build/felucca-de-X.Y.fwsc`. There are ten: Portuguese (pt), Spanish (es), French (fr), Italian
+(it), German (de), Dutch (nl), Swedish (sv), Norwegian (no), Danish (da) and Japanese (ja). The workflow's `LANGS` lists them.
 
 - `tools/lang/LL.py` holds everything that changes: the words on the screen (`WORDS`), the friends' and hats' names (`NAMES`,
   `HATS`), the FOLLOW songs (`SOLFA_SONGS` in do re mi, `SONGS` in note names), `DOREMI` (True: the note names start as DO RE
@@ -284,6 +284,11 @@ Each language is its own firmware file, so nothing has to be cut to fit: each pa
 - The band's font has the accented capitals these languages need (Á À Â Ã Ç É Ê Í Ó Ô Õ Ú È Ë Î Ï Ì Ñ Ò Ù Û Ü Ä Ö Å Æ Ø),
   as bytes 0x80 to 0x9A. A longer hello (HALLO!, SALUT!) draws a little smaller, and so do band words like STAR! when the
   translation is longer.
+- Japanese (`SCRIPT = "kana"`) is written as a children's picture book writes it: hiragana, katakana for loanwords, no
+  kanji, spaces between words. Its letters are 7 px kana on an 8 px step (`KID_ADV 8`; 6 for the others), drawn from Num
+  Kadoma's free Misaki Gothic 2nd font (`tools/fonts/misaki_kana.bdf`, `LICENSES/Misaki.txt`). gen_kid_lang.py gives each
+  kana the build uses a byte from 0x80 (128 at most; it uses about 125) and writes their rows into `KID_KANA`. A line holds
+  fewer of them: 9 in the band, 13 on a card, and the checks know it. The note names are ド レ ミ.
 - The songs: Portuguese's from Cifra Visual's recorder pages. The others' from the scores in Wikipedia's articles on them,
   with `tools/wiki_song.py LL "Article" [block] [NAME]` (it renders the article's LilyPond to MIDI and reads the tune back;
   needs lilypond and mido, and only for adding songs). Then a few known everywhere, as in the English list. German and French

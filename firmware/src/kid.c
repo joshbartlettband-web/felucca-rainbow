@@ -351,6 +351,9 @@ static const uint16_t KID_RAINBOW[7] = {
 #define KID_WHITE RGB(255, 255, 255)
 
 /* 5 x 7 capitals, digits 1, 3, 5 and 8, '#', '!' and '-': a row a byte, bit 4 the left column */
+#ifndef KID_ADV
+#define KID_ADV 6     /* a letter's step in the band's font: 5 px and a gap (8 in a Japanese build: 7 px kana, KID_KANA) */
+#endif
 static const uint8_t KID_FONT[][7] = {
     {0x0E, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11}, {0x1E, 0x11, 0x11, 0x1E, 0x11, 0x11, 0x1E},   /* A B */
     {0x0E, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0E}, {0x1E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x1E},   /* C D */
@@ -388,13 +391,28 @@ static const uint8_t KID_FONT[][7] = {
     {0x04, 0x0A, 0x04, 0x0A, 0x11, 0x1F, 0x11}, {0x0F, 0x14, 0x14, 0x1F, 0x14, 0x14, 0x17},   /* \x98 A ring, \x99 AE */
     {0x01, 0x0E, 0x13, 0x15, 0x19, 0x0E, 0x10},                                               /* \x9A O slash */
 };
+#define KID_GLYPH_N ((int32_t)(sizeof KID_FONT / sizeof KID_FONT[0]))
 static int32_t kid_glyph_of(char c)
 {
     if (c >= 'A' && c <= 'Z')
         return c - 'A';
+#ifdef KID_KANA_N
+    if ((uint8_t)c >= 0x80u && (uint8_t)c < 0x80u + KID_KANA_N)   /* (a Japanese build: its kana, KID_KANA) */
+        return KID_GLYPH_N + ((uint8_t)c - 0x80);
+#endif
     if ((uint8_t)c >= 0x80u && (uint8_t)c <= 0x9Au)               /* (an accented capital: a translated build) */
         return 37 + ((uint8_t)c - 0x80);
     return c == '1' ? 26 : c == '3' ? 27 : c == '#' ? 28 : c == '!' ? 29 : c == '5' ? 30 : c == '8' ? 31 : c == '-' ? 32 : c == '?' ? 33 : c == '7' ? 34 : c == '9' ? 35 : c == '4' ? 36 : -1;
+}
+
+/* a glyph's row gy: KID_ADV - 1 bits, the left one highest (the 5 px letters centred in a wider step) */
+static inline uint32_t kid_glyph_row(int32_t g, int32_t gy)
+{
+#ifdef KID_KANA_N
+    if (g >= KID_GLYPH_N)
+        return KID_KANA[g - KID_GLYPH_N][gy];
+#endif
+    return (uint32_t)KID_FONT[g][gy] << ((KID_ADV - 6) / 2);
 }
 
 static const int8_t KID_SIN[32] = {0, 25, 49, 71, 90, 106, 117, 125, 127, 125, 117, 106, 90, 71, 49, 25,
@@ -1019,7 +1037,7 @@ static void kid_hello_name(void)                  /* the name the hello shows: t
     }
     kid.hello_name[n++] = '!';
     kid.hello_name[n] = 0;
-    while (sc > 2u && n * 6u * sc - sc > 236u)
+    while (sc > 2u && n * KID_ADV * sc - sc > 236u)
         sc--;
     kid.hello_sc = (uint8_t)sc;
 }
@@ -2517,9 +2535,9 @@ static const char *kid_drum_word(uint32_t key, uint16_t *col)
 static uint32_t kid_band_word(const char *s, int16_t sc, uint16_t bg, uint32_t sig)   /* a word alone in the band */
 {
     uint32_t w;
-    while (sc > 3 && str_len(s) * 6u * (uint32_t)sc - (uint32_t)sc > 232u)   /* (a longer word, in a translation) */
+    while (sc > 3 && str_len(s) * KID_ADV * (uint32_t)sc - (uint32_t)sc > 232u)   /* (a longer word, in a translation) */
         sc--;
-    w = str_len(s) * 6u * (uint32_t)sc - (uint32_t)sc;
+    w = str_len(s) * KID_ADV * (uint32_t)sc - (uint32_t)sc;
     kf.band = KB_NAME;
     kf.txt = kf.bt.s = s;
     kf.bt.sc = sc;
@@ -2572,8 +2590,8 @@ static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *nam
     *p = 0;
     kf.band = KB_CHORD;
     kf.txt = kf.bt.s = kf.l1;
-    kf.bt.sc = (int16_t)(str_len(kf.l1) * 24u - 4u <= 232u ? 4 : str_len(kf.l1) * 18u - 3u <= 232u ? 3 : 2);
-    w = str_len(kf.l1) * 6u * (uint32_t)kf.bt.sc - (uint32_t)kf.bt.sc;
+    kf.bt.sc = (int16_t)(str_len(kf.l1) * (4u * KID_ADV) - 4u <= 232u ? 4 : str_len(kf.l1) * (3u * KID_ADV) - 3u <= 232u ? 3 : 2);
+    w = str_len(kf.l1) * KID_ADV * (uint32_t)kf.bt.sc - (uint32_t)kf.bt.sc;
     kf.bt.x = (int16_t)((240 - (int32_t)w) / 2);
     kf.bt.y = (int16_t)(q ? KID_BAND_Y + 4 : KID_BAND_Y + 15);
     kf.bt2.sc = 0;
@@ -2594,8 +2612,8 @@ static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *nam
             str_cpy(p, q, sizeof kf.l2 - (uint32_t)(p - kf.l2));
         }
         kf.bt2.s = kf.l2;
-        kf.bt2.sc = (int16_t)(str_len(kf.l2) * 18u - 3u <= 232u ? 3 : 2);
-        kf.bt2.x = (int16_t)((240 - (int32_t)(str_len(kf.l2) * 6u * (uint32_t)kf.bt2.sc - (uint32_t)kf.bt2.sc)) / 2);
+        kf.bt2.sc = (int16_t)(str_len(kf.l2) * (3u * KID_ADV) - 3u <= 232u ? 3 : 2);
+        kf.bt2.x = (int16_t)((240 - (int32_t)(str_len(kf.l2) * KID_ADV * (uint32_t)kf.bt2.sc - (uint32_t)kf.bt2.sc)) / 2);
         kf.bt2.y = KID_BAND_Y + 34;
         sig = sig * 31u + root * 7u + (uint32_t)(q[1]);
     }
@@ -2712,7 +2730,7 @@ static uint32_t kid_band_setup(uint32_t now)
         kf.band = KB_NAME;
         kf.txt = hint && kid.hint == KH_BEAT ? (kw.beat ? KID_BEATS[(kw.beat - 1u) % KB_COUNT].name : "NO BEAT") :
                  hint && kid.hint == KH_NEWSONG ? "NEW SONG" : song.playing ? "LOOP" : "WRITE";
-        kf.bt.sc = str_len(kf.txt) * 24u - 4u <= 176u ? 4 : str_len(kf.txt) * 18u - 3u <= 176u ? 3 : 2;   /* (2: a translation) */
+        kf.bt.sc = str_len(kf.txt) * (4u * KID_ADV) - 4u <= 176u ? 4 : str_len(kf.txt) * (3u * KID_ADV) - 3u <= 176u ? 3 : 2;   /* (2: a translation) */
         kf.ink = KID_WHITE;
         kf.bg = RGB(150, 110, 230);
         kf.bg2 = RGB(120, 84, 200);
@@ -2722,7 +2740,7 @@ static uint32_t kid_band_setup(uint32_t now)
     } else if (!vol && kid.key >= 0 && now - kid.key_ms < 900u && drum_track(&trk[0]) && !kid.fx) {   /* a drum friend: */
         uint16_t c;                                                   /* the drum's name */
         const char *w = kid_drum_word((uint32_t)kid.key, &c);
-        return kid_band_word(w, str_len(w) * 24u - 4u <= 232u ? 4 : 3, kid_mix(c, RGB(0, 0, 0), 30u),
+        return kid_band_word(w, str_len(w) * (4u * KID_ADV) - 4u <= 232u ? 4 : 3, kid_mix(c, RGB(0, 0, 0), 30u),
                              0x900u ^ (uint32_t)(uintptr_t)w * 7u);
     } else if (!vol && ((kid.key >= 0 && now - kid.key_ms < 900u) || KID_OUTER_PC(now) >= 0)) {   /* a note: its letter, big
                                                                   (the effect's word, if one is on) */
@@ -2802,7 +2820,7 @@ static uint32_t kid_band_setup(uint32_t now)
     } else {
         kf.band = KB_NAME;
         kf.txt = KID_NAME[kid_art(kid.fr)];
-        kf.bt.sc = str_len(kf.txt) * 24u - 4u <= 228u ? 4 : 3;
+        kf.bt.sc = str_len(kf.txt) * (4u * KID_ADV) - 4u <= 228u ? 4 : 3;
         kf.ink = KID_WHITE;
         kf.bg = kid.night >= 5u ? RGB(40, 110, 70) : RGB(96, 200, 90);
         kf.bg2 = kid.night >= 5u ? RGB(24, 80, 50) : RGB(56, 156, 66);
@@ -2810,7 +2828,7 @@ static uint32_t kid_band_setup(uint32_t now)
     }
     kf.bt2.sc = 0;
     len = str_len(kf.txt);
-    w = len * 6u * (uint32_t)kf.bt.sc - (uint32_t)kf.bt.sc;
+    w = len * KID_ADV * (uint32_t)kf.bt.sc - (uint32_t)kf.bt.sc;
     kf.bt.s = kf.txt;
     kf.bt.x = (int16_t)((240 - (int32_t)w) / 2);
     if (kw.on && kf.band == KB_NAME)                      /* (WRITE: beside the friend) */
@@ -2829,8 +2847,8 @@ static uint32_t kid_band_setup(uint32_t now)
             kf.bt.s = kf.l1;
             kf.bt.sc = kf.bt2.sc = 3;
             kf.bt2.s = kf.l2;
-            kf.bt.x = (int16_t)((240 - (int32_t)(str_len(kf.l1) * 18u - 3u)) / 2);
-            kf.bt2.x = (int16_t)((240 - (int32_t)(str_len(kf.l2) * 18u - 3u)) / 2);
+            kf.bt.x = (int16_t)((240 - (int32_t)(str_len(kf.l1) * (3u * KID_ADV) - 3u)) / 2);
+            kf.bt2.x = (int16_t)((240 - (int32_t)(str_len(kf.l2) * (3u * KID_ADV) - 3u)) / 2);
             kf.bt.y = KID_BAND_Y + 7;
             kf.bt2.y = KID_BAND_Y + 33;
         }
@@ -2847,10 +2865,10 @@ static inline int kid_ink_at(const kid_txt_t *t, int32_t x, int32_t y)   /* is (
         return 0;
     gx = x / t->sc;
     gy = y / t->sc;
-    ci = gx / 6;
-    if (gy >= 7 || gx % 6 == 5 || ci >= (int32_t)str_len(t->s) || (g = kid_glyph_of(t->s[ci])) < 0)
+    ci = gx / KID_ADV;
+    if (gy >= 7 || gx % KID_ADV == KID_ADV - 1 || ci >= (int32_t)str_len(t->s) || (g = kid_glyph_of(t->s[ci])) < 0)
         return 0;
-    return (KID_FONT[g][gy] >> (4 - gx % 6)) & 1;
+    return (kid_glyph_row(g, gy) >> (KID_ADV - 2 - gx % KID_ADV)) & 1;
 }
 
 /* 1 on the text, 2 on its outline (o px around it), 0 neither */
@@ -2883,9 +2901,9 @@ static uint32_t kid_band_icon(uint32_t sig)
         m = kid.mode;
     if (m < 0)
         return sig;
-    w1 = (int32_t)(str_len(kf.bt.s) * 6u) * kf.bt.sc - kf.bt.sc;
+    w1 = (int32_t)(str_len(kf.bt.s) * KID_ADV) * kf.bt.sc - kf.bt.sc;
     if (kf.bt2.sc)
-        w2 = (int32_t)(str_len(kf.bt2.s) * 6u) * kf.bt2.sc - kf.bt2.sc;
+        w2 = (int32_t)(str_len(kf.bt2.s) * KID_ADV) * kf.bt2.sc - kf.bt2.sc;
     if (w1 > 178 || w2 > 178)
         return sig;
     kf.bt.x = (int16_t)(58 + (178 - w1) / 2);
@@ -2913,7 +2931,7 @@ static uint16_t kid_band_px(int32_t x, int32_t y)
     if (!k && kf.bt2.sc)
         k = kid_text_at(&kf.bt2, x, y, kf.ol);
     if (k == 1 && kf.band == KB_CHORD && kid_text_at(&kf.bt, x, y, kf.ol) == 1)   /* (a chord: each letter its colour) */
-        return kf.ccol[((x - kf.bt.x) / (6 * kf.bt.sc)) % 16];
+        return kf.ccol[((x - kf.bt.x) / (KID_ADV * kf.bt.sc)) % 16];
     if (k)
         return k == 1 ? kf.ink : KID_INK;
     if (kf.meter >= 0 && y >= (int32_t)KID_BAND_Y + 38) {         /* the meter: 8 dots */
@@ -3370,23 +3388,23 @@ static int32_t kid_friends_px(int32_t x, int32_t y)        /* the friends, front
 static int kid_char_ink(char ch, int32_t cx, int32_t cy, int32_t sc, int32_t x, int32_t y)
 {
     int32_t g = kid_glyph_of(ch), gx, gy;
-    if (g < 0 || x < cx || y < cy || x >= cx + 5 * sc || y >= cy + 7 * sc)
+    if (g < 0 || x < cx || y < cy || x >= cx + (KID_ADV - 1) * sc || y >= cy + 7 * sc)
         return 0;
     gx = (x - cx) / sc;
     gy = (y - cy) / sc;
-    return (KID_FONT[g][gy] >> (4 - gx)) & 1;
+    return (kid_glyph_row(g, gy) >> (KID_ADV - 2 - gx)) & 1;
 }
 
 static int32_t kid_hello_line(const char *s, int32_t sc, int32_t top, uint32_t first, int32_t x, int32_t y)
 {
     static const int8_t OX[8] = {-1, 1, 0, 0, -1, 1, -1, 1}, OY[8] = {0, 0, -1, 1, -1, -1, 1, 1};
-    int32_t n = (int32_t)str_len(s), x0 = (240 - (n * 6 * sc - sc)) / 2, k, o, pass, ol = sc >= 7 ? 3 : 2;
-    int32_t ci = x < x0 ? -1 : (x - x0) / (6 * sc);
+    int32_t n = (int32_t)str_len(s), x0 = (240 - (n * KID_ADV * sc - sc)) / 2, k, o, pass, ol = sc >= 7 ? 3 : 2;
+    int32_t ci = x < x0 ? -1 : (x - x0) / (KID_ADV * sc);
     uint32_t t = (kf.t | 1u) - kid.hello_ms;
     for (pass = 0; pass < 2; pass++)                  /* the letters first, then their outlines (under neighbours) */
         for (k = ci - 1; k <= ci + 1; k++) {
             uint32_t i = first + (uint32_t)k, at = i * 160u, d;
-            int32_t cx = x0 + k * 6 * sc, cy, w;
+            int32_t cx = x0 + k * KID_ADV * sc, cy, w;
             if (k < 0 || k >= n || t < at)
                 continue;
             d = t - at;
@@ -3404,12 +3422,14 @@ static int32_t kid_hello_line(const char *s, int32_t sc, int32_t top, uint32_t f
 }
 
 static const char KID_HI[] = "HI!";          /* the hello without a name (a longer word, in a translation, draws smaller) */
+#define KID_HI_W(sc) ((sizeof KID_HI - 1u) * KID_ADV * (sc) - (sc))
+#define KID_HI_SC (KID_HI_W(8) <= 228u ? 8 : KID_HI_W(6) <= 228u ? 6 : KID_HI_W(5) <= 228u ? 5 : 4)
 static uint16_t kid_hello_px(int32_t x, int32_t y)
 {
     int32_t c;
     if (kid.hello_name[0] ? (c = kid_hello_line("HI", 7, 14, 0u, x, y)) >= 0 ||
                             (c = kid_hello_line(kid.hello_name, kid.hello_sc, 76, 2u, x, y)) >= 0
-                          : (c = kid_hello_line(KID_HI, sizeof KID_HI > 5 ? 6 : 8, sizeof KID_HI > 5 ? 42 : 34, 0u, x, y)) >= 0)
+                          : (c = kid_hello_line(KID_HI, KID_HI_SC, 34 + (8 - KID_HI_SC) * 4, 0u, x, y)) >= 0)
         return (uint16_t)c;
 #if BOARD_SMK37
     if (y >= 190 && (c = kid_hello_line("RAINBOW", 3, 196, 3u, x, y)) >= 0)
@@ -3544,8 +3564,8 @@ static uint16_t kid_staff_px(int32_t x, int32_t y)
     if (kf.card) {                                                    /* ALGORITHM's card: a few words, 2x capitals */
         int32_t li = (y - kf.card_y) / 18;
         if (y >= kf.card_y && li < (int32_t)kf.card_n && y - kf.card_y - li * 18 < 14) {
-            int32_t n = kf.card_len[li], x0 = 120 - (n * 12 - 2) / 2, ci = (x - x0) / 12;
-            if (x >= x0 && ci < n && kid_char_ink(kf.card_s[li][ci], x0 + ci * 12, kf.card_y + li * 18, 2, x, y))
+            int32_t n = kf.card_len[li], x0 = 120 - (n * 2 * KID_ADV - 2) / 2, ci = (x - x0) / (2 * KID_ADV);
+            if (x >= x0 && ci < n && kid_char_ink(kf.card_s[li][ci], x0 + ci * 2 * KID_ADV, kf.card_y + li * 18, 2, x, y))
                 return KID_INK;
         }
         return kid_mix(pic, KID_WHITE, 214u);
