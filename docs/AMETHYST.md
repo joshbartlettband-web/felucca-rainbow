@@ -165,6 +165,51 @@ with the sound. Here's how each idea could carry it, with its sketch.
 My pick would be photos for the stages, with the rave lights drawn over them on the beat, the chop layer on the black
 keys, and the moss growing as you play. The pirate dial makes a good way to move between stages.
 
+### Photos of the real London that are free to use
+
+There are more than I expected. Wikimedia Commons has 2000s photos of the clubs' buildings, the night buses and the
+estates, under open licenses. Here are nine, through Album 01's own photo code, six of them turned from day
+to night first:
+
+![Nine London photos from Wikimedia Commons in 16 colors: The End, Turnmills, a Notting Hill sound system, the Heygate Estate, the N8 night bus, the Barbican Conservatory, Abney Park, a night bus and Latimer Road](amethyst/photos/sheet.png)
+
+- THE END: the club in Holborn, photographed in December 2007, a year before it closed (steve_w, CC BY 2.0).
+- TURNMILLS: the Clerkenwell club in January 2008, the year it closed (Rubberist, public domain).
+- SOUND SYSTEM: a speaker stack at Notting Hill Carnival, 2008 (Jay Bergesen, CC BY 2.0). Jay Bergesen put up
+  several more from the same day.
+- HEYGATE: the Elephant and Castle estate in 2009, before it came down (London SE1 Community Website, CC BY 2.0).
+- N8 and NIGHT BUS: night buses in 2007 and 2006 (Mark Kobayashi-Hillary, CC BY 2.0; Alastair Rae, CC BY-SA 2.0).
+- CONSERVATORY: the Barbican's greenhouse of plants on concrete, the moss idea in one picture (Alex Liivet, CC0).
+- ABNEY PARK: moss on a stone in the overgrown Stoke Newington cemetery (Irid Escent, CC BY-SA 2.0).
+- LATIMER ROAD: the station at night with Trellick Tower behind it, 2006 (Fimb, CC BY 2.0).
+
+Each takes 17 to 28 KB on the FM-1. Every photographer is credited in `amethyst/photos/CREDITS.md`, and would be on the
+website and the installer page too. CC0 and public domain need nothing; CC BY needs the credit; CC BY-SA also needs our
+16-color version to stay CC BY-SA. One site credits a Fabric photo on Commons to Lolita Montana (CC BY-SA 2.0); I didn't find it before Commons asked me
+to slow down. Geograph, which sets out to photograph every square kilometer of Britain, has thousands more of London's
+streets (CC BY-SA 2.0). To find more: `tools/amethyst/commons_fetch.py`.
+
+Two cautions. People in a photo didn't agree to be in a firmware, so I'd lean on places and crowds where nobody can be
+picked out (the SOUND SYSTEM men are clear to see). And logos stay out: the Underground roundel and map, the record
+labels' marks (Metalheadz's skull, Ram's ram), the clubs' own logos, the smiley.
+
+### The scene's icons, drawn our own way
+
+Things that say London drum and bass without anyone's logo, all easy to draw in a few colors:
+
+- A tower block's roof with a homemade aerial and a red light: the pirate stations.
+- A phone with a text on its screen, the way listeners sent shout-outs to the stations ("big up the CANAL massive").
+- Two turntables and a mixer, drawn plain, with a pitch slider. A record bag. A white-label dubplate.
+- A speaker stack, as at Carnival. A microphone on a lead for the MC.
+- Lighters held up for a rewind, and hands in the air on the drop.
+- Glow sticks, strobes, a laser fan through smoke.
+- A stack of A6 flyers in chrome type and lens flares, all made up: our stages, our dates, our venues.
+- The night bus number on its blind, the CCTV camera on the corner, the cranes over Elephant and Castle.
+- Moss on concrete, and the amethyst growing out of it, for ours.
+
+Any of these can be its own small picture over a stage: the phone buzzes with a shout-out when you hit a drop, or the
+lighters go up when you press REWIND.
+
 The screen has no frame buffer. It's drawn in strips of rows, and a full redraw took about 60 ms on Rainbow mode. Album
 unpacks one band of 16 rows (1,920 bytes) as it draws. So the lights have to be cheap: a color flash or a line per row
 costs almost nothing, a big moving blur costs a lot. Each idea above was picked with that in mind.
