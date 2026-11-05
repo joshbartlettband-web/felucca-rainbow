@@ -229,6 +229,32 @@ gears, rain on a skylight, all recorded by us and given away as CC0.
 
 The hello becomes four of these panels, with the names that made it along the bottom: JOSH & KIPATCHI.
 
+### The layers: venues in the middle, the rest crawling over them
+
+Josh's call: the photos and the venue names are the center of each stage, and everything else layers on top, changed
+by effects. Dark moss crawls up over the venue as the jam goes on and glows on every kick. Lasers come in after the
+drop. kipatchi's brass frame closes in around the picture. A pirate aerial's red light blinks on the roof.
+
+![Four stages early in a jam (top) and late (bottom): THE END, TURNMILLS in the brass frame, the HEYGATE with its aerial, and a NIGHT BUS, the moss climbing and glowing](amethyst/layers/sheet.png)
+
+Each is also a moving picture in `amethyst/layers/` (36 frames at 174): [THE END](amethyst/layers/the-end.gif),
+[TURNMILLS](amethyst/layers/turnmills.gif), [HEYGATE](amethyst/layers/heygate.gif),
+[NIGHT BUS](amethyst/layers/night-bus.gif).
+
+The stages' photos here were changed by Gemini's image model: the same buildings ten years on, wet, at 3 AM, with
+the moss already in the cracks. The moss, the frame and the lasers are layers Gemini made on black, so black is
+see-through. Every prompt, and the photo each change started from, is in `amethyst/gemini/PROMPTS.md`.
+`tools/amethyst/layers.py` stacks them and cuts each stage to one 16-color palette for all its frames, as the FM-1
+would hold it, with violet, moss green, sodium orange and the aerial's red kept.
+
+On the FM-1 this costs very little more than a photo. The moss layer is one more 16-color picture per set of stages
+(about 20 KB), and the crawl is a mask worked out from a few numbers as each row is drawn: the rows below the moss's
+reach show the photo, the rows above it the moss. The glow is a palette change on the kick, which costs nothing to
+draw. The lasers are lines. The frame is drawn only round the edge.
+
+The venue's name is its label, in kipatchi's style: THE END, WEST CENTRAL STREET; TURNMILLS, CLERKENWELL. A name on a
+photo of the building is a caption. The clubs' logos and flyers still stay out.
+
 ### Photos of the real London that are free to use
 
 There are more than I expected. Wikimedia Commons has 2000s photos of the clubs' buildings, the night buses and the
@@ -344,6 +370,8 @@ It would be built from other people's work, and each of them gets named in the s
 - The break player: Felucca's SLICE engine, by Leo Kuroshita.
 - The drums: Versilian Studios' Virtuosity Drums (CC0), and the drummer, if there is one.
 - The look: Album 01, Josh's, and fm1-base by Charles Vestal for anything taken from it.
+- The changed photos and the layers: made with Google's Gemini image model, each listed with its prompt and its
+  photographer in amethyst/gemini/PROMPTS.md.
 - The history: everyone in CULTURE.md, from Ruddy Redwood in 1968 on, named in the sleeve notes of their stage.
 
 Each file keeps the notices its authors put on it. Melodee's LICENSING.md lists who wrote what, file by file, and

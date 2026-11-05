@@ -135,10 +135,11 @@ Hackney. Some things follow from that.
    people. They're in section 4 of AMETHYST.md.
 2. No made-up patois on the screen. The calls MCs really use ("rewind," "come again," "pull up," "big up") are fine,
    written plainly. A real MC's voice, recorded with their say-so and their name on it, would be better than any text.
-3. Our stages get our own names. The real clubs, stations and labels are in the sleeve notes, never on a stage, a
-   logo or a flyer of ours.
+3. A venue's name can caption a photo of the venue, as it does on each stage. Its logo, its flyers and the labels'
+   marks stay out, and the people who ran it are named in the sleeve notes.
 4. Ask someone from the scene to look at it before it goes out. kipatchi may know who.
-5. Use real voices and photos only with permission, credited.
+5. Use real voices and photos only with permission, credited. A photo changed by an AI says so, and keeps its
+   photographer's name.
 
 ## To read, watch and hear
 
