@@ -13,8 +13,11 @@ NOTE = [(236, 40, 52), (246, 92, 40), (255, 140, 26), (255, 184, 30), (255, 218,
         (70, 196, 110), (30, 176, 150), (70, 120, 210), (146, 84, 226), (196, 84, 210), (242, 86, 176)]   # kid.c KID_NOTE_COL
 LETTER = {0: "C", 2: "D", 4: "E", 5: "F", 7: "G", 9: "A", 11: "B"}
 T1, T2, T3, TL, TK = font(64, b"ExtraBold"), font(34, b"Medium"), font(26, b"SemiBold"), font(40, b"Bold"), font(22, b"Bold")
+CJK = "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf"   # (a caption in Japanese: a font that has it)
+def fit(text, f):
+    return ImageFont.truetype(CJK, f.size) if any(ord(c) > 0x2fff for c in text) else f
 meta = json.load(open("captions.json")); caps = meta["captions"]; fps = meta["fps"]; n = meta["frames"]; KEYS = meta["keys"]
-ITEMS = ["Hats that fit every friend's head", "3 FRIENDS: a major chord on every key",
+ITEMS = meta.get("items") or ["Hats that fit every friend's head", "3 FRIENDS: a major chord on every key",
          "A card that says how each mode plays", "FOLLOW: 24 songs to learn",
          "Note names as DO RE MI, if you like", "Echo and wiggle on KNOB 3 and 4 again",
          "Every control on one web page", "Runs on the SMK-37 keyboard too"]
@@ -91,8 +94,8 @@ def frames(start=0, stop=None):
                 d.text((W // 2, SY + SS // 2 + 20), "or put it on an FM-1, free", font=T2, fill=fade(SOFT, a, DARK), anchor="mm")
                 d.text((W // 2, SY + SS // 2 + 90), "joshbartlettband-web.github.io/felucca-rainbow", font=T3, fill=fade((255, 216, 46), a, DARK), anchor="mm")
         else:
-            d.text((W // 2, 104), title, font=T1, fill=fade(INK, a), anchor="mm")
-            d.text((W // 2, 168), sub, font=T2, fill=fade(SOFT, a), anchor="mm")
+            d.text((W // 2, 104), title, font=fit(title, T1), fill=fade(INK, a), anchor="mm")
+            d.text((W // 2, 168), sub, font=fit(sub, T2), fill=fade(SOFT, a), anchor="mm")
         yield im
 
 mode = sys.argv[1]
