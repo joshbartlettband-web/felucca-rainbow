@@ -16,7 +16,11 @@
  * ID: 0xeb6014"). The driver uses only generic SPI NOR commands (9F, 05/35, 06, 20, 02, 0B). */
 #define FL_JEDEC_OK(id) ((id) == 0xEB6014u || (id) == 0x856014u)
 #else
-#define FL_JEDEC_OK(id) ((id) == 0x856014u)
+/* FM-1: 0x856014 Puya P25Q80 (until 2026) and 0xB36014 UCUN UC25HQ80 (the units sold from autumn 2026, with the logo on
+ * the front), both 1 MiB with the same plain commands. A chip missing here leaves Felucca RAM-only, and RAM-only refuses
+ * the update command (main.c), so the unit cannot be updated over USB: that locked the new units in (Felucca #320,
+ * fixed upstream in f4cbb6a; MvaveFM1Unbricker). */
+#define FL_JEDEC_OK(id) ((id) == 0x856014u || (id) == 0xB36014u)
 #endif
 
 #if BOARD_SMK37

@@ -389,3 +389,18 @@ takes only M-VAVE's own firmware, so the official firmware has to go back on fir
 computer shows under another port name, and m-bootloader after the firmware (`web/m-bootloader/`, FM-1 packages only).
 The m-bootloader option stays hidden until it has been tried on an FM-1 running Rainbow mode: add `?mboot` to the
 installer's address to see it. Double Rainbow's installer has the same.
+
+## The 2026 units' flash chip (November 2026)
+
+FM-1s sold from autumn 2026 (with the logo on the front) carry a UCUN UC25HQ80 flash (JEDEC 0xB36014) instead of the
+Puya P25Q80 (0x856014). Both are 1 MiB parts with the same plain commands, but the firmware accepted only the old id.
+On a new unit it stayed RAM-only: nothing was saved, and the update command was refused (`main.c` runs `ota_session`
+only with `flash_ok`), so the installer could not update it or put the stock firmware back. To a parent that looks
+bricked. The fix is the same one Melodee (b8f9f9f) and Felucca (f4cbb6a, issue #320) made upstream: accept both ids
+(`firmware/hal/fm1_flash_map.h` FL_JEDEC_OK, checked by `tests/flash_id_test.c` on every push).
+
+A unit already stuck on an older version needs one rescue: the installer now says so when the FM-1 does not start an
+update ("refused"), and its section "Rescue an FM-1 that refuses updates" sends the key that drops the firmware into
+the chip's own USB boot mode (`F0 22 24 35 7D F7`, WL82 UBOOT1.00). From there MvaveFM1Unbricker (Quixotic7) writes
+M-VAVE's official firmware back from the computer, and the installer then puts the fixed version on. Not tested on a
+new unit here: no unit with the new chip was at hand.

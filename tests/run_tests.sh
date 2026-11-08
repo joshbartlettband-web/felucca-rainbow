@@ -156,6 +156,10 @@ python3 tools/fm1pkg_make.py "$OUT/old_app.bin" build/loader/ota.bin "$OUT/old.f
 $CC -o "$OUT/ldr_test" tests/ldr_test.c
 run "update loader: other app -> this build" "$OUT/ldr_test" "$OUT/old.fwsc" build/felucca.fwsc
 
+# the FM-1's flash chips: the 2026 units' UC25HQ80 (0xB36014) as well as the P25Q80 (0x856014)
+$CC -Ifirmware/hal -o "$OUT/flash_id_test" tests/flash_id_test.c
+run "FM-1 flash chips: P25Q80 and the 2026 units' UC25HQ80 accepted, anything else RAM-only" "$OUT/flash_id_test"
+
 # SMK-37 Pro (BOARD_SMK37): the flash map, the OTA staging and the loader windows on SMK-layout packages
 # (made here from the FM-1 binaries: only the layout and the protocol are under test)
 $CC -DBOARD_SMK37=1 -Ifirmware/hal -o "$OUT/smk_flash_test" tests/smk_flash_test.c

@@ -11,6 +11,9 @@
 
 const HS_QUERY = [0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7];
 const UPGRADE = [0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7];
+// the key that drops the running firmware (stock V15 and the Felucca family) into the chip's mask-ROM USB boot mode
+// (WL82 UBOOT1.00), where MvaveFM1Unbricker can rewrite it; it writes nothing, and a power cycle brings the unit back
+const UBOOT = [0xF0, 0x22, 0x24, 0x35, 0x7D, 0xF7];
 const MAXDATA = 512;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const IS_OTA = (id) => /^ota-/i.test(id.model);
@@ -215,6 +218,10 @@ export class Updater {
     await sleep(2000);
     const s1 = await this.serve(dev.link, image, 0xE0000000, 8000, (n) => step("verify", n));
     dev.link.close();
+    // no read at all: the running firmware will not update. Older Double Rainbow, Rainbow mode, Felucca and Melodee
+    // builds do that on the 2026 units' new flash chip (UC25HQ80), which they do not know: the page offers the rescue
+    if (!s1.finished && !s1.lost && !s1.served)
+      throw fail("refused", `${dev.id.text} did not start the update: nothing was written`, dev.id.text);
     if (!s1.finished) throw fail(s1.lost ? "lost" : "stopped", `the device ${s1.lost ? "was disconnected" : "stopped"} after ${s1.served} requests: nothing was written`);
     step("loader");
     await sleep(3000);
@@ -254,6 +261,16 @@ export class Updater {
     back.link.close();
     step("bootdone", back.id.text);
     return back.id.text;
+  }
+
+  // the rescue's first step: the running FM-1 into its USB boot mode (UBOOT); its identity, or null if none answered
+  async uboot() {
+    const dev = await this.find((id) => !IS_OTA(id));
+    if (!dev) return null;
+    dev.link.send(UBOOT);
+    await sleep(300);
+    dev.link.close();
+    return dev.id.text;
   }
 
   // step 2 with the loader found by find()/waitFor()

@@ -47,6 +47,17 @@
     <p class="small" data-t="pickwhy"></p>
     <ul id="ports" class="small" style="padding-left:18px"></ul>
   </details>
+  <details id="rescue" style="margin-top:8px">
+    <summary class="small" data-t="rescueh"></summary>
+    <p class="small" data-t="rescuewhy"></p>
+    <p class="small" data-t="rescue1"></p>
+    <p><button id="rescue-go" data-t="rescueGo"></button></p>
+    <p class="small"><span data-t="rescue2"></span><br>
+      <a href="https://github.com/Quixotic7/MvaveFM1Unbricker" target="_blank" rel="noopener" style="color:inherit">MvaveFM1Unbricker</a> ·
+      <a href="https://github.com/GoodPerson42/FM1-Unbricking-For-Dummies" target="_blank" rel="noopener" style="color:inherit">FM1 Unbricking For Dummies</a> ·
+      <a href="https://www.m-vave.com/product?id=fm-1" target="_blank" rel="noopener" style="color:inherit">M-VAVE FM-1 (FM-1.fwsc)</a></p>
+    <p class="small" data-t="rescue3"></p>
+  </details>
   <section style="margin-top:20px">
     <p><label><span data-t="nameTitle"></span><br>
       <input id="kid-name" maxlength="10" autocomplete="off" spellcheck="false"
@@ -199,6 +210,33 @@ Object.assign(TEXT.en, {
   picknone: "No FM-1 answered on {port}.",
   pickok: "Found {id} on {port}. This browser remembers it. Press Install again.",
 });
+/* the rescue: an FM-1 whose firmware refuses updates (older versions on the 2026 units' UC25HQ80 flash, which they did
+ * not know: no saves, no updates). The key drops it into the chip's own USB boot mode; MvaveFM1Unbricker then writes
+ * M-VAVE's firmware back from the computer, and this page installs the fixed version over that. */
+Object.assign(TEXT.ja, {
+  refused: "FM-1 が更新を始めませんでした。何も書き込まれていません。2026 年秋以降の FM-1（前面にロゴがあるもの）は新しいフラッシュチップを積んでいて、古い " + APP + " はそれを知らないため、保存も更新もできません。このページの版では直っていますが、すでにそうなった FM-1 は、下の「更新を受け付けない FM-1 を助ける」を一度だけ行ってください。",
+  rescueh: "更新を受け付けない FM-1 を助ける",
+  rescuewhy: "2026 年秋以降の FM-1 は新しいフラッシュチップ（UC25HQ80）を積んでいます。古い " + APP + " やほかのカスタムファームウェアはこれを知らず、保存も更新もできなくなります。壊れてはいません。次の手順で戻せます。",
+  rescue1: "1. FM-1 を USB でつないだまま、下のボタンを押してください。FM-1 はチップ内蔵の USB ブートモードになり、画面に UBOOT (USB) と出てから暗くなります。何も書き込みません。電源を入れ直せば元に戻ります。",
+  rescueGo: "USB ブートモードにする",
+  rescue2: "2. パソコンで MvaveFM1Unbricker（無料。初心者向けの手順書あり）を使い、M-VAVE の公式ファームウェアを書き戻します: python3 fm1_unbrick.py restore FM-1.fwsc 。先にフラッシュ全体をバックアップし、書いた内容を 1 バイトずつ確かめます。",
+  rescue3: "3. FM-1 の電源を入れ直すと、公式ファームウェアで起動します。このページに戻って「インストール」を押してください。今度は新しいチップでも保存と更新ができます。",
+  rescueConfirm: "FM-1 を USB ブートモードにしますか？ 助けるか電源を入れ直すまで、画面は暗いままになります。",
+  rescueSent: "送りました。パソコンに WL82 UBOOT1.00 という USB ディスクが現れるはずです。手順 2 に進んでください。",
+  rescueNo: "FM-1 が応答しません。すでに画面が暗く、パソコンに WL82 UBOOT1.00 が見えていれば、手順 2 に進んでください。",
+});
+Object.assign(TEXT.en, {
+  refused: "The FM-1 did not start the update: nothing was written. FM-1s sold from autumn 2026 (with the logo on the front) have a new flash chip that older versions of " + APP + " did not know, so they cannot save or be updated. The version on this page fixes that, but an FM-1 that is already stuck needs the rescue below, once: Rescue an FM-1 that refuses updates.",
+  rescueh: "Rescue an FM-1 that refuses updates",
+  rescuewhy: "FM-1s sold from autumn 2026 have a new flash chip (UC25HQ80). Older versions of " + APP + " and other custom firmwares did not know it, so the FM-1 cannot save and will not take an update. It is not broken, and these steps bring it back.",
+  rescue1: "1. With the FM-1 connected by USB, press the button. The FM-1 switches to its chip's own USB boot mode: its screen says UBOOT (USB), then goes dark. Nothing is written, and switching it off and on brings it back as it was.",
+  rescueGo: "Switch to USB boot mode",
+  rescue2: "2. On the computer, use MvaveFM1Unbricker (free, with a beginner's guide) to write M-VAVE's official firmware back: python3 fm1_unbrick.py restore FM-1.fwsc. It backs up the whole flash first and checks every byte it writes.",
+  rescue3: "3. Switch the FM-1 off and on. It starts with the official firmware. Come back here and press Install: this time it saves and updates on the new chip too.",
+  rescueConfirm: "Switch the FM-1 to USB boot mode? Its screen stays dark until it is rescued, or switched off and on.",
+  rescueSent: "Sent. The computer should now show a USB disk called WL82 UBOOT1.00. Go on with step 2.",
+  rescueNo: "No FM-1 answered. If its screen is already dark and the computer shows WL82 UBOOT1.00, go on with step 2.",
+});
 const fillT = (k, v) => t(k).replace(/\{(\w+)\}/g, (_, n) => v[n] ?? "");
 /* a port the person picked once (the picker below): asked by itself from then on */
 const PORT_KEY = "fm1-port";
@@ -288,11 +326,21 @@ $("go").addEventListener("click", async () => {
     }
   } catch (e) {
     if (e && e.code === "open") say(fillT("open", { id: e.detail }));
+    else if (e && e.code === "refused") { sayK("refused"); $("rescue").open = true; }
     else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
   }
   lockInstaller(false);
+});
+
+$("rescue-go").addEventListener("click", async () => {
+  if (writing || !confirm(t("rescueConfirm"))) return;
+  let midi;
+  try { midi = await navigator.requestMIDIAccess({ sysex: true }); } catch (e) { sayK("denied"); return; }
+  const id = await new Updater(midi, log, allowPorts()).uboot();
+  log(`uboot ${id || "(none)"}`);
+  sayK(id ? "rescueSent" : "rescueNo");
 });
 
 /* Is the FM-1 under another name? Every MIDI port with an input and an output of the same name, each with Try: the

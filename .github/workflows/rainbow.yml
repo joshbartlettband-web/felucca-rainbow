@@ -158,6 +158,12 @@ jobs:
       - name: Python packages
         run: pip install Pillow fonttools
 
+      - name: The FM-1's flash chips (the 2026 units' UC25HQ80 too, or they cannot save or be updated)
+        run: |
+          mkdir -p build/host
+          cc -Ifirmware/hal -o build/host/flash_id_test tests/flash_id_test.c
+          build/host/flash_id_test
+
       - name: Generated headers (fonts, icons, tables, samples), as build.py makes them
         run: python3 -c "import sys; sys.path.insert(0, 'tools'); import build; build.generate()"
 

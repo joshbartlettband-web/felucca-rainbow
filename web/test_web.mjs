@@ -1451,6 +1451,8 @@ class FakeFM1 {
                        bootloader = false } = {}) {
     this.image = image; this.unplugAfter = unplugAfter; this.served = 0; this.bad = 0; this.back = back;
     this.bootloader = bootloader;                 // (m-bootloader's installer: staged, then back to the firmware)
+    this.refuse = false;                          // (a firmware that does not know its flash chip: no update at all)
+    this.ubooted = false;
     this.access = { inputs: new Map(), outputs: new Map() };
     this.port = port;
     this.boot(identity, port);
@@ -1473,6 +1475,10 @@ class FakeFM1 {
       const t = [...new TextEncoder().encode(this.identity)];
       const body = [0, 0x59, 0x11, 0, 0, 0, ...t, ...new Array(28 - t.length).fill(0)];
       this.tx([0xF0, ...pack7(body), 0xF7]);
+    } else if (eq(d, [0xF0, 0x22, 0x24, 0x35, 0x7D, 0xF7])) {
+      this.ubooted = true;                        // (the UBOOT key: off USB-MIDI, into the chip's USB boot mode)
+    } else if (eq(d, UPGRADE) && this.refuse) {
+      /* nothing: the update never starts */
     } else if (eq(d, UPGRADE)) {
       this.queue = this.identity.startsWith("ota-")
         ? [...Array.from({ length: 6 }, (_, k) => [k * 512, 512]), [0xF0000000, 8]]
@@ -1553,6 +1559,13 @@ async function updater() {
   const bgot = await new Updater(boot.access).installBoot(image, "FM-1_900", (k) => bsteps.push(k));
   ok(bgot === "FM-1_900" && boot.bootWritten && boot.bad === 0 && bsteps.join() === "bootstart,bootwrite,bootdone",
     "fm1ota.js: m-bootloader after the firmware: staged, then the firmware again");
+
+  const stuck = new FakeFM1(image, { identity: "FM-1_900" });
+  stuck.refuse = true;
+  const e5 = await new Updater(stuck.access).install(image, "FM-1_901").then(() => null, (x) => x);
+  const sent = await new Updater(stuck.access).uboot();
+  ok(e5 && e5.code === "refused" && stuck.served === 0 && sent === "FM-1_900" && stuck.ubooted,
+    "fm1ota.js: a firmware that refuses the update -> 'refused'; the rescue's UBOOT key sent");
 
   const odd = new FakeFM1(image, { port: "USB Audio Device" });
   const e4 = await new Updater(odd.access).install(image, "FM-1_900").then(() => null, (x) => x);
