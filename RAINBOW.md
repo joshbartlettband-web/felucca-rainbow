@@ -252,7 +252,7 @@ Train, the Helicopter and Shark play no cheer, as their notes are no tune; the r
 (`web/emu/kid_test.mjs`, and by a K-weighted loudness over a phrase), and none is closer in sound to an older friend than the older
 friends are to each other.
 
-Then the Peacock, by request, with "shimmer and grandeur": its tail fanned out behind it, rows of gold eye-spots, and a band
+Then the Peacock, for u/Quaglek's daughter on r/MVaveFM1, with "shimmer and grandeur": its tail fanned out behind it, rows of gold eye-spots, and a band
 of light that runs slowly across the tail. The tail's teal, green and gold are colours only it has (`gen_kid_art.py`
 `SHIMMER`), so `kid_shimmer` can find them in its palette (`KID_SHIMMER_MASK`) and brighten them where the band passes; its
 area is repainted as the band moves, as WIGGLE does, and FREEZE stills it. Its sound is PHYS's HARP in a great hall (a long
