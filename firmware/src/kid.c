@@ -1560,6 +1560,42 @@ static const kid_song_t KID_SONGS[] = {
                        K_G4 K_A4 K_G4 K_C4 K_C4 K_C5 K_A4 K_F4 K_G4 K_E4 K_C4 K_F4 K_E4 K_D4 K_C4},
     {"WE WISH YOU", K_G4 K_C5 K_C5 K_D5 K_C5 K_B4 K_A4 K_A4 K_A4 K_D5 K_D5 K_E5 K_D5 K_C5 K_B4 K_G4 K_G4 K_E5 K_E5
                     K_F5 K_E5 K_D5 K_C5 K_A4 K_G4 K_G4 K_A4 K_D5 K_B4 K_C5},
+    /* ten more (2026-11): each read note for note from the score in its Wikipedia article (tools/wiki_song.py), the
+     * melody only, and moved, where it says, to fit the keys with the fewest black keys */
+    /* Pop Goes the Weasel (en.wikipedia.org) */
+    {"POP WEASEL", K_C4 K_C4 K_D4 K_D4 K_E4 K_G4 K_E4 K_C4 K_C4 K_C4 K_D4 K_D4 K_E4 K_C4 K_C4 K_C4 K_D4 K_D4 K_E4
+                   K_G4 K_E4 K_C4 K_A4 K_D4 K_F4 K_E4 K_C4},
+    /* Rock-a-bye Baby (de.wikipedia.org) */
+    {"ROCK-A-BYE", K_E4 K_G4 K_E5 K_D5 K_C5 K_E4 K_G4 K_C5 K_B4 K_F4 K_G4 K_F5 K_E5 K_D5 K_D5 K_C5 K_A4 K_G4 K_E4
+                   K_G4 K_E5 K_D5 K_C5 K_E4 K_G4 K_C5 K_B4 K_G4 K_C5 K_F5 K_E5 K_C5 K_D5 K_A4 K_B4 K_C5},
+    /* Hickory Dickory Dock (en.wikipedia.org, moved -2) */
+    {"HICKORY DOCK", K_E4 K_F4 K_G4 K_G4 K_A4 K_B4 K_C5 K_G4 K_E4 K_F4 K_G4 K_G4 K_A4 K_B4 K_C5 K_G4 K_C5 K_C5 K_B4
+                     K_B4 K_A4 K_A4 K_G4 K_G4 K_A4 K_G4 K_F4 K_E4 K_D4 K_C4},
+    /* If You're Happy and You Know It (en.wikipedia.org, moved -5) */
+    {"IF YOURE HAPPY", K_G3 K_G3 K_C4 K_C4 K_C4 K_C4 K_C4 K_C4 K_B3 K_C4 K_D4 K_F4 K_F4 K_G3 K_G3 K_D4 K_D4 K_D4
+                       K_D4 K_D4 K_D4 K_C4 K_D4 K_E4 K_F4 K_F4 K_E4 K_E4 K_F4 K_F4 K_F4 K_F4 K_A3 K_A3 K_F4 K_F4
+                       K_E4 K_E4 K_E4 K_D4 K_C4 K_C4 K_E4 K_E4 K_D4 K_D4 K_D4 K_C4 K_B3 K_B3 K_A3 K_B3 K_C4 K_F4
+                       K_F4},
+    /* Humpty Dumpty (en.wikipedia.org, moved +2) */
+    {"HUMPTY DUMPTY", K_E4 K_G4 K_F4 K_A4 K_G4 K_A4 K_B4 K_C5 K_E4 K_G4 K_F4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_E4
+                      K_G4 K_F4 K_F4 K_A4 K_G4 K_A4 K_B4 K_C5 K_E5 K_E5 K_C5 K_F5 K_F5 K_E5 K_D5 K_C5 K_B4 K_C5},
+    /* Lavender's Blue (en.wikipedia.org) */
+    {"LAVENDER BLUE", K_G4 K_D5 K_D5 K_D5 K_C5 K_B4 K_A4 K_G4 K_G4 K_E5 K_E5 K_E5 K_G4 K_D5 K_D5 K_D5 K_C5 K_B4
+                      K_A4 K_G4 K_C5 K_B4 K_A4 K_G4},
+    /* For He's a Jolly Good Fellow (en.wikipedia.org, moved +2) */
+    {"JOLLY FELLOW", K_G4 K_B4 K_B4 K_B4 K_A4 K_B4 K_C5 K_B4 K_B4 K_A4 K_A4 K_A4 K_G4 K_A4 K_B4 K_G4 K_G4 K_B4 K_B4
+                     K_B4 K_A4 K_B4 K_C5 K_E5 K_E5 K_D5 K_D5 K_C5 K_A4 K_G4},
+    /* Here We Go Round the Mulberry Bush (en.wikipedia.org, moved -2) */
+    {"MULBERRY BUSH", K_F4 K_F4 K_F4 K_F4 K_A4 K_C5 K_A4 K_F4 K_F4 K_G4 K_G4 K_G4 K_F4 K_E4 K_D4 K_C4 K_F4 K_F4
+                      K_F4 K_F4 K_A4 K_C5 K_A4 K_F4 K_F4 K_G4 K_G4 K_C4 K_C4 K_F4 K_F4},
+    /* Hey Diddle Diddle (en.wikipedia.org, moved -5) */
+    {"HEY DIDDLE", K_E4 K_E4 K_E4 K_E4 K_F4 K_G4 K_D4 K_D4 K_D4 K_D4 K_C4 K_D4 K_E4 K_E4 K_E4 K_F4 K_G4 K_D4 K_E4
+                   K_F4 K_F4 K_F4 K_F4 K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_G3 K_G3 K_G3 K_A3 K_B3 K_C4},
+    /* My Bonnie Lies over the Ocean (en.wikipedia.org, moved -2) */
+    {"MY BONNIE", K_C4 K_A4 K_G4 K_F4 K_G4 K_F4 K_D4 K_C4 K_A3 K_C4 K_A4 K_G4 K_F4 K_F4 K_E4 K_F4 K_G4 K_C4 K_A4
+                  K_G4 K_F4 K_G4 K_F4 K_D4 K_C4 K_A3 K_C4 K_D4 K_G4 K_F4 K_E4 K_D4 K_E4 K_F4 K_C4 K_F4 K_D4 K_G4
+                  K_E4 K_E4 K_E4 K_E4 K_D4 K_E4 K_F4 K_G4 K_A4 K_C4 K_F4 K_D4 K_G4 K_E4 K_E4 K_E4 K_E4 K_D4 K_E4
+                  K_F4},
 };
 #define KID_NSONGS (sizeof KID_SONGS / sizeof KID_SONGS[0])
 
