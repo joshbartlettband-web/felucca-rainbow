@@ -105,6 +105,18 @@ check("PRESETS: another friend (the band shows its name)", band() !== name0);
   press(14);
   check("and starts again from the left when playing again", lines() && px(56, KID_Y(4)) === G_TEAL && px(77, KID_Y(4)) !== G_TEAL);
   render(6500);
+  // a black key alone sits on its own letter's line with a flat (Eb on the E line), in a chord where the chord spells it
+  // (C D# G: C, E flat, G); G# B D# keeps its sharps
+  const EB = col(255, 184, 30);                                               // KID_NOTE_COL: Eb
+  const chordKeys = (ks) => { ex.web_keys(ks.reduce((m, k) => m | 1 << k, 0)); render(120); ex.web_keys(0); render(250); };
+  press(10);                                                                   // D#4 / Eb4
+  shot("staff_flat");
+  check("a black key alone: Eb on the E line, a flat beside it", px(56, KID_Y(2)) === EB && px(45, KID_Y(2) - 5) === INK && px(47, KID_Y(2) - 3) !== INK);
+  chordKeys([7, 10, 14]);                                                      // C4 D#4 G4
+  check("C D# G: C, E flat, G (no sharp on the D line)", px(77, KID_Y(0)) === C_RED && px(77, KID_Y(2)) === EB && px(77, KID_Y(4)) === G_TEAL && px(66, KID_Y(2) - 5) === INK && px(65, KID_Y(1) + 1) !== INK);
+  chordKeys([3, 6, 10]);                                                       // G#3 B3 D#4
+  check("G# B D#: D sharp on the D line, a sharp beside it", px(98, KID_Y(1)) === EB && px(87, KID_Y(1) - 3) === INK && px(98, KID_Y(2)) !== EB);
+  render(6500);
 }
 
 // note values (by how long a key is held, against the beat): a tap a sixteenth (a stem, two flags), about a beat a
