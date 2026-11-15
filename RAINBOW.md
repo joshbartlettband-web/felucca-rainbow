@@ -12,7 +12,7 @@ at the next power-on.
 | Control | What happens |
 | --- | --- |
 | Keys | Play the friend's sound. The note's letter shows big in the band at the bottom, in its own color, and the friend hops. A music staff drops in at the top and writes the note (see below). |
-| PRESETS | Next or previous friend (94 of them, and a secret one; each with its own picture, sound, home sky and favorite beat). |
+| PRESETS | Next or previous friend (95 of them, and a secret one; each with its own picture, sound, home sky and favorite beat). |
 | ALGORITHM | How the keys play, one step per turn (below): 1 FRIEND, 3 FRIENDS, STRUM, ACCORDION, GUESS, FOLLOW, CHORDS, COPY ME. |
 | SELECT | The beat slower or faster (SLOW, WALK, FAST). |
 | KNOB 1 | Big and small. Low notes make a big friend, high notes a small one. OCT- and OCT+ do the same. |
@@ -252,6 +252,13 @@ Train, the Helicopter and Shark play no cheer, as their notes are no tune; the r
 (`web/emu/kid_test.mjs`, and by a K-weighted loudness over a phrase), and none is closer in sound to an older friend than the older
 friends are to each other.
 
+Then the Peacock, by request, with "shimmer and grandeur": its tail fanned out behind it, rows of gold eye-spots, and a band
+of light that runs slowly across the tail. The tail's teal, green and gold are colours only it has (`gen_kid_art.py`
+`SHIMMER`), so `kid_shimmer` can find them in its palette (`KID_SHIMMER_MASK`) and brighten them where the band passes; its
+area is repainted as the band moves, as WIGGLE does, and FREEZE stills it. Its sound is PHYS's HARP in a great hall (a long
+reverb, an echo and a slow release), its home the flower garden and its beat MARCH, for a proud strut. Its hats sit on its
+head, not on the top of its fan (`HAT_AT`).
+
 Each one uses one of Felucca's own factory sounds (listed in `firmware/src/kid.c`, `KID_SOUND`), with its
 level set so they all play at about the same loudness. Each also has a home sky and a favorite beat
 (Ghost and Slimy: SPOOKY, a ghost-hunting funk; Frog and Axolotl: REGGAE; Butterfly and Rainbow: LULLABY). Scissors
@@ -303,7 +310,7 @@ installer and browser pages around them are still in English.
 - `installer-pin.txt`: a rollback switch for the public installer. A run number in it makes the site's installer offer that earlier
   run's firmware instead of the newest build (nothing is deleted; the browser version and the private installer stay on the newest, and
   the landing page says so while it is pinned). Empty it and push to follow the newest again.
-- `tools/gen_kid_art.py`: the 95 pictures (94 and a secret), drawn from shapes on a 48 x 48 grid and outlined
+- `tools/gen_kid_art.py`: the 96 pictures (95 and a secret), drawn from shapes on a 48 x 48 grid and outlined
   automatically. `python3 tools/gen_kid_art.py /tmp/kid_art.h --png /tmp/sheet.png` writes a contact
   sheet to look at. The build runs it (`tools/build.py` generate).
 - `firmware/src/kid.c`: everything else (sounds, knobs, buttons, the screen). It takes over the main

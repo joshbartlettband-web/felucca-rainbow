@@ -131,6 +131,7 @@ static const int16_t TW_PIZZA[] = {P_E0, 7, P_E1, 2, P_E3, 2, -1};              
 static const int16_t TW_DONUT[] = {P_E3, 3, P_E6, 70, P_E4, -10, -1};            /* (FM6 PAD: a wide, swimming one) */
 static const int16_t TW_BANANA[] = {P_E4, 40, P_E2, 10, P_E3, -2, -1};           /* (FM6 PLUCK: a slow, boingy one) */
 static const int16_t TW_FIRETRUCK[] = {P_E0, 1, P_E4, 100, P_E5, 20, -1};        /* (ANALOG SAW LEAD as a square, wide vibrato and a glide: a siren) */
+static const int16_t TW_PEACOCK[] = {P_REV, 96, P_DLY, 62, P_REL, 88, -1};      /* (PHYS HARP in a great hall: grandeur) */
 static const kid_sound_t KID_SOUND[KID_N] = {
     {12, "TINE EP", 97, KS_BUBBLES, KB_DANCE},       /* DUCKY: FM6 */
     {7, "SOFT FLUTE", 104, KS_HEARTS, KB_DISCO},      /* PINK DUCKY: WHEEL */
@@ -235,6 +236,7 @@ static const kid_sound_t KID_SOUND[KID_N] = {
     {0, "SAW LEAD", 99, KS_STREET, KB_MARCH, 3, 50, 0, 0, TW_FIRETRUCK},   /* FIRE TRUCK: a siren */
     {9, "TOMS", 110, KS_STREET, KB_HIPHOP},            /* SCHOOL BUS: toms, a marching band */
     {11, "WIND", 116, KS_CLOUDS, KB_FUNK},             /* HELICOPTER: a rotor's whoosh */
+    {9, "HARP", 121, KS_FLOWERS, KB_MARCH, 0, 0, 0, 0, TW_PEACOCK},   /* PEACOCK: a harp in a great hall, and a proud strut */
     {7, "ROCK DRIVE", 93, KS_AURORA, KB_ROCK},     /* GOLD DUCKY (the secret friend): a rock star's organ */
 };
 
@@ -3343,6 +3345,14 @@ static int32_t kid_confetti(int32_t x, int32_t y, uint32_t speed, uint32_t salt)
     return -1;
 }
 
+/* the peacock's shimmer: a band of light runs slowly across its tail, over the colours only it has (KID_SHIMMER_MASK,
+ * tools/gen_kid_art.py), so the eye-spots and the green glint as it goes (a request: shimmer and grandeur) */
+static uint16_t kid_shimmer(uint16_t c, int32_t x, int32_t y)
+{
+    int32_t w = KID_SIN[(uint32_t)((x + 2 * y) / 5 - (int32_t)(kf.t / 60u)) & 31u];
+    return w > 80 ? kid_mix(c, KID_WHITE, (uint32_t)(w - 80) * 4u) : c;
+}
+
 static int32_t kid_friends_px(int32_t x, int32_t y)        /* the friends, front first; -1 none */
 {
     uint32_t i;
@@ -3378,6 +3388,8 @@ static int32_t kid_friends_px(int32_t x, int32_t y)        /* the friends, front
         if (ry < 0)
             continue;                                    /* (above the picture: only the hat) */
         b = kid_row(in->art, (uint32_t)ry)[rx];
+        if (b && in->art == KID_SHIMMER_ART && ((KID_SHIMMER_MASK >> b) & 1u) && in->pal != kf.ice)
+            return kid_shimmer(in->pal[b], x, y);                /* (not frozen: FREEZE stills it) */
         if (b)
             return in->pal[b];
     }
@@ -3899,6 +3911,8 @@ static void kid_draw(void)
     kid.zy0 = (int16_t)(kf.zz.y - 4);
     if (KID_WIG)
         sig += kf.ph;
+    if (kf.n && kf.in[0].art == KID_SHIMMER_ART && kf.in[0].pal != kf.ice)   /* (in[0]: the friend, in front) */
+        sig += kf.t / 60u;                                        /* (the peacock's shimmer moves: its area, each step) */
     if (y1 > (int32_t)KID_BAND_Y)
         y1 = KID_BAND_Y;
     if (kid.full) {
