@@ -426,6 +426,15 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_keys((1 << 9) | (1 << 12) | (1 << 16)); render(300);     // D F A: D minor
   check("another chord, another name (D F A)", band() !== named && bandHas(D_OR));
   ex.web_keys(0); render(1500);
+  // spelled from the root: C D# G is C Eb G, C MINOR; Eb G Bb is Eb MAJOR, not D# MAJOR; a black key alone is Db Eb F# Ab Bb
+  const txt = (f) => { let s = ""; for (let i = 0, c; (c = f(i)); i++) s += String.fromCharCode(c); return s; };
+  const spelled = (keys) => { ex.web_keys(keys.reduce((m, k) => m | (1 << k), 0)); render(300); const s = `${txt(ex.web_kid_txt)} / ${txt(ex.web_kid_txt2)}`; ex.web_keys(0); render(1500); return s; };
+  const cMin = spelled([7, 10, 14]), ebMaj = spelled([10, 14, 17]), gsMin = spelled([3, 6, 10]);
+  check(`C D# G is spelled C Eb G (${cMin})`, cMin === "C Eb G / C MINOR");
+  check(`Eb G Bb is Eb MAJOR (${ebMaj}); G# B D# keeps its sharps (${gsMin})`, ebMaj === "Eb G Bb / Eb MAJOR" && gsMin === "G# B D# / G# MINOR");
+  ex.web_keys(1 << 10); render(200);
+  check(`a black key alone: Eb (${txt(ex.web_kid_txt)})`, txt(ex.web_kid_txt) === "Eb");
+  ex.web_keys(0); render(1500);
   while (ex.web_kid_friend() === 12) { ex.web_enc(EN.PRESETS, 1); render(400); }   // (not SCISSORS: its keys are drums)
   render(1500);
   algo(1); algo(1);
