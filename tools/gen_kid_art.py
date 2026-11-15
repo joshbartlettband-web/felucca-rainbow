@@ -32,7 +32,11 @@ C = dict(
     lpurple=(204, 164, 255), brown=(150, 92, 46), dbrown=(84, 50, 32), tan=(226, 176, 112), dtan=(186, 128, 70),
     silver=(214, 220, 236), dwhite=(204, 212, 238), sky=(150, 206, 255), glass=(212, 236, 255),
     mint=(110, 230, 196), dmint=(52, 176, 148),
+    # the peacock's shimmer: colours no other friend uses, so kid.c can find them (KID_SHIMMER_MASK) and sweep a glint
+    # across them; a little apart from teal, green and gold so they are never merged with those
+    pk_teal=(20, 186, 176), pk_green=(48, 172, 84), pk_gold=(248, 196, 40),
 )
+SHIMMER = ("pk_teal", "pk_green", "pk_gold")      # (kid.c: a band of light runs across these, on the peacock only)
 
 
 class Pic:
@@ -1986,6 +1990,37 @@ def schoolbus():
     return p.done()
 
 
+def peacock():                                                   # a peacock, its tail fanned out behind it like a shell
+    p = Pic()
+    cx, cy = 24, 31
+    for k, a in enumerate(range(160, 380, 20)):                  # the fan: feathers in two greens, wider than a half circle
+        p.pie(cx, cy, 22, a, a + 20, "pk_green" if k % 2 else "dgreen")
+    p.pie(cx, cy, 17, 160, 380, "pk_teal")                       # an inner band of teal, the feathers' sheen
+    for k, a in enumerate(range(160, 381, 20)):
+        p.pie(cx, cy, 17, a - 1, a + 2, "dgreen")                    # (the feathers' shafts across it)
+    import math
+    for r, a0, a1, n, rr in ((19, 168, 372, 9, 3), (12, 190, 350, 5, 2)):   # the eye-spots: gold, teal, a navy heart
+        for i in range(n):
+            a = math.radians(a0 + (a1 - a0) * i / (n - 1))
+            x, y = round(cx + r * math.cos(a)), round(cy + r * math.sin(a))
+            p.ell(x, y, rr, rr, "pk_gold")
+            p.ell(x, y, rr - 1, rr - 1, "teal")
+            p.px(x, y, "navy")
+    p.ell(24, 37, 7, 9, "dblue")                                 # the body, royal blue
+    p.ell(23, 36, 6, 8, "blue")
+    p.rect(22, 20, 26, 30, "blue"); p.rect(25, 21, 26, 30, "dblue")   # the neck
+    p.ball(24, 18, 5, 5, "blue", "dblue")                        # the head
+    for x, y in ((19, 6), (24, 4), (29, 6)):                    # the crest: three plumes, each tipped with gold
+        p.line([(24, 13), (x, y + 1)], "dblue", 1)
+        p.px(x, y, "pk_gold")
+    p.ell(22, 18, 2, 2, "white"); p.ell(26, 18, 2, 2, "white")   # its white face marks, round the eyes
+    p.px(22, 18, "black"); p.px(26, 18, "black")
+    p.poly([(23, 20), (25, 20), (24, 23)], "tan")                # the beak
+    p.line([(21, 45), (21, 47)], "tan", 1); p.line([(27, 45), (27, 47)], "tan", 1)   # legs
+    p.line([(19, 47), (23, 47)], "tan", 1); p.line([(25, 47), (29, 47)], "tan", 1)
+    return p.done()
+
+
 def helicopter():
     p = Pic()
     p.rect(5, 4, 43, 5, "dgrey"); p.rect(22, 5, 25, 11, "grey")   # the rotor
@@ -2120,6 +2155,7 @@ FRIENDS = [
     ("FIRE TRUCK", firetruck),
     ("SCHOOL BUS", schoolbus),
     ("HELICOPTER", helicopter),
+    ("PEACOCK", peacock),                                         # (a request: shimmer and grandeur)
     ("GOLD DUCKY", ducky("gold", "dyellow", goldcrown)),       # the secret friend (50 stars): always the last
 ]
 SECRET_FRIEND = "GOLD DUCKY"
@@ -2341,6 +2377,7 @@ HEAD_HINT = {"BUNNY": (0, 47, 16), "VACUUM": (0, 47, 18), "SPIDER": (14, 40, 14)
              "SHARK": (2, 18, 10), "UNICORN": (12, 24, 9)}
 # .. and where no rule finds it, by hand: (centre x, the row the hat's bottom sits on, hat width)
 HAT_AT = {"BEE": (12, 19, 16),           # its face, not its wings
+          "PEACOCK": (23, 14, 13),       # its head, not the top of its fan (the crest goes under the hat)
           "SNAIL": (9, 9, 18),           # across both eyes (they are its head)
           "STEGOSAURUS": (7, 26, 15),    # the small head at the front, not the plates
           "TRAIN": (35, 11, 18),         # on the cab, where the driver is
@@ -2452,7 +2489,11 @@ def main(out, png=None):
         pal = [0] + [rgb565(c) for c in cols] + [0] * (15 - len(cols))
         lines.append("    {" + ", ".join(f"0x{v:04X}" for v in pal) + "},")
         data.append(rle(idx))
+        if name == "PEACOCK":                                    # (its shimmer: which palette slots kid.c sweeps)
+            shim = (len(data) - 1, sum(1 << (cols.index(C[c]) + 1) for c in SHIMMER if C[c] in cols))
     lines.append("};")
+    lines.append(f"#define KID_SHIMMER_ART {shim[0]}             /* the peacock's picture: a glint runs across its tail */")
+    lines.append(f"#define KID_SHIMMER_MASK 0x{shim[1]:04X}u      /* .. over these palette slots (kid_friends_px) */")
     icons = []                                                   # ALGORITHM's pictures: runs too, after the pictures
     for f in ICONS:
         im, cols, idx = f().im, [], []

@@ -14,7 +14,7 @@ PROJECTS = [
      "Firmware for the M-VAVE FM-1. 24 sounds got out of the Keeper's jars, and each one is a real synth engine you "
      "learn by playing. For ages ten and up.", "Synth characters for the FM-1, ten and up"),
     ("rainbow-mode", "Rainbow mode", "https://joshbartlettband-web.github.io/felucca-rainbow/",
-     "A music toy for little hands on the M-VAVE FM-1. 94 friends, 21 beats and a color for every note.",
+     "A music toy for little hands on the M-VAVE FM-1. 95 friends, 21 beats and a color for every note.",
      "A music toy for little hands, on the FM-1"),
     ("fretbound", "Fretbound", "https://joshbartlettband-web.github.io/Fretbound/",
      "An ear-training game for guitarists. A rival plays a phrase and you play it back on the fretboard. "
