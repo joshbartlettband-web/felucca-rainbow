@@ -328,8 +328,7 @@ static const uint8_t KID_FX_BTN[KX_COUNT] = {B_FX, B_SCL, B_ENV, B_LFO, B_EDIT, 
 static const uint8_t KID_FX_PF[KX_COUNT] = {PF_R16, PF_REV, PF_TAPE, PF_OUP, PF_ODN, PF_FRZ};
 static const char *const KID_FX_NAME[KX_COUNT] = {"HICCUP", "BACKWARDS", "SLEEPY", "SQUEAKY", "GIANT", "FREEZE"};
 
-/* the twelve notes from C: their letters and colours. A black key on its own is spelled as most music spells it:
- * Db Eb F# Ab Bb ('b' is the band font's flat sign); in a chord, from the chord's root (kid_chord_spell) */
+/* the twelve notes from C: their letters ('b' the flat sign; in a named chord, from its root) and colours */
 static const char *const KID_NOTE[12] = {"C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
 /* .. or as many countries say them (DO RE MI: the grown-ups' NOTE NAMES, HOME held 1 s, then KNOB 2; an idea from
  * u/Competitive_Tank_150 in Brazil). Kept in a spare settings byte: favorites.factory[13][18] (SLICE's favourites,
@@ -342,16 +341,20 @@ static const char *const KID_SOLFA[12] = {"DO", "REb", "RE", "MIb", "MI", "FA", 
 #endif
 #define KID_DOREMI (KID_DOREMI_FIRST ? KID_DOREMI_BYTE != 2u : KID_DOREMI_BYTE == 1u)   /* (2: C D E picked) */
 static const char *kid_note_name(uint32_t pc) { return (KID_DOREMI ? KID_SOLFA : KID_NOTE)[pc % 12u]; }
-/* a note spelled on a letter (C = 0 .. B = 6): the letter (or DO RE MI), then a '#' or 'b' for each semitone off it */
+/* a note spelled on a letter (C = 0 .. B = 6): the letter as kid_note_name says it (H, DO RE MI, kana in a translated
+ * build), then a '#' or 'b' for each semitone off it; B flat where B is H (German and Nordic builds) */
 static const uint8_t KID_LETTER_PC[7] = {0, 2, 4, 5, 7, 9, 11};
 static const uint8_t KID_LETTER_OF[12] = {0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6};   /* KID_NOTE's letters: C Db D Eb E F F# .. */
 static int32_t kid_acc(uint32_t letter, uint32_t pc) { return (int32_t)((pc + 18u - KID_LETTER_PC[letter]) % 12u) - 6; }
 static void kid_spell(char *b, uint32_t letter, uint32_t pc)   /* -> b (8 bytes) */
 {
-    static const char *const L[7] = {"C", "D", "E", "F", "G", "A", "B"};
-    static const char *const S[7] = {"DO", "RE", "MI", "FA", "SOL", "LA", "SI"};
+    const char *l = kid_note_name(KID_LETTER_PC[letter % 7u]);
     int32_t a = kid_acc(letter, pc);
-    str_cpy(b, (KID_DOREMI ? S : L)[letter % 7u], 8);
+    if (*l == 'H' && a < 0) {
+        l = "B";
+        a++;
+    }
+    str_cpy(b, l, 8);
     for (b += str_len(b); a > 0; a--)
         *b++ = '#';
     for (; a < 0; a++)
@@ -2610,42 +2613,21 @@ static uint32_t kid_band_word(const char *s, int16_t sc, uint16_t bg, uint32_t s
     return sig;
 }
 
-/* a chord's notes spelled from its root on letter rl (the 3rd two letters up, the 5th four, ...) -> let; the cost:
- * a point a sharp or flat, 10 a note that would need two (that one keeps its own spelling, KID_LETTER_OF) */
-static uint32_t kid_chord_cost(const uint8_t *pcs, uint32_t n, uint32_t root, uint32_t rl, int s11, uint8_t *let)
+/* a chord tone's letter, its root on letter rl: the 3rd two letters up, the 5th four (a b5 by a M3 or M7: a #11) */
+static uint32_t kid_chord_letter(uint32_t rl, uint32_t root, uint32_t pc, uint32_t rel)
 {
-    static const uint8_t STEP[12] = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};   /* b9 9 m3 M3 4 b5 5 b6 6 b7 M7 */
-    uint32_t i, c = 0;
-    for (i = 0; i < n; i++) {
-        uint32_t iv = (pcs[i] + 12u - root) % 12u, l = (rl + (iv == 6u && s11 ? 3u : STEP[iv])) % 7u;
-        int32_t a = kid_acc(l, pcs[i]);
-        if (a < -1 || a > 1) {
-            l = KID_LETTER_OF[pcs[i]];
-            c += 10u;
-        } else {
-            c += a != 0;
-        }
-        let[i] = (uint8_t)l;
+    static const uint8_t STEP[12] = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};
+    uint32_t iv = (pc + 12u - root) % 12u;
+    return (rl + (iv == 6u && (rel & 0x810u) ? 3u : STEP[iv])) % 7u;
+}
+static uint32_t kid_chord_cost(const uint8_t *pcs, uint32_t n, uint32_t root, uint32_t rl, uint32_t rel)
+{   /* (its sharps and flats spelled on rl) */
+    uint32_t c = 0;
+    while (n--) {
+        int32_t a = kid_acc(kid_chord_letter(rl, root, pcs[n], rel), pcs[n]);
+        c += (uint32_t)(a < 0 ? -a : a);
     }
     return c;
-}
-
-/* a named chord spelled from its root (C D# G is C Eb G): a black-key root takes whichever spelling has fewer sharps
- * and flats (Db, not C#: Db F Ab; G#, not Ab, in G# minor), a tie KID_NOTE's (Eb minor, F# major) -> let, *rl the root's
- * letter. s11: a #11 (MAJ7#11), not a b5 */
-static void kid_chord_spell(const uint8_t *pcs, uint32_t n, uint32_t root, int s11, uint8_t *let, uint32_t *rl)
-{
-    uint8_t alt[8];
-    uint32_t d = KID_LETTER_OF[root], a, i, c = kid_chord_cost(pcs, n, root, d, s11, let);
-    *rl = d;
-    if (KID_LETTER_PC[d] == root)                                 /* (a white key: its own letter) */
-        return;
-    a = KID_LETTER_PC[d] > root ? d - 1u : d + 1u;                /* (Db: C#; F#: Gb) */
-    if (kid_chord_cost(pcs, n, root, a, s11, alt) < c) {
-        *rl = a;
-        for (i = 0; i < n; i++)
-            let[i] = alt[i];
-    }
 }
 
 /* a chord in the band: its letters in their colours (low to high), and its name under them when it has one (named:
@@ -2656,13 +2638,9 @@ static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *nam
         {0x091, "MAJOR"}, {0x089, "MINOR"}, {0x491, "SEVEN"}, {0x049, "DIM"}, {0x0A1, "SUS"},
         {0x891, "MAJ7"}, {0x489, "MIN7"}, {0x815, "MAJ9"}, {0x415, "NINE"}, {0x40D, "MIN9"}, {0x851, "MAJ7#11"},
         {0x811, "MAJ7"}, {0x411, "SEVEN"}, {0x409, "MIN7"}, {0x841, "MAJ7#11"}};   /* (shells: no 5th; ACCORDION) */
-    uint32_t mask = 0, i, j, root = pcs[0], sig = 0x600u, w, rl = KID_LETTER_OF[pcs[0]];
-    uint8_t let[8];
-    int s11 = 0;
+    uint32_t mask = 0, i, j, root = pcs[0], sig = 0x600u, w, rl = 0, rel;
     const char *q = 0;
     char *p = kf.l1, nm[8];
-    if (n > 8u)
-        n = 8u;
     for (i = 0; i < n; i++)
         mask |= 1u << pcs[i];
     if (named) {
@@ -2675,18 +2653,18 @@ static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *nam
             if (rel == T[j].m) {
                 q = T[j].q;
                 root = pcs[i];
-                s11 = T[j].m == 0x851u || T[j].m == 0x841u;
                 break;
             }
     }
-    if (q)
-        kid_chord_spell(pcs, n, root, s11, let, &rl);
-    else
-        for (i = 0; i < n; i++)                                   /* (no name: each note as it is on its own) */
-            let[i] = KID_LETTER_OF[pcs[i]];
+    rel = ((mask >> root) | (mask << (12u - root))) & 0xFFFu;
+    if (q && KID_LETTER_PC[rl = KID_LETTER_OF[root]] != root) {   /* a black-key root: Db F Ab, but G# B D#; a tie KID_NOTE's */
+        uint32_t o = KID_LETTER_PC[rl] > root ? rl - 1u : rl + 1u;
+        if (kid_chord_cost(pcs, n, root, o, rel) < kid_chord_cost(pcs, n, root, rl, rel))
+            rl = o;
+    }
     for (i = 0; i < n && p < kf.l1 + 18; i++) {                   /* (DO RE MI: up to 4 letters a note) */
         const char *l = nm;
-        kid_spell(nm, let[i], pcs[i]);
+        kid_spell(nm, q ? kid_chord_letter(rl, root, pcs[i], rel) : KID_LETTER_OF[pcs[i]], pcs[i]);   /* (spelled from the root) */
         if (i)
             *p++ = ' ';
         for (; *l; l++, p++) {

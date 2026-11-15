@@ -66,7 +66,7 @@ def kana_glyphs():
 
 
 def enc(s):
-    """a word as kid.c's band can draw it: capitals, digits, space # ! ? - (and \\n in a card); accents as octal bytes"""
+    """a word as kid.c's band can draw it: capitals, digits, space # ! ? -, b (the flat sign) (and \\n in a card); accents as octal bytes"""
     if "\\n" in s:                        # (a card: its lines, the \n between them kept as kid.c writes it)
         return "\\n".join(enc(x) for x in s.split("\\n"))
     out = []
@@ -77,7 +77,7 @@ def enc(s):
             raise SystemExit(f"gen_kid_lang: {s!r}: {ch!r} is not one of the kana")
         elif ch in ACCENTS:
             out.append("\\%03o" % (0x80 + ACCENTS.index(ch)))
-        elif re.fullmatch(r"[A-Z0-9 #!?\-_=]", ch):
+        elif re.fullmatch(r"[A-Z0-9 #!?\-_=b]", ch):
             out.append(ch)
         else:
             raise SystemExit(f"gen_kid_lang: {s!r}: {ch!r} is not in the band's font")
