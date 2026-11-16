@@ -322,6 +322,8 @@ jobs:
       - name: The landing page (the one link to share)
         env:
           PIN: ${{ steps.pin.outputs.run }}
+          GOATCOUNTER: ${{ vars.GOATCOUNTER_CODE }}              # the counter (a repository variable: the GoatCounter site
+                                                                 # code, as in CODE.goatcounter.com); none, no counting at all
           DONATE: ${{ vars.DONATE_URL || secrets.DONATE_URL }}   # the tip link (a repository variable or secret: Ko-fi,
                                                                  # Buy Me a Coffee ...); none, no tip card
         run: |
@@ -335,6 +337,16 @@ jobs:
           find site -name '*.html' -exec sed -i "s|@REPO@|$repo|g" {} +   # (the installers' credits)
           if [ -z "$PIN" ]; then                      # (the note about a pinned installer is only there while it is pinned)
             perl -0pi -e 's/\s*<!--PIN-->.*?<!--\/PIN-->//s' site/index.html
+          fi
+          gc=$(printf '%s' "$GOATCOUNTER" | tr -d '[:space:]' | tr 'A-Z' 'a-z')
+          gc=${gc#https://}; gc=${gc%%.goatcounter.com*}             # (the whole address pasted: just its code)
+          if printf '%s' "$gc" | grep -Eq '^[a-z0-9-]{2,50}$'; then  # installs, browser plays and visits, counted
+            find site -name '*.html' -exec sed -i "s|@GOATCOUNTER@|$gc|g" {} +
+            echo "counter: on ($gc.goatcounter.com)"
+          else                                                       # (none: the front page's line goes, and the pages'
+            perl -0pi -e 's/\s*<!--COUNT-->.*?<!--\/COUNT-->//s' site/index.html   #  own code stays off: it checks the code)
+            if [ -n "$gc" ]; then echo "::warning::GOATCOUNTER_CODE is set but is not a GoatCounter code (letters, digits, -): no counter"
+            else echo "counter: off (no GOATCOUNTER_CODE)"; fi
           fi
           d=$(printf '%s' "$DONATE" | tr -d '[:space:]')   # (pasted on a phone: spaces, a line break, no https://)
           case "$d" in
