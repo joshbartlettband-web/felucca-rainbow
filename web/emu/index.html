@@ -442,6 +442,14 @@ async function midiOn() {
 }
 
 // ------------------------------------------------------------------ switching on
+/* plays, counted: one each time the sound is switched on, with GoatCounter (no cookies, nothing about the person; the
+ * workflow puts in the site's code, GOATCOUNTER_CODE; without one, nothing is sent) */
+const GC = "@GOATCOUNTER@";
+function counted(what) {
+  if (!/^[a-z0-9-]+$/.test(GC)) return;
+  const lang = (location.pathname.match(/\/([a-z]{2})\/webapp\//) || [0, "en"])[1];
+  try { new Image().src = `https://${GC}.goatcounter.com/count?p=${what}&t=${what}-${lang}&e=true&rnd=${Math.random().toString(36).slice(2)}`; } catch (_) {}
+}
 const status = document.getElementById("status");
 const say = (t) => { status.textContent = t; status.hidden = !t; };
 async function switchOn() {
@@ -473,6 +481,7 @@ async function switchOn() {
       node.port.postMessage({ type: "load", wasm, sectors: loadFlash(), master: masterValue }, [wasm]);
     });
     await ac.resume();
+    counted("play");
     document.getElementById("start").hidden = true;
     go.textContent = "On";
     if (ac.sampleRate !== 44100) console.warn(`Felucca: the browser plays at ${ac.sampleRate} Hz, the pitch is off by ${(1200 * Math.log2(ac.sampleRate / 44100)).toFixed(0)} cents.`);
