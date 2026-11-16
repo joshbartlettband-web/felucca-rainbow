@@ -92,6 +92,31 @@ HATS = {"PARTY": "FÊTE", "CROWN": "COURONNE", "TOP HAT": "HAUT-DE-FORME", "BUCK
 # it; the article's LilyPond rendered to MIDI and its tune read back, tools: see RAINBOW.md), and moved, where
 # it says, to fit the keys at OCT 0 (F3 .. G5) with the fewest black keys. A score that repeats itself whole
 # is played once. Then a few known everywhere, the same notes as kid.c's English list.
+# FOLLOW's songs' pictures: a friend each (gen_kid_art.py FRIENDS), shown beside the song's name and while it plays,
+# so a child who can't read yet knows which song it is (u/jrej); no two the same
+SONG_PICS = {
+    'AU CLAIR': 'OWL',
+    'FRÈRE JACQUES': 'BEAR',
+    'VOUS DIRAI-JE': 'STAR',
+    'SUR LE PONT': 'TRAIN',
+    'UNE BERGÈRE': 'SHEEP',
+    'SOURIS VERTE': 'CATERPILLAR',
+    'DODO': 'PANDA',
+    'DAGOBERT': 'KING AXOLOTL',
+    'MEUNIER': 'SUNFLOWER',
+    'UNE POULE': 'CHICK',
+    'LE FURET': 'MONKEY',
+    '3 PETITS CHATS': 'KITTY',
+    'IL PLEUT': 'SNAIL',
+    'ALOUETTE': 'FLUTE BIRD',
+    'LA FONTAINE': 'FISH',
+    'PETITS BATEAUX': 'WHALE',
+    'ANNIVERSAIRE': 'CUPCAKE',
+    'À LA JOIE': 'PIANO PAL',
+    'VIVE LE VENT': 'SNOWMAN',
+    'DOUCE NUIT': 'NIGHT LIGHT',
+}
+
 SOLFA_SONGS = []
 SONGS = [
     # Au clair de la lune (fr.wikipedia.org, its score)

@@ -99,6 +99,33 @@ HATS = {"PARTY": "パーティー", "CROWN": "おうかん", "TOP HAT": "シル�
 # FOLLOW's songs: Japanese children's songs, each taken note for note from the score in a Wikipedia article (named
 # above it, tools/wiki_song.py), moved where it says to fit the keys at OCT 0 (F3 .. G5) with the fewest black keys; all
 # traditional or out of copyright (the newest, Yamada Kosaku's, since 2016). Then a few known everywhere.
+# FOLLOW's songs' pictures: a friend each (gen_kid_art.py FRIENDS), shown beside the song's name and while it plays,
+# so a child who can't read yet knows which song it is (u/jrej); no two the same
+SONG_PICS = {
+    'きらきらぼし': 'STAR',
+    'ちょうちょう': 'BUTTERFLY',
+    'ぶんぶんぶん': 'BEE',
+    'かっこう': 'FLUTE BIRD',
+    'むすんで ひらいて': 'MONKEY',
+    'メリーさん': 'SHEEP',
+    'おおきな くりのき': 'SQUIRREL',
+    'はるが きた': 'MORNING GLORY',
+    'かたつむり': 'SNAIL',
+    'とおりゃんせ': 'WOLF',
+    'こもりうた': 'PANDA',
+    'ななつのこ': 'OWL',
+    'あかとんぼ': 'FIREFLY',
+    'ゆき': 'PENGUIN',
+    'ゆうやけ こやけ': 'SUNFLOWER',
+    'ずいずい': 'KITTY',
+    'かごめ かごめ': 'DUCKY',
+    'あめふり': 'FROG',
+    'たんじょうび': 'CUPCAKE',
+    'よろこびの うた': 'PIANO PAL',
+    'ジングルベル': 'SNOWMAN',
+    'きよしこのよる': 'NIGHT LIGHT',
+}
+
 SOLFA_SONGS = []
 SONGS = [
     # きらきら星 (probe_ja.wikipedia.org, its score)

@@ -95,6 +95,20 @@ HATS = {"PARTY": "FEST", "CROWN": "KRONE", "TOP HAT": "HØJ HAT", "BUCKET": "FIS
 # it; the article's LilyPond rendered to MIDI and its tune read back, tools: see RAINBOW.md), and moved, where
 # it says, to fit the keys at OCT 0 (F3 .. G5) with the fewest black keys. A score that repeats itself whole
 # is played once. Then a few known everywhere, the same notes as kid.c's English list.
+# FOLLOW's songs' pictures: a friend each (gen_kid_art.py FRIENDS), shown beside the song's name and while it plays,
+# so a child who can't read yet knows which song it is (u/jrej); no two the same
+SONG_PICS = {
+    'MESTER JAKOB': 'BEAR',
+    'LILLE OLE': 'RAINBOW',
+    'LÆRKEREDE': 'FLUTE BIRD',
+    'SOLEN ER RØD': 'SUNFLOWER',
+    'BLINK STJERNE': 'STAR',
+    'ODE TIL GLÆDEN': 'PIANO PAL',
+    'BJÆLDEKLANG': 'SNOWMAN',
+    'O JULETRÆ': 'PENGUIN',
+    'GLADE JUL': 'NIGHT LIGHT',
+}
+
 SOLFA_SONGS = []
 SONGS = [
     # Frère Jacques (Mester Jakob) (fr.wikipedia.org, its score)

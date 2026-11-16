@@ -92,6 +92,21 @@ HATS = {"PARTY": "FESTA", "CROWN": "CORONA", "TOP HAT": "CILINDRO", "BUCKET": "P
 # it; the article's LilyPond rendered to MIDI and its tune read back, tools: see RAINBOW.md), and moved, where
 # it says, to fit the keys at OCT 0 (F3 .. G5) with the fewest black keys. A score that repeats itself whole
 # is played once. Then a few known everywhere, the same notes as kid.c's English list.
+# FOLLOW's songs' pictures: a friend each (gen_kid_art.py FRIENDS), shown beside the song's name and while it plays,
+# so a child who can't read yet knows which song it is (u/jrej); no two the same
+SONG_PICS = {
+    'FRA MARTINO': 'BEAR',
+    'FUNICULÌ': 'TRAIN',
+    'TU SCENDI': 'PENGUIN',
+    'NINNA NANNA': 'PANDA',
+    'SUL PONTE': 'BUTTERFLY',
+    'BRILLA BRILLA': 'STAR',
+    'TANTI AUGURI': 'CUPCAKE',
+    'INNO GIOIA': 'PIANO PAL',
+    'JINGLE BELLS': 'SNOWMAN',
+    'ASTRO DEL CIEL': 'NIGHT LIGHT',
+}
+
 SOLFA_SONGS = []
 SONGS = [
     # Frère Jacques (Fra Martino) (fr.wikipedia.org, its score)

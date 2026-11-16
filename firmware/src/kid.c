@@ -1507,95 +1507,96 @@ static void kw_clear(void)
 #define K_FS5 "\x1a"
 #define K_G5 "\x1b"
 /* FOLLOW's songs (old ones, free to use), a note a key (K_*); each fits the keys at OCT 0 (F3 .. G5) */
-typedef struct { const char *name, *notes; } kid_song_t;
+typedef struct { const char *name, *notes; uint8_t pic; } kid_song_t;   /* pic: a friend's picture for the song
+                                                                     * (KID_PIC_*), so a child who can't read knows it */
 static const kid_song_t KID_SONGS[] = {
     {"TWINKLE", K_C4 K_C4 K_G4 K_G4 K_A4 K_A4 K_G4 K_F4 K_F4 K_E4 K_E4 K_D4 K_D4 K_C4 K_G4 K_G4 K_F4 K_F4 K_E4 K_E4
                 K_D4 K_G4 K_G4 K_F4 K_F4 K_E4 K_E4 K_D4 K_C4 K_C4 K_G4 K_G4 K_A4 K_A4 K_G4 K_F4 K_F4 K_E4 K_E4 K_D4
-                K_D4 K_C4},
+                K_D4 K_C4, KID_PIC_STAR},
     {"MARY", K_E4 K_D4 K_C4 K_D4 K_E4 K_E4 K_E4 K_D4 K_D4 K_D4 K_E4 K_G4 K_G4 K_E4 K_D4 K_C4 K_D4 K_E4 K_E4 K_E4
-             K_E4 K_D4 K_D4 K_E4 K_D4 K_C4},
-    {"HOT CROSS BUNS", K_E4 K_D4 K_C4 K_E4 K_D4 K_C4 K_C4 K_C4 K_C4 K_C4 K_D4 K_D4 K_D4 K_D4 K_E4 K_D4 K_C4},
+             K_E4 K_D4 K_D4 K_E4 K_D4 K_C4, KID_PIC_SHEEP},
+    {"HOT CROSS BUNS", K_E4 K_D4 K_C4 K_E4 K_D4 K_C4 K_C4 K_C4 K_C4 K_C4 K_D4 K_D4 K_D4 K_D4 K_E4 K_D4 K_C4, KID_PIC_DONUT},
     {"ROW YOUR BOAT", K_C4 K_C4 K_C4 K_D4 K_E4 K_E4 K_D4 K_E4 K_F4 K_G4 K_C5 K_C5 K_C5 K_G4 K_G4 K_G4 K_E4 K_E4
-                      K_E4 K_C4 K_C4 K_C4 K_G4 K_F4 K_E4 K_D4 K_C4},
+                      K_E4 K_C4 K_C4 K_C4 K_G4 K_F4 K_E4 K_D4 K_C4, KID_PIC_FISH},
     {"OLD MACDONALD", K_G4 K_G4 K_G4 K_D4 K_E4 K_E4 K_D4 K_B4 K_B4 K_A4 K_A4 K_G4 K_D4 K_G4 K_G4 K_G4 K_D4 K_E4
-                      K_E4 K_D4 K_B4 K_B4 K_A4 K_A4 K_G4},
+                      K_E4 K_D4 K_B4 K_B4 K_A4 K_A4 K_G4, KID_PIC_PIG},
     {"FRERE JACQUES", K_C4 K_D4 K_E4 K_C4 K_C4 K_D4 K_E4 K_C4 K_E4 K_F4 K_G4 K_E4 K_F4 K_G4 K_G4 K_A4 K_G4 K_F4
-                      K_E4 K_C4 K_G4 K_A4 K_G4 K_F4 K_E4 K_C4 K_C4 K_G3 K_C4 K_C4 K_G3 K_C4},
+                      K_E4 K_C4 K_G4 K_A4 K_G4 K_F4 K_E4 K_C4 K_C4 K_G3 K_C4 K_C4 K_G3 K_C4, KID_PIC_BEAR},
     {"LONDON BRIDGE", K_G4 K_A4 K_G4 K_F4 K_E4 K_F4 K_G4 K_D4 K_E4 K_F4 K_E4 K_F4 K_G4 K_G4 K_A4 K_G4 K_F4 K_E4
-                      K_F4 K_G4 K_D4 K_G4 K_E4 K_C4},
+                      K_F4 K_G4 K_D4 K_G4 K_E4 K_C4, KID_PIC_TRAIN},
     {"ODE TO JOY", K_E4 K_E4 K_F4 K_G4 K_G4 K_F4 K_E4 K_D4 K_C4 K_C4 K_D4 K_E4 K_E4 K_D4 K_D4 K_E4 K_E4 K_F4 K_G4
-                   K_G4 K_F4 K_E4 K_D4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_C4},
+                   K_G4 K_F4 K_E4 K_D4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_C4, KID_PIC_PIANO_PAL},
     {"JINGLE BELLS", K_E4 K_E4 K_E4 K_E4 K_E4 K_E4 K_E4 K_G4 K_C4 K_D4 K_E4 K_F4 K_F4 K_F4 K_F4 K_F4 K_E4 K_E4 K_E4
-                     K_E4 K_G4 K_G4 K_F4 K_D4 K_C4},
+                     K_E4 K_G4 K_G4 K_F4 K_D4 K_C4, KID_PIC_SNOWMAN},
     {"HAPPY BIRTHDAY", K_G3 K_G3 K_A3 K_G3 K_C4 K_B3 K_G3 K_G3 K_A3 K_G3 K_D4 K_C4 K_G3 K_G3 K_G4 K_E4 K_C4 K_B3
-                       K_A3 K_F4 K_F4 K_E4 K_C4 K_D4 K_C4},
+                       K_A3 K_F4 K_F4 K_E4 K_C4 K_D4 K_C4, KID_PIC_CUPCAKE},
     {"ITSY BITSY", K_G3 K_C4 K_C4 K_C4 K_D4 K_E4 K_E4 K_E4 K_D4 K_C4 K_D4 K_E4 K_C4 K_E4 K_E4 K_F4 K_G4 K_G4 K_F4
-                   K_E4 K_F4 K_G4 K_E4 K_C4 K_C4 K_D4 K_E4 K_E4 K_D4 K_C4 K_D4 K_E4 K_C4},
+                   K_E4 K_F4 K_G4 K_E4 K_C4 K_C4 K_D4 K_E4 K_E4 K_D4 K_C4 K_D4 K_E4 K_C4, KID_PIC_SPIDER},
     {"YANKEE DOODLE", K_C4 K_C4 K_D4 K_E4 K_C4 K_E4 K_D4 K_G3 K_C4 K_C4 K_D4 K_E4 K_C4 K_B3 K_G3 K_C4 K_C4 K_D4
-                      K_E4 K_F4 K_E4 K_D4 K_C4 K_B3 K_G3 K_A3 K_B3 K_C4 K_C4},
+                      K_E4 K_F4 K_E4 K_D4 K_C4 K_B3 K_G3 K_A3 K_B3 K_C4 K_C4, KID_PIC_PEACOCK},
     {"OH SUSANNA", K_C4 K_D4 K_E4 K_G4 K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_E4 K_D4 K_C4 K_D4 K_C4 K_D4 K_E4 K_G4
-                   K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_E4 K_D4 K_D4 K_C4},
-    {"AMAZING GRACE", K_G3 K_C4 K_E4 K_C4 K_E4 K_D4 K_C4 K_A3 K_G3 K_G3 K_C4 K_E4 K_C4 K_E4 K_D4 K_G4},
+                   K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_E4 K_D4 K_D4 K_C4, KID_PIC_RANCHER},
+    {"AMAZING GRACE", K_G3 K_C4 K_E4 K_C4 K_E4 K_D4 K_C4 K_A3 K_G3 K_G3 K_C4 K_E4 K_C4 K_E4 K_D4 K_G4, KID_PIC_RAINBOW},
     {"SILENT NIGHT", K_G4 K_A4 K_G4 K_E4 K_G4 K_A4 K_G4 K_E4 K_D5 K_D5 K_B4 K_C5 K_C5 K_G4 K_A4 K_A4 K_C5 K_B4 K_A4
                      K_G4 K_A4 K_G4 K_E4 K_A4 K_A4 K_C5 K_B4 K_A4 K_G4 K_A4 K_G4 K_E4 K_D5 K_D5 K_F5 K_D5 K_B4 K_C5
-                     K_E5 K_C5 K_G4 K_E4 K_G4 K_F4 K_D4 K_C4},
+                     K_E5 K_C5 K_G4 K_E4 K_G4 K_F4 K_D4 K_C4, KID_PIC_NIGHT_LIGHT},
     {"JOY TO WORLD", K_C5 K_B4 K_A4 K_G4 K_F4 K_E4 K_D4 K_C4 K_G4 K_A4 K_A4 K_B4 K_B4 K_C5 K_C5 K_C5 K_B4 K_A4 K_G4
                      K_G4 K_F4 K_E4 K_C5 K_C5 K_B4 K_A4 K_G4 K_G4 K_F4 K_E4 K_E4 K_E4 K_E4 K_E4 K_E4 K_F4 K_G4 K_F4
-                     K_E4 K_D4 K_D4 K_D4 K_D4 K_D4 K_E4 K_F4 K_E4 K_D4 K_C4},
+                     K_E4 K_D4 K_D4 K_D4 K_D4 K_D4 K_E4 K_F4 K_E4 K_D4 K_C4, KID_PIC_ROCKET},
     {"AU CLAIR", K_C4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_E4 K_D4 K_D4 K_C4 K_C4 K_C4 K_C4 K_D4 K_E4 K_D4 K_C4 K_E4
-                 K_D4 K_D4 K_C4},
+                 K_D4 K_D4 K_C4, KID_PIC_OWL},
     {"FARMER IN DELL", K_G3 K_C4 K_C4 K_C4 K_C4 K_C4 K_D4 K_E4 K_E4 K_E4 K_E4 K_E4 K_G4 K_G4 K_A4 K_G4 K_E4 K_C4
-                       K_D4 K_E4 K_E4 K_D4 K_D4 K_C4},
+                       K_D4 K_E4 K_E4 K_D4 K_D4 K_C4, KID_PIC_SUNFLOWER},
     {"THE SAINTS", K_C4 K_E4 K_F4 K_G4 K_C4 K_E4 K_F4 K_G4 K_C4 K_E4 K_F4 K_G4 K_E4 K_C4 K_E4 K_D4 K_E4 K_E4 K_D4
-                   K_C4 K_C4 K_E4 K_G4 K_G4 K_G4 K_F4 K_E4 K_F4 K_G4 K_E4 K_C4 K_D4 K_C4},
+                   K_C4 K_C4 K_E4 K_G4 K_G4 K_G4 K_F4 K_E4 K_F4 K_G4 K_E4 K_C4 K_D4 K_C4, KID_PIC_SAX_CAT},
     {"MICHAEL ROW", K_C4 K_E4 K_G4 K_E4 K_G4 K_A4 K_G4 K_E4 K_G4 K_A4 K_G4 K_E4 K_G4 K_G4 K_E4 K_F4 K_E4 K_D4 K_C4
-                    K_D4 K_E4 K_D4 K_C4},
+                    K_D4 K_E4 K_D4 K_C4, KID_PIC_WHALE},
     {"CLEMENTINE", K_C4 K_C4 K_C4 K_G3 K_E4 K_E4 K_E4 K_C4 K_C4 K_E4 K_G4 K_G4 K_F4 K_E4 K_D4 K_D4 K_E4 K_F4 K_F4
-                   K_E4 K_D4 K_E4 K_C4 K_C4 K_E4 K_D4 K_G3 K_B3 K_D4 K_C4},
+                   K_E4 K_D4 K_E4 K_C4 K_C4 K_E4 K_D4 K_G3 K_B3 K_D4 K_C4, KID_PIC_DUCKY},
     {"LIGHTLY ROW", K_G4 K_E4 K_E4 K_F4 K_D4 K_D4 K_C4 K_D4 K_E4 K_F4 K_G4 K_G4 K_G4 K_G4 K_E4 K_E4 K_E4 K_F4 K_D4
                     K_D4 K_D4 K_C4 K_E4 K_G4 K_G4 K_E4 K_E4 K_E4 K_D4 K_D4 K_D4 K_D4 K_D4 K_E4 K_F4 K_E4 K_E4 K_E4
-                    K_E4 K_E4 K_F4 K_G4 K_G4 K_E4 K_E4 K_E4 K_F4 K_D4 K_D4 K_D4 K_C4 K_E4 K_G4 K_G4 K_C4},
+                    K_E4 K_E4 K_F4 K_G4 K_G4 K_E4 K_E4 K_E4 K_F4 K_D4 K_D4 K_D4 K_C4 K_E4 K_G4 K_G4 K_C4, KID_PIC_SEAHORSE},
     {"BRAHMS LULLABY", K_E4 K_E4 K_G4 K_E4 K_E4 K_G4 K_E4 K_G4 K_C5 K_B4 K_A4 K_A4 K_G4 K_D4 K_E4 K_F4 K_D4 K_D4
                        K_E4 K_F4 K_D4 K_F4 K_B4 K_A4 K_G4 K_B4 K_C5 K_C4 K_C4 K_C5 K_A4 K_F4 K_G4 K_E4 K_C4 K_F4
-                       K_G4 K_A4 K_G4 K_C4 K_C4 K_C5 K_A4 K_F4 K_G4 K_E4 K_C4 K_F4 K_E4 K_D4 K_C4},
+                       K_G4 K_A4 K_G4 K_C4 K_C4 K_C5 K_A4 K_F4 K_G4 K_E4 K_C4 K_F4 K_E4 K_D4 K_C4, KID_PIC_PANDA},
     {"WE WISH YOU", K_G4 K_C5 K_C5 K_D5 K_C5 K_B4 K_A4 K_A4 K_A4 K_D5 K_D5 K_E5 K_D5 K_C5 K_B4 K_G4 K_G4 K_E5 K_E5
-                    K_F5 K_E5 K_D5 K_C5 K_A4 K_G4 K_G4 K_A4 K_D5 K_B4 K_C5},
+                    K_F5 K_E5 K_D5 K_C5 K_A4 K_G4 K_G4 K_A4 K_D5 K_B4 K_C5, KID_PIC_PENGUIN},
     /* ten more (2026-11): each read note for note from the score in its Wikipedia article (tools/wiki_song.py), the
      * melody only, and moved, where it says, to fit the keys with the fewest black keys */
     /* Pop Goes the Weasel (en.wikipedia.org) */
     {"POP WEASEL", K_C4 K_C4 K_D4 K_D4 K_E4 K_G4 K_E4 K_C4 K_C4 K_C4 K_D4 K_D4 K_E4 K_C4 K_C4 K_C4 K_D4 K_D4 K_E4
-                   K_G4 K_E4 K_C4 K_A4 K_D4 K_F4 K_E4 K_C4},
+                   K_G4 K_E4 K_C4 K_A4 K_D4 K_F4 K_E4 K_C4, KID_PIC_MONKEY},
     /* Rock-a-bye Baby (de.wikipedia.org) */
     {"ROCK-A-BYE", K_E4 K_G4 K_E5 K_D5 K_C5 K_E4 K_G4 K_C5 K_B4 K_F4 K_G4 K_F5 K_E5 K_D5 K_D5 K_C5 K_A4 K_G4 K_E4
-                   K_G4 K_E5 K_D5 K_C5 K_E4 K_G4 K_C5 K_B4 K_G4 K_C5 K_F5 K_E5 K_C5 K_D5 K_A4 K_B4 K_C5},
+                   K_G4 K_E5 K_D5 K_C5 K_E4 K_G4 K_C5 K_B4 K_G4 K_C5 K_F5 K_E5 K_C5 K_D5 K_A4 K_B4 K_C5, KID_PIC_BUNNY},
     /* Hickory Dickory Dock (en.wikipedia.org, moved -2) */
     {"HICKORY DOCK", K_E4 K_F4 K_G4 K_G4 K_A4 K_B4 K_C5 K_G4 K_E4 K_F4 K_G4 K_G4 K_A4 K_B4 K_C5 K_G4 K_C5 K_C5 K_B4
-                     K_B4 K_A4 K_A4 K_G4 K_G4 K_A4 K_G4 K_F4 K_E4 K_D4 K_C4},
+                     K_B4 K_A4 K_A4 K_G4 K_G4 K_A4 K_G4 K_F4 K_E4 K_D4 K_C4, KID_PIC_KITTY},
     /* If You're Happy and You Know It (en.wikipedia.org, moved -5) */
     {"IF YOURE HAPPY", K_G3 K_G3 K_C4 K_C4 K_C4 K_C4 K_C4 K_C4 K_B3 K_C4 K_D4 K_F4 K_F4 K_G3 K_G3 K_D4 K_D4 K_D4
                        K_D4 K_D4 K_D4 K_C4 K_D4 K_E4 K_F4 K_F4 K_E4 K_E4 K_F4 K_F4 K_F4 K_F4 K_A3 K_A3 K_F4 K_F4
                        K_E4 K_E4 K_E4 K_D4 K_C4 K_C4 K_E4 K_E4 K_D4 K_D4 K_D4 K_C4 K_B3 K_B3 K_A3 K_B3 K_C4 K_F4
-                       K_F4},
+                       K_F4, KID_PIC_FROG},
     /* Humpty Dumpty (en.wikipedia.org, moved +2) */
     {"HUMPTY DUMPTY", K_E4 K_G4 K_F4 K_A4 K_G4 K_A4 K_B4 K_C5 K_E4 K_G4 K_F4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_E4
-                      K_G4 K_F4 K_F4 K_A4 K_G4 K_A4 K_B4 K_C5 K_E5 K_E5 K_C5 K_F5 K_F5 K_E5 K_D5 K_C5 K_B4 K_C5},
+                      K_G4 K_F4 K_F4 K_A4 K_G4 K_A4 K_B4 K_C5 K_E5 K_E5 K_C5 K_F5 K_F5 K_E5 K_D5 K_C5 K_B4 K_C5, KID_PIC_KING_AXOLOTL},
     /* Lavender's Blue (en.wikipedia.org) */
     {"LAVENDER BLUE", K_G4 K_D5 K_D5 K_D5 K_C5 K_B4 K_A4 K_G4 K_G4 K_E5 K_E5 K_E5 K_G4 K_D5 K_D5 K_D5 K_C5 K_B4
-                      K_A4 K_G4 K_C5 K_B4 K_A4 K_G4},
+                      K_A4 K_G4 K_C5 K_B4 K_A4 K_G4, KID_PIC_MORNING_GLORY},
     /* For He's a Jolly Good Fellow (en.wikipedia.org, moved +2) */
     {"JOLLY FELLOW", K_G4 K_B4 K_B4 K_B4 K_A4 K_B4 K_C5 K_B4 K_B4 K_A4 K_A4 K_A4 K_G4 K_A4 K_B4 K_G4 K_G4 K_B4 K_B4
-                     K_B4 K_A4 K_B4 K_C5 K_E5 K_E5 K_D5 K_D5 K_C5 K_A4 K_G4},
+                     K_B4 K_A4 K_B4 K_C5 K_E5 K_E5 K_D5 K_D5 K_C5 K_A4 K_G4, KID_PIC_ICE_CREAM},
     /* Here We Go Round the Mulberry Bush (en.wikipedia.org, moved -2) */
     {"MULBERRY BUSH", K_F4 K_F4 K_F4 K_F4 K_A4 K_C5 K_A4 K_F4 K_F4 K_G4 K_G4 K_G4 K_F4 K_E4 K_D4 K_C4 K_F4 K_F4
-                      K_F4 K_F4 K_A4 K_C5 K_A4 K_F4 K_F4 K_G4 K_G4 K_C4 K_C4 K_F4 K_F4},
+                      K_F4 K_F4 K_A4 K_C5 K_A4 K_F4 K_F4 K_G4 K_G4 K_C4 K_C4 K_F4 K_F4, KID_PIC_BUTTERFLY},
     /* Hey Diddle Diddle (en.wikipedia.org, moved -5) */
     {"HEY DIDDLE", K_E4 K_E4 K_E4 K_E4 K_F4 K_G4 K_D4 K_D4 K_D4 K_D4 K_C4 K_D4 K_E4 K_E4 K_E4 K_F4 K_G4 K_D4 K_E4
-                   K_F4 K_F4 K_F4 K_F4 K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_G3 K_G3 K_G3 K_A3 K_B3 K_C4},
+                   K_F4 K_F4 K_F4 K_F4 K_G4 K_A4 K_G4 K_E4 K_C4 K_D4 K_E4 K_G3 K_G3 K_G3 K_A3 K_B3 K_C4, KID_PIC_COW},
     /* My Bonnie Lies over the Ocean (en.wikipedia.org, moved -2) */
     {"MY BONNIE", K_C4 K_A4 K_G4 K_F4 K_G4 K_F4 K_D4 K_C4 K_A3 K_C4 K_A4 K_G4 K_F4 K_F4 K_E4 K_F4 K_G4 K_C4 K_A4
                   K_G4 K_F4 K_G4 K_F4 K_D4 K_C4 K_A3 K_C4 K_D4 K_G4 K_F4 K_E4 K_D4 K_E4 K_F4 K_C4 K_F4 K_D4 K_G4
                   K_E4 K_E4 K_E4 K_E4 K_D4 K_E4 K_F4 K_G4 K_A4 K_C4 K_F4 K_D4 K_G4 K_E4 K_E4 K_E4 K_E4 K_D4 K_E4
-                  K_F4},
+                  K_F4, KID_PIC_OCTOPUS},
 };
 #define KID_NSONGS (sizeof KID_SONGS / sizeof KID_SONGS[0])
 
@@ -2352,6 +2353,8 @@ static void kid_leds(void)
     for (k = 0; k < KX_COUNT; k++)
         led_put(nl, panel.btn[KID_FX_BTN[k]], (kid.fx >> k) & 1u);
     led_put(nl, panel.btn[B_ARP], kid.arp && !kw.on);
+    led_put(nl, panel.btn[B_SEQ], (kid.mode == KM_FOLLOW || kid.mode == KM_CHORDS) && !kw.on);   /* (SEQ picks the song or
+                                                  * the lesson there: lit, so it is easy to find; u/jrej) */
     led_put(nl, panel.btn[B_SAVE], kw.on);        /* (WRITE: SAVE lit) */
     lit = kid_lit_mask(fm1_ms);
     for (k = 0; k < 27u; k++) {
@@ -2424,6 +2427,7 @@ static struct {
     char cname[12];                     /* CHORDS: the chord's name */
     uint16_t ccol[24];                  /* KB_CHORD: the colour of each of l1's letters */
     int8_t icon;                        /* ALGORITHM's mode as a picture at the band's left (KID_ICON_*), -1 none */
+    int16_t pic;                        /* .. or, in FOLLOW, the song's friend picture (an art index), -1 none */
     int16_t ol;                         /* its outline (px) */
     uint16_t ink, bg, bg2;
     int8_t meter;                       /* dots lit (HINT), -1 none */
@@ -2925,30 +2929,56 @@ static int32_t kw_sprite(uint32_t fr, int32_t x, int32_t y, int32_t sz);
 
 /* ALGORITHM's mode as a picture for children who do not read yet: beside its name when the knob turns, and at the band's
  * left while a mode other than 1 FRIEND is on, the words moved over beside it (none when they would not fit) */
+static uint32_t kid_song_pic(uint32_t song)                      /* FOLLOW's song's picture: a friend's (LOOK-ALIKES */
+{                                                                 /* followed), or a stand-in's own (KID_N ..) */
+    uint32_t p = KID_SONGS[song % KID_NSONGS].pic;
+    return p < KID_N ? kid_art(p) : p;
+}
+
 static uint32_t kid_band_icon(uint32_t sig)
 {
-    int32_t m = -1, w1, w2 = 0;
+    int32_t m = -1, pic = -1, w1, w2 = 0;
     kf.icon = -1;
+    kf.pic = -1;
     if (kw.on || kid.hello_ms)
         return sig;
-    if (kf.band == KB_HINT && kid.hint == KH_CHORD) {             /* (no dots under it: the word in the middle) */
+    if (kf.band == KB_HINT && kid.hint == KH_SONG && kid.mode == KM_FOLLOW) {   /* FOLLOW's song, SEQ pressed: its picture */
+        pic = (int32_t)kid_song_pic(kid.f_song);
+        if (!kf.bt2.sc)
+            kf.bt.y = (int16_t)(KID_BAND_Y + (56 - 7 * kf.bt.sc) / 2 + 2);
+    } else if (kf.band == KB_HINT && kid.hint == KH_CHORD) {      /* (no dots under it: the word in the middle) */
         m = kid.mode;
         kf.bt.y = (int16_t)(KID_BAND_Y + (56 - 7 * kf.bt.sc) / 2 + 2);
     }
+    else if (kf.band != KB_HINT && kid.mode == KM_FOLLOW)        /* FOLLOW: the song's picture while it plays (u/jrej: for */
+        pic = (int32_t)kid_song_pic(kid.f_song);                   /* a child who can't read the name yet) */
     else if (kf.band != KB_HINT && kid.mode != KM_ONE)
         m = kid.mode;
-    if (m < 0)
+    if (m < 0 && pic < 0)
         return sig;
     w1 = (int32_t)(str_len(kf.bt.s) * KID_ADV) * kf.bt.sc - kf.bt.sc;
     if (kf.bt2.sc)
         w2 = (int32_t)(str_len(kf.bt2.s) * KID_ADV) * kf.bt2.sc - kf.bt2.sc;
+    if (pic >= 0 && (w1 > 178 || w2 > 178) && kf.bt.sc > 2) {    /* (a song's name: smaller, so its picture always fits) */
+        kf.bt.sc = 2;
+        w1 = (int32_t)(str_len(kf.bt.s) * KID_ADV) * 2 - 2;
+        if (kf.bt2.sc) {
+            kf.bt2.sc = 2;
+            w2 = (int32_t)(str_len(kf.bt2.s) * KID_ADV) * 2 - 2;
+            kf.bt.y = (int16_t)(KID_BAND_Y + 12);
+            kf.bt2.y = (int16_t)(KID_BAND_Y + 32);
+        } else {
+            kf.bt.y = (int16_t)(KID_BAND_Y + (56 - 14) / 2 + 2);
+        }
+    }
     if (w1 > 178 || w2 > 178)
         return sig;
     kf.bt.x = (int16_t)(58 + (178 - w1) / 2);
     if (kf.bt2.sc)
         kf.bt2.x = (int16_t)(58 + (178 - w2) / 2);
     kf.icon = (int8_t)m;
-    return sig * 31u + (uint32_t)m + 1u;
+    kf.pic = (int16_t)pic;
+    return sig * 31u + (uint32_t)(pic >= 0 ? 1000 + pic : m + 1);
 }
 
 static uint16_t kid_band_px(int32_t x, int32_t y)
@@ -2959,6 +2989,12 @@ static uint16_t kid_band_px(int32_t x, int32_t y)
         b = kid_row(KID_ICON_ART + (uint32_t)kf.icon % KID_ICON_N, iy)[ix];
         if (b)
             return KID_ICON_PAL[kf.icon % KID_ICON_N][b];
+    }
+    if (kf.pic >= 0 && x >= 6 && x < 54 && y >= (int32_t)KID_BAND_Y + 5 && y < (int32_t)KID_BAND_Y + 53) {
+        uint32_t ix = (uint32_t)(x - 6), iy = (uint32_t)(y - ((int32_t)KID_BAND_Y + 5)), b;   /* the song's friend */
+        b = kid_row((uint32_t)kf.pic, iy)[ix];
+        if (b)
+            return KID_PAL[kf.pic][b];
     }
     if (kw.on && kf.band == KB_NAME && x < 56 && y >= (int32_t)KID_BAND_Y + 5) {    /* WRITE: the stamp friend */
         int32_t p = kw_sprite(kw.band[kw.stamp % 3u], x - 4, y - ((int32_t)KID_BAND_Y + 6), 48);
