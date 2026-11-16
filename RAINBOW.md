@@ -330,15 +330,13 @@ installer and browser pages around them are still in English.
 
 ## The counter on the website
 
-How many: installs (counted once when an FM-1 finishes installing, in any language; not the way back to V15), plays in the
-browser (once when the sound is switched on) and visits to the front page, counted with GoatCounter (goatcounter.com:
-open source, no cookies, nothing about the person). The front page shows the first two, low down, once there is a number.
-Nothing is counted before it was set up: there was no count before November 2026, as GitHub Pages keeps none.
-
-To switch it on: make a free GoatCounter site (its code is the CODE in CODE.goatcounter.com), and in its Settings tick
-"Allow adding visitor counts on your website" (the front page reads the numbers from there). Then in the GitHub repository,
-Settings > Secrets and variables > Actions > Variables, add `GOATCOUNTER_CODE` with that code, and run the workflow. Without
-it the front page's line is taken out and the installer and the browser version send nothing (they check the code).
+How many: installs (counted once when an FM-1 finishes installing, in any language; not the way back to V15) and plays in the
+browser (once when the sound is switched on), with GitHub alone: no other service and no sign-up. The repository has a
+release, `counter`, with two little files, `install.txt` and `play.txt`. The installer and the browser version fetch one of
+them (a no-cors fetch: nothing is read back) and GitHub adds one to its download count; the front page reads the counts from
+GitHub's API and shows them, low down, once there is a number. Nothing about the person is kept, and no cookies. The
+workflow makes the release the first time (it needs `contents: write`, in the publish job only). GitHub updates download
+counts with a delay, so the number can lag a little. There was no count before November 2026: GitHub Pages keeps none.
 
 ## A tip link on the website
 
