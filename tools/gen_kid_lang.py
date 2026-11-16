@@ -138,7 +138,7 @@ def note_keys(text):
     return keys
 
 
-def song_line(name, keys):
+def song_line(name, keys, pic):
     if not keys or min(keys) < 0 or max(keys) > 26:
         raise SystemExit(f"gen_kid_lang: {name}: a note off the keys (F3 .. G5)")
     toks = [f"K_{KEYS[k]}" for k in keys]
@@ -149,7 +149,7 @@ def song_line(name, keys):
             lines.append(line.rstrip())
             line = " " * len(head)
         line += t + " "
-    return "\n".join(lines + [line.rstrip() + "},"])
+    return "\n".join(lines + [line.rstrip() + f", KID_PIC_{re.sub(r'[^A-Z0-9]', '_', pic)}}},"])
 
 
 def main(code, out):
@@ -172,8 +172,17 @@ def main(code, out):
         src = src.replace(a, re.sub(r'"([^"]*)"', lambda m: '"' + enc(m[1]) + '"', b))
     i = src.index("static const kid_song_t KID_SONGS[] = {")
     j = src.index("\n};", i)
-    songs = [song_line(n, solfa_keys(t, sh)) for n, sh, _, t in L.SOLFA_SONGS] + \
-            [song_line(n, note_keys(t)) for n, t in L.SONGS]
+    art = (ROOT / "tools" / "gen_kid_art.py").read_text()
+    friends = re.findall(r'^\s*\("([A-Z][A-Z -]*)", ', art, re.M) + \
+        re.findall(r'\("([A-Z][A-Z -]*)", ', art[art.index("STAND_INS = {"):art.index("\n}", art.index("STAND_INS = {"))])
+    pics = getattr(L, "SONG_PICS", {})                 # each song's picture: a friend (gen_kid_art.py FRIENDS), so a child
+    for n, *_ in L.SOLFA_SONGS + L.SONGS:             # who can't read yet knows the song (kid.c kid_band_icon)
+        if pics.get(n) not in friends:
+            raise SystemExit(f"gen_kid_lang: {code}: the song {n!r} needs a friend's picture in SONG_PICS ({pics.get(n)!r})")
+    if len(set(pics[n] for n, *_ in L.SOLFA_SONGS + L.SONGS)) < len(L.SOLFA_SONGS + L.SONGS):
+        raise SystemExit(f"gen_kid_lang: {code}: two songs with the same picture")
+    songs = [song_line(n, solfa_keys(t, sh), pics[n]) for n, sh, _, t in L.SOLFA_SONGS] + \
+            [song_line(n, note_keys(t), pics[n]) for n, t in L.SONGS]
     for n, *_ in L.SOLFA_SONGS + L.SONGS:
         if shown(n) > 14 * 6 // ADV:
             raise SystemExit(f"gen_kid_lang: {code}: the song {n!r}: {14 * 6 // ADV} letters at most")

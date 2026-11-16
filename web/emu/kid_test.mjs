@@ -51,6 +51,7 @@ shot("hello");
 const hiRed = () => { for (let y = 10; y < 100; y++) for (let x = 40; x < 120; x++) if (px(x, y) === 0xE9A8) return true; return false; };
 check("on from power-up, with the hello (HI in rainbow letters: H red)", hiRed());
 check("silent at rest", peak === 0);
+check("1 FRIEND: SEQ is dark (it is lit where it picks a song or a lesson)", !((ex.web_lit_buttons() >> B.SEQ) & 1));
 
 ex.web_keys(1 << 12);
 render(200);
@@ -509,12 +510,23 @@ check("PLAY again stops it", ex.web_playing() === 0);
     while (sk(0, i) === k0) i++;
     const k1 = sk(0, i), wrong = [0, 1, 2, 3].find((k) => k !== k1);
     check(`FOLLOW: the first note's key lights (key ${k0})`, ((ex.web_lit_keys() >> k0) & 1) === 1);
+    /* u/jrej: SEQ lit, as it picks the song; the song's picture at the band's left, for a child who can't read yet */
+    const seqLit = () => ((ex.web_lit_buttons() >> B.SEQ) & 1) === 1;
+    const slot = () => { let h = 0; for (let y = 189; y < 237; y += 2) for (let x = 6; x < 54; x += 2) h = (h * 31 + px(x, y)) >>> 0; return h; };
+    const inks = () => { const c = new Set(); for (let y = 189; y < 237; y += 2) for (let x = 6; x < 54; x += 2) c.add(px(x, y)); return c.size; };
+    check("FOLLOW: SEQ is lit", seqLit());
     for (let j = 0; j < i; j++) { ex.web_keys(1 << k0); render(150); ex.web_keys(0); render(250); }
     check(`pressed ${i} time(s): the next note (key ${k1}) lights`, ((ex.web_lit_keys() >> k1) & 1) === 1 && !((ex.web_lit_keys() >> k0) & 1));
     ex.web_keys(1 << wrong); render(150); ex.web_keys(0); render(300);
     check("a wrong key: nothing moves on", ((ex.web_lit_keys() >> k1) & 1) === 1);
     tapb(B.SEQ); render(200);
     check(`SEQ: the next song (it starts on key ${sk(1, 0)})`, ((ex.web_lit_keys() >> sk(1, 0)) & 1) === 1);
+    shot("follow_song");
+    const pic1 = slot();                                                       // (the song's name: the same band each time,
+    render(2000);                                                              //  so the slot differs only by the picture)
+    check(`..and its picture at the band's left, there while it plays too (${inks()} colours)`, inks() >= 4);
+    tapb(B.SEQ); render(200);
+    check("..the next song: another picture", slot() !== pic1 && inks() >= 4);
   }
   // CHORDS (u/Yablan): a lesson's chord lights up with its name; exactly its keys say YES and light the next; four make
   // the loop; SEQ the next lesson; PLAY the LOFI beat, a bar a chord

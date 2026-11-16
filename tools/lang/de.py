@@ -95,6 +95,32 @@ HATS = {"PARTY": "PARTY", "CROWN": "KRONE", "TOP HAT": "ZYLINDER", "BUCKET": "FI
 # it; the article's LilyPond rendered to MIDI and its tune read back, tools: see RAINBOW.md), and moved, where
 # it says, to fit the keys at OCT 0 (F3 .. G5) with the fewest black keys. A score that repeats itself whole
 # is played once. Then a few known everywhere, the same notes as kid.c's English list.
+# FOLLOW's songs' pictures: a friend each (gen_kid_art.py FRIENDS), shown beside the song's name and while it plays,
+# so a child who can't read yet knows which song it is (u/jrej); no two the same
+SONG_PICS = {
+    'ALLE ENTCHEN': 'DUCKY',
+    'HÄNSCHEN KLEIN': 'TURTLE',
+    'ALLE VÖGEL': 'FLUTE BIRD',
+    'KUCKUCK': 'OWL',
+    'SUMM SUMM SUMM': 'BEE',
+    'FUCHS': 'FOX',
+    'HÄSCHEN': 'BUNNY',
+    'VOGELHOCHZEIT': 'PEACOCK',
+    'BACKE BACKE': 'DONUT',
+    'BRÜDERCHEN': 'GIRAFFE',
+    'HÄNSEL GRETEL': 'SNAIL',
+    'GRÜN GRÜN GRÜN': 'RAINBOW',
+    'LATERNE': 'FIREFLY',
+    'HOPP HOPP HOPP': 'HORSE',
+    'STERNLEIN': 'STAR',
+    'GUTEN ABEND': 'PANDA',
+    'BRUDER JAKOB': 'BEAR',
+    'ZUM GEBURTSTAG': 'CUPCAKE',
+    'FREUDE': 'PIANO PAL',
+    'O TANNENBAUM': 'PENGUIN',
+    'STILLE NACHT': 'NIGHT LIGHT',
+}
+
 SOLFA_SONGS = []
 SONGS = [
     # Alle meine Entchen (de.wikipedia.org, its score)

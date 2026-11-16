@@ -86,6 +86,31 @@ HATS = {"PARTY": "FESTA", "CROWN": "COROA", "TOP HAT": "CARTOLA", "BUCKET": "PES
 # one (DO = C5), " / " between phrases. tools/gen_kid_lang.py turns them into keys, moved by the number of semitones
 # given (Ciranda from F to C, Boi da Cara Preta from G to C, so they stay on the white keys). Then a few known
 # everywhere, written as notes. Each has to fit the keys at OCT 0 (F3 .. G5).
+# FOLLOW's songs' pictures: a friend each (gen_kid_art.py FRIENDS), shown beside the song's name and while it plays,
+# so a child who can't read yet knows which song it is (u/jrej); no two the same
+SONG_PICS = {
+    'CIRANDA': 'SUNFLOWER',
+    'ATIREI O PAU': 'KITTY',
+    'MARCHA SOLDADO': 'TOY DRUM',
+    'CAI CAI BALÃO': 'HELICOPTER',
+    'ESCRAVOS DE JÓ': 'CRAB',
+    'PEIXE VIVO': 'FISH',
+    'BORBOLETINHA': 'BUTTERFLY',
+    'CRAVO E ROSA': 'MORNING GLORY',
+    'PIRULITO': 'ICE CREAM',
+    'A CANOA VIROU': 'SEAHORSE',
+    'O SAPO': 'FROG',
+    'ALECRIM': 'GOLDENROD',
+    'MEU LIMÃO': 'BANANA',
+    'TEREZINHA': 'PRINCESS DUCKY',
+    'BOI BOI BOI': 'COW',
+    'BRILHA BRILHA': 'STAR',
+    'PARABÉNS': 'CUPCAKE',
+    'ODE À ALEGRIA': 'PIANO PAL',
+    'BATE O SINO': 'SNOWMAN',
+    'NOITE FELIZ': 'NIGHT LIGHT',
+}
+
 SOLFA_SONGS = [
     ("CIRANDA", -5, "Ciranda Cirandinha",
      "do fa fa la la DO DO / sib la sol DO la sol fa / la DO sib la sol fa mi do / sib sol la fa sol mi fa"),
