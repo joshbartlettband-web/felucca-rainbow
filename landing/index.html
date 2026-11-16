@@ -222,25 +222,23 @@
 <!--COUNT-->
 <p id="count" class="lede" style="font-size:1rem;margin:40px 0 0" hidden></p>
 <script>
-  /* how many: installs and browser plays, from GoatCounter (no cookies, nothing about you), and this visit counted.
-     The workflow puts in the site's code (GOATCOUNTER_CODE); without one this whole block is taken out. */
+  /* how many: installs and browser plays, as GitHub counts them (the "counter" release's two little files, fetched once by
+     the installer when an FM-1 finishes installing and by the browser version when its sound is switched on) */
   (function () {
-    var GC = "@GOATCOUNTER@";
-    if (!/^[a-z0-9-]+$/.test(GC)) return;
-    try { new Image().src = "https://" + GC + ".goatcounter.com/count?p=" + encodeURIComponent(location.pathname) + "&rnd=" + Math.random().toString(36).slice(2); } catch (e) {}
-    function get(p) {
-      return fetch("https://" + GC + ".goatcounter.com/counter/" + p + ".json").then(function (r) { return r.ok ? r.json() : { count: "0" }; })
-        .then(function (j) { return parseInt(String(j.count).replace(/[^0-9]/g, ""), 10) || 0; }, function () { return 0; });
-    }
-    Promise.all([get("install"), get("play")]).then(function (n) {
-      var f = function (x) { return x.toLocaleString("en-US"); }, parts = [];
-      if (n[0]) parts.push("installed on " + f(n[0]) + " FM-1" + (n[0] === 1 ? "" : "s"));
-      if (n[1]) parts.push("played " + f(n[1]) + " time" + (n[1] === 1 ? "" : "s") + " in a browser");
-      if (!parts.length) return;
-      var el = document.getElementById("count");
-      el.textContent = "So far, Rainbow mode has been " + parts.join(" and ") + ". (Counted with GoatCounter: no cookies, nothing about you.)";
-      el.hidden = false;
-    });
+    var REPO = "@REPO@";
+    if (!/^[\w.-]+\/[\w.-]+$/.test(REPO)) return;
+    fetch("https://api.github.com/repos/" + REPO + "/releases/tags/counter").then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (rel) {
+        if (!rel || !rel.assets) return;
+        var n = {}, parts = [], f = function (x) { return x.toLocaleString("en-US"); };
+        rel.assets.forEach(function (a) { n[a.name] = a.download_count; });
+        if (n["install.txt"]) parts.push("installed on " + f(n["install.txt"]) + " FM-1" + (n["install.txt"] === 1 ? "" : "s"));
+        if (n["play.txt"]) parts.push("played " + f(n["play.txt"]) + " time" + (n["play.txt"] === 1 ? "" : "s") + " in a browser");
+        if (!parts.length) return;
+        var el = document.getElementById("count");
+        el.textContent = "So far, Rainbow mode has been " + parts.join(" and ") + ".";
+        el.hidden = false;
+      }, function () {});
   })();
 </script>
 <!--/COUNT-->

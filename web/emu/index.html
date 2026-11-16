@@ -442,13 +442,13 @@ async function midiOn() {
 }
 
 // ------------------------------------------------------------------ switching on
-/* plays, counted: one each time the sound is switched on, with GoatCounter (no cookies, nothing about the person; the
- * workflow puts in the site's code, GOATCOUNTER_CODE; without one, nothing is sent) */
-const GC = "@GOATCOUNTER@";
+/* counted, with GitHub alone: the repository has a release, "counter", with two little files; fetching one once per install
+ * (or play) adds one to its download count, which GitHub keeps and shows to anyone. Nothing about the person; no cookies */
+const REPO = "@REPO@";
 function counted(what) {
-  if (!/^[a-z0-9-]+$/.test(GC)) return;
-  const lang = (location.pathname.match(/\/([a-z]{2})\/webapp\//) || [0, "en"])[1];
-  try { new Image().src = `https://${GC}.goatcounter.com/count?p=${what}&t=${what}-${lang}&e=true&rnd=${Math.random().toString(36).slice(2)}`; } catch (_) {}
+  if (!/^[\w.-]+\/[\w.-]+$/.test(REPO)) return;              // (the workflow puts in the repository; a local copy counts nothing)
+  fetch(`https://github.com/${REPO}/releases/download/counter/${what}.txt`, { mode: "no-cors", cache: "no-store", credentials: "omit" })
+    .catch(() => {});
 }
 const status = document.getElementById("status");
 const say = (t) => { status.textContent = t; status.hidden = !t; };
