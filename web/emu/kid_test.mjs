@@ -183,6 +183,18 @@ check("MASTER all the way up stays at about half (no friend peaks over 0.3)", pm
   grown(1); const on1 = key();
   check(`STAFF: a key shows it (${on0}); HOME held, KNOB 1 left: none (${off}); right: back (${on1})`, on0 && !off && on1);
 }
+// KEY: HOME held 1 s, then SELECT: the band says KEY and the key's name, and every tuned note moves with it (a capo: the
+// letters stay on their keys); SELECT alone still sets the beat's speed
+{
+  const txt = () => { let t = ""; for (let i = 0; i < 24; i++) { const c = ex.web_kid_txt(i); if (!c) break; t += String.fromCharCode(c); } return t; };
+  const sounds = () => { render(2000); ex.web_keys(1 << 7); render(150); const n = ex.web_gate_note(0); ex.web_keys(0); render(400); return n; };
+  const grown = (d) => { ex.web_buttons(1 << B.HOME); render(1300); ex.web_enc(EN.SELECT, d); render(200); const t = txt(); shot(`key${d}`); ex.web_buttons(0); render(2600); return t; };
+  const c0 = sounds(), up = grown(2), d = sounds(), down = grown(-2), c1 = sounds();
+  check(`KEY: C sounds ${c0}; HOME held, SELECT +2: "${up}", it sounds ${d}; -2: "${down}", ${c1}`,
+        c0 > 0 && d === c0 + 2 && c1 === c0 && up.length > 2 && down.length > 2 && up !== down);
+  const b = grown(-1), bn = sounds(); grown(1);
+  check(`..and one under C: "${b}", half an octave at most (${bn}, from ${c0})`, bn === c0 - 1);
+}
 // ALGORITHM's card: a few words on how the mode plays, in the staff's panel, until a key (or 7 s)
 ex.web_enc(EN.ALGO, 1); render(300);
 const card1 = ex.web_kid_card();

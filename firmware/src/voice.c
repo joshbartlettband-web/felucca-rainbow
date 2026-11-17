@@ -337,6 +337,15 @@ static void mono_remove(track_t *t, uint32_t note)
     t->nmono = (uint8_t)k;
 }
 
+/* Rainbow mode's KEY (kid.c, a grown-ups' setting): every tuned part's notes this many semitones up or down, so the
+ * white keys play in another key, a capo for the whole toy; 0 out of Rainbow mode. Not a part whose keys are drums or
+ * slices (its engine's own key map). Applied once a note reaches the voices, so a note-off finds its note-on */
+static int32_t key_shift;
+static uint32_t key_shifted(const track_t *t, uint32_t note)
+{
+    return key_shift && !ENGINES[t->engine]->keys ? (uint32_t)clamp((int32_t)note + key_shift, 1, 127) : note;
+}
+
 static void trk_note_on(track_t *t, uint32_t note, uint32_t vel)
 {
     uint32_t any = 0, i, mode = trk_vmode(t);
@@ -352,6 +361,7 @@ static void trk_note_on(track_t *t, uint32_t note, uint32_t vel)
         t->xp_vel[i] = (uint8_t)vel;
         return;
     }
+    note = key_shifted(t, note);
     mod_note(t, note, vel);                             /* the matrix's VEL / KEY / RAND */
     for (i = 0; i < NVOICE; i++)
         any |= t->v[i].gate;
@@ -392,6 +402,7 @@ static void trk_note_off(track_t *t, uint32_t note)
             t->xp_vel[k++] = t->xp_vel[i];
         }
     t->xp_n = (uint8_t)k;
+    note = key_shifted(t, note);
     mono_remove(t, note);                              /* a mode change must not retain a released key */
     if (mode != V_POLY) {
         uint32_t nv = mode == V_UNISON ? trk_nvoice(t) : 1u;
