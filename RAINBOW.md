@@ -334,7 +334,7 @@ How many: installs (counted once when an FM-1 finishes installing, in any langua
 browser (once when the sound is switched on), with GitHub alone: no other service and no sign-up. The repository has a
 release, `counter`, with two little files, `install.txt` and `play.txt`. The installer and the browser version fetch one of
 them (a no-cors fetch: nothing is read back) and GitHub adds one to its download count; the front page reads the counts from
-GitHub's API and shows them, low down, once there is a number. Nothing about the person is kept, and no cookies. The
+GitHub's API and shows them low down on a flip counter (split-flap cards that roll up from zero when they come into view; still for anyone who asks for less motion), once there is a number. Below it, AudioPilz's S-tier clip from his FM-1 Tier List plays in a small player, 10:38 to 10:53; nothing loads from YouTube until it is pressed, and then from its no-cookie address. Nothing about the person is kept, and no cookies. The
 workflow makes the release the first time (it needs `contents: write`, in the publish job only). GitHub updates download
 counts with a delay, so the number can lag a little. There was no count before November 2026: GitHub Pages keeps none.
 
