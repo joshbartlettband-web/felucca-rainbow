@@ -527,6 +527,18 @@ EXPORT uint32_t web_gate_note(uint32_t t)             /* (kid_test.mjs: the high
             n = trk[t % NTRK].v[i].note;
     return n;
 }
+EXPORT uint32_t web_gate_count(uint32_t t)            /* (kid_test.mjs: how many different notes a track's held voices sound) */
+{
+    uint32_t i, j, n = 0;
+    for (i = 0; i < NVOICE; i++) {
+        const voice_t *v = &trk[t % NTRK].v[i];
+        for (j = 0; j < i && !(trk[t % NTRK].v[j].gate && trk[t % NTRK].v[j].note == v->note); j++)
+            ;
+        n += v->gate && j == i;
+    }
+    return n;
+}
+EXPORT uint32_t web_kid_drum(void) { return drum_track(&trk[0]) ? 1u : 0u; }   /* (kid_test.mjs: a drum friend, its keys drums) */
 EXPORT uint32_t web_step(uint32_t t, uint32_t c)        /* (kid_test.mjs: a step's first note, its drum hits << 8) */
 {
     const step_t *s = &trk[t % NTRK].step[c % NSTEP];

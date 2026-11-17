@@ -27,6 +27,7 @@ Thank you to the people who suggested these on r/MVaveFM1:
 | u/ReallyLongLake | A secret setting that turns off the characters based on TV and film ones | **LOOK-ALIKES** (HOME held 1 s, then PRESETS left / right): swaps them for original stand-ins with the same sounds (a spider, a fox, a bat, an alien and more), kept over power-off |
 | u/Competitive_Tank_150 | Note names as Do Re Mi, the way they are taught in Brazil | **NOTE NAMES**: HOME held 1 s, then KNOB 2 |
 | u/jrej | A picture for each song, for a child who can't read yet, and SEQ lit where it picks the song | **FOLLOW**: each song's friend picture in the band; SEQ lit in FOLLOW and CHORDS |
+| @eyeball226 (YouTube) | CHORDS should sound the chords: on a one-note friend it played a single note | **CHORDS** now plays every chord in full on every friend that plays notes. One-note leads and basses get their voices there, as in 3 FRIENDS, and the sub octave steps aside so the chord keeps all its notes over the LOFI beat |
 | u/Quaglek's daughter | A peacock | **PEACOCK**: its tail fanned out, with a shimmer that runs across it, and a harp in a great hall |
 | u/Competitive_Tank_150 | Brazilian songs | **Rainbow mode in Portuguese** (its own firmware, on the site at /pt/): Do Re Mi from the start and 15 Brazilian children's songs in FOLLOW |
 
