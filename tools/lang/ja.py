@@ -49,7 +49,7 @@ WORDS = {
     "YES!": "せいかい!", "TRY AGAIN": "もういちど", "LISTEN": "きいてね", "YOUR TURN": "どうぞ", "YAY!": "やったー!",
     "STAR!": "ほし!", "NEW HAT!": "あたらしい ぼうし!", "NEW FRIEND!": "あたらしい ともだち!", "NEW SKY!": "あたらしい そら!",
     "NEW SONG": "あたらしい うた", "NO HAT": "ぼうし なし", "STARS": "ほし", "STAFF ON": "ごせんふ あり",
-    "STAFF OFF": "ごせんふ なし", "LOOK-ALIKES ON": "そっくり あり", "LOOK-ALIKES OFF": "そっくり なし",
+    "STAFF OFF": "ごせんふ なし", "KEY": "キー", "LOOK-ALIKES ON": "そっくり あり", "LOOK-ALIKES OFF": "そっくり なし",
     "HI!": "こんにちは", "HI": "やあ", "YOUR NAME": "おなまえ", "PRESETS  LETTER": "PRESETS  もじ",
     "ALGORITHM  NEXT": "ALGORITHM  つぎ", "SAVE  KEEP IT": "SAVE  きめる", "HOME  LEAVE IT": "HOME  やめる",
     "SPARKLE": "キラキラ", "SPARKLE TUNE": "キラキラ メロディー", "SPARKLE ALL": "キラキラ ぜんぶ", "WRITE": "さっきょく",

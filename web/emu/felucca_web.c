@@ -519,6 +519,14 @@ EXPORT uint32_t web_voices(uint32_t t)                  /* (kid_test.mjs: a trac
         n += trk[t % NTRK].v[i].active && trk[t % NTRK].v[i].stage != 4u;
     return n;
 }
+EXPORT uint32_t web_gate_note(uint32_t t)             /* (kid_test.mjs: the highest note a track's held voices sound, 0 none) */
+{
+    uint32_t i, n = 0;
+    for (i = 0; i < NVOICE; i++)
+        if (trk[t % NTRK].v[i].gate && trk[t % NTRK].v[i].note > n)
+            n = trk[t % NTRK].v[i].note;
+    return n;
+}
 EXPORT uint32_t web_step(uint32_t t, uint32_t c)        /* (kid_test.mjs: a step's first note, its drum hits << 8) */
 {
     const step_t *s = &trk[t % NTRK].step[c % NSTEP];

@@ -34,6 +34,8 @@
  *   HOME held 1 s, then OCT- / OCT+   the grown-ups' VOLUME: how loud MASTER can go (8 steps, kept over power-off)
  *   HOME held 1 s, then ALGORITHM the grown-ups' NAME: the name the hello greets (PRESETS a letter, ALGORITHM the next,
  *                                 SAVE keeps it, HOME leaves it as it was), kept over power-off
+ *   HOME held 1 s, then SELECT    the grown-ups' KEY: the white keys in C or another key, everything tuned moving
+ *               together (kept over power-off)
  *   HOME held 1 s, then PRESETS   the grown-ups' LOOK-ALIKES: left shows original stand-ins for the friends drawn
  *               after TV and film characters (the same sounds), right the originals (kept over power-off)
  * MASTER is capped at that level (the default is about half) for small ears, and the output limiter's ceiling
@@ -421,7 +423,7 @@ static const int8_t KID_SIN[32] = {0, 25, 49, 71, 90, 106, 117, 125, 127, 125, 1
                                    0, -25, -49, -71, -90, -106, -117, -125, -127, -125, -117, -106, -90, -71, -49, -25};
 
 enum { KH_NONE, KH_SIZE, KH_NIGHT, KH_ECHO, KH_WIGGLE, KH_SPEED, KH_CHORD, KH_SPARKLE, KH_BEAT, KH_VOLUME, KH_NEWSONG, KH_SONG,
-       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND, KH_NEWSKY, KH_NOTES, KH_STAFF };
+       KH_LOOK, KH_HAT, KH_STARS, KH_NEWHAT, KH_NEWFRIEND, KH_NEWSKY, KH_NOTES, KH_STAFF, KH_KEY };
 enum { KB_NAME, KB_NOTE, KB_HINT, KB_CHORD };
 /* ALGORITHM: how the keys play (kid_mode_set). CHOIR: three friends sing a chord; STRUM: an Omnichord (seq.c
  * kb_strum_map); GUESS: an ear game; FOLLOW: songs to learn, the next key lit */
@@ -817,6 +819,25 @@ static void kid_beat_load(void)
  * (favorites.factory[13][31], after the name's): 1 is off, anything else on. An idea from Josh. */
 #define KID_STAFF_BYTE (favorites.factory[13][31])
 #define KID_STAFF (KID_STAFF_BYTE != 1u)
+/* the KEY (HOME held 1 s, then SELECT): the white keys play in C, or in another key, a step a detent (C C# D .. B),
+ * kept in a spare setting byte (favorites.factory[13][14]). Everything tuned moves together (the friend, the beat's bass,
+ * the chords, the songs, the cheers), so the white keys still always fit and the letters and colours stay on their keys,
+ * as a capo does on a guitar: for a child's singing voice, or a grown-up's guitar. C# to F go up, F# to B down, so the
+ * friend never moves more than half an octave. voice.c key_shift plays it. An idea from Josh */
+#define KID_KEY_BYTE (favorites.factory[13][14])
+#define KID_KEY (KID_KEY_BYTE < 12u ? (uint32_t)KID_KEY_BYTE : 0u)
+static void kid_key_apply(void)                  /* the KEY into voice.c (none out of Rainbow mode), the notes let go */
+{
+    int32_t sh = !kid.on ? 0 : KID_KEY <= 5u ? (int32_t)KID_KEY : (int32_t)KID_KEY - 12;
+    uint32_t i;
+    if (sh == key_shift)
+        return;
+    fm1_irq_off();
+    key_shift = sh;
+    for (i = 0; i < NTRK; i++)                    /* (a note started in the old key would not find its note-off) */
+        trk_all_off(&trk[i]);
+    fm1_irq_on();
+}
 
 /* STARS and secrets: each game won (the cheer's) is a star, kept over power-off (favorites.factory[13][15..17]: the
  * count, low and high, and a check byte; written every 10 stars, at each secret, after half a minute of quiet and on leaving: not at every one, to spare the flash). 10 stars: the STAR hat; 25: the secret sky, AURORA; 50: the secret friend (KID_SECRET_FR). HOME held 1 s,
@@ -924,6 +945,7 @@ static void kid_enter(void)
     kid.beat = KID_SOUND[kid.fr].beat;
     kid_beat_load();
     kid_friend(kid.fr);
+    kid_key_apply();
     kid.hello_ms = fm1_ms | 1u;
 }
 
@@ -946,6 +968,7 @@ static void kid_leave(void)
         kw_leave();
     kid_mode_set(KM_ONE);                         /* (the keys back to their own notes: STRUM off) */
     kid.on = 0;
+    kid_key_apply();                              /* (the full Felucca plays in its own key) */
     kid_fx_set(0);
     perf_k[0] = 0;
     trk[0].p[P_AMODE] = 0;
@@ -2267,7 +2290,17 @@ static void kid_input(void)
         kid_hint(KH_CHORD);
         kid.help_ms = fm1_ms | 1u;                /* .. and how it plays, on a card */
     }
-    if ((s = panel_enc(EN_SELECT)) != 0) {
+    s = panel_enc(EN_SELECT);                                     /* (read once: a read takes the turn) */
+#if !BOARD_SMK37
+    if (s != 0 && kid.vol_open) {                                 /* HOME held 1 s: the KEY, a step a detent */
+        any = 1u;
+        KID_KEY_BYTE = (uint8_t)(((int32_t)KID_KEY + s % 12 + 12) % 12);
+        settings_save();
+        kid_key_apply();
+        kid_hint(KH_KEY);
+    } else
+#endif
+    if (s != 0) {
         any = 1u;
         song.g[G_BPM] = (int16_t)clamp(song.g[G_BPM] + s * 5, 60, 180);
         kid_hint(KH_SPEED);
@@ -2762,12 +2795,12 @@ static uint32_t kid_play_band(uint32_t now)
 static uint32_t kid_band_setup(uint32_t now)
 {
     uint32_t sig, len, w;
-    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_NOTES || kid.hint == KH_STAFF || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
+    int vol = (kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_NOTES || kid.hint == KH_STAFF || kid.hint == KH_KEY || kid.hint == KH_HAT || kid.hint == KH_STARS || kid.hint == KH_NEWHAT ||
                kid.hint == KH_NEWFRIEND || kid.hint == KH_NEWSKY) && now - kid.hint_ms < 1500u;     /* (the grown-ups' VOLUME comes before all) */
     int hint = kid.hint != KH_NONE && now - kid.hint_ms < 1500u;
     kf.meter = -1;
     kf.ol = 2;
-    if (kw.on && !(hint && (kid.hint == KH_SPEED || kid.hint == KH_NIGHT || kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT))) {
+    if (kw.on && !(hint && (kid.hint == KH_SPEED || kid.hint == KH_NIGHT || kid.hint == KH_VOLUME || kid.hint == KH_LOOK || kid.hint == KH_HAT || kid.hint == KH_KEY))) {
         /* WRITE: the friend to write with, and a word */
         kf.band = KB_NAME;
         kf.txt = hint && kid.hint == KH_BEAT ? (kw.beat ? KID_BEATS[(kw.beat - 1u) % KB_COUNT].name : "NO BEAT") :
@@ -2815,7 +2848,8 @@ static uint32_t kid_band_setup(uint32_t now)
         sig = 0x400u | kid.fxk;
     } else if (kid.hint != KH_NONE && now - kid.hint_ms < 1500u) {
         static const char *const WORD[] = {"", "", "DAY", "ECHO", "WIGGLE", "", "", "SPARKLE", "", "VOLUME", "", "", "", "", "STARS",
-                                           "NEW HAT!", "NEW FRIEND!", "NEW SKY!", "", ""};
+                                           "NEW HAT!", "NEW FRIEND!", "NEW SKY!", "", "", ""};
+        static char key_word[16];
         int32_t v = 0;
         kf.band = KB_HINT;
         kf.txt = WORD[kid.hint];
@@ -2843,6 +2877,13 @@ static uint32_t kid_band_setup(uint32_t now)
         case KH_LOOK: kf.txt = KID_VOL_BYTE & KID_HIDE_BIT ? "LOOK-ALIKES OFF" : "LOOK-ALIKES ON"; v = -1; break;
         case KH_NOTES: kf.txt = KID_DOREMI ? "DO RE MI" : "C D E"; v = -1; break;
         case KH_STAFF: kf.txt = KID_STAFF ? "STAFF ON" : "STAFF OFF"; v = -1; break;
+        case KH_KEY:                                      /* KEY C, KEY D# .. (DO RE MI: KEY RE#) */
+            str_cpy(key_word, "KEY", sizeof key_word);
+            str_cpy(key_word + str_len(key_word), " ", sizeof key_word - str_len(key_word));
+            str_cpy(key_word + str_len(key_word), kid_note_name(KID_KEY), sizeof key_word - str_len(key_word));
+            kf.txt = key_word;
+            v = -1;
+            break;
         case KH_HAT: kf.txt = KID_HAT ? KID_HAT_NAME[KID_HAT - 1u] : "NO HAT"; v = -1; break;
         case KH_NEWHAT: case KH_NEWFRIEND: case KH_NEWSKY: v = -1; break;
         case KH_STARS: {                                  /* how far the next secret is (no digits in the band's font) */
@@ -2859,6 +2900,8 @@ static uint32_t kid_band_setup(uint32_t now)
         kf.bg2 = RGB(120, 84, 200);
         sig = 0x200u | (uint32_t)kid.hint << 4 | (uint32_t)(v + 1) << 12 | (uint32_t)kid.beat << 20 | (uint32_t)kid.f_song << 26 |
               (uint32_t)kid.c_lesson << 29;
+        if (kid.hint == KH_KEY)
+            sig ^= (KID_KEY + 1u) << 20;                  /* (another key: drawn again) */
     } else {
         kf.band = KB_NAME;
         kf.txt = KID_NAME[kid_art(kid.fr)];
