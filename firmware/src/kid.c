@@ -662,9 +662,10 @@ static void kid_knobs(void)                       /* the knobs' state into the f
     t->p[P_LRATE] = 74;
     t->p[P_CHRD] = kid.chord && !drum_track(t) ? CH_MAJ : CH_OFF;    /* 3 FRIENDS: a major chord on any key, white or
                                                                    * black, to find the magic ones (a drum friend: one drum a key) */
-    t->p[P_VOICE] = kid.chord || kid.mode == KM_STRUM || kid.mode == KM_ACCORD ? V_POLY : kid.voice0;   /* (a mono
-                                                  * friend sings one note at a time: its chords, strums and squeezes
-                                                  * need its voices; 1 FRIEND keeps its legato slide) */
+    t->p[P_VOICE] = kid.chord || kid.mode == KM_STRUM || kid.mode == KM_ACCORD || kid.mode == KM_CHORDS ? V_POLY :
+                    kid.voice0;                   /* (a mono friend sings one note at a time: its chords, strums,
+                                                  * squeezes and CHORDS' lessons need its voices (@eyeball226 on
+                                                  * YouTube: a chord game that played one note); 1 FRIEND keeps its slide) */
     t->p[P_LEVEL] = (int16_t)clamp(KID_SOUND[kid.fr % KID_N].level - (t->p[P_CHRD] ? 5 : 0), 0, 127);   /* (three voices:
                                                   * 2.5 dB down, about as loud as one: the loudness audit, RAINBOW.md) */
     t->p[P_AMODE] = kid.arp ? 3 : 0;              /* UPDN */
@@ -690,7 +691,9 @@ static void kid_knobs(void)                       /* the knobs' state into the f
         kb_accord_trk = apart ? 2u : 0u;
         if (apart)
             kid.sub_ready = 0;
-        kid_sub(!apart && kid.mode != KM_STRUM);
+        kid_sub(!apart && kid.mode != KM_STRUM && kid.mode != KM_CHORDS);   /* (CHORDS: a sub under every key of a
+                                                  * four-note chord took four of the eight voices, and the chord
+                                                  * lost its top notes; the bass line plays the root there) */
     }
     song.octave = kid.mode >= KM_GUESS || drum_track(t) ? 0 : kid.oct;   /* (GUESS, FOLLOW: the keys where the notes
                                                   * are; a drum friend: each key always its drum, big or small) */

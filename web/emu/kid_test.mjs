@@ -570,6 +570,18 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_keys(EMIN7); render(200);
   check("..played in its bar: YES!", seen && bandHas(col(56, 170, 80)));
   ex.web_keys(0);
+  {   // every friend sounds the whole chord, a one-note lead or bass too (@eyeball226 on YouTube: "a chord minigame where
+      // it doesn't actually sound the chords"); a three-voice friend (PHYS, GRAIN) plays a four-note chord's lower three
+    const fr0 = ex.web_kid_friend(), short = [];
+    for (let f = 0; f < NF; f++) {
+      ex.web_kid_friend_set(f); render(300);
+      if (ex.web_kid_drum()) continue;                                         // (a drum friend: its keys are drums)
+      ex.web_keys(FMAJ7); render(150); const n = ex.web_gate_count(0); ex.web_keys(0); render(250);
+      if (n < 3) short.push(`${f}:${n}`);
+    }
+    ex.web_kid_friend_set(fr0); render(300);
+    check(`..with the LOFI beat, every friend sounds the chord (short: ${short.join(" ") || "none"})`, short.length === 0);
+  }
   tapb(B.PLAY); render(400);
   // COPY ME: the friend plays a pattern of two notes, the child plays it back, each round the friend adds a note, a wrong
   // key plays it again, PLAY too, and eight notes is a star and a fresh start
