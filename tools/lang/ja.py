@@ -5,8 +5,8 @@
 SCRIPT = "kana"
 DOREMI = True                          # the note names start as ド レ ミ (HOME held 1 s, then KNOB 2: C D E)
 
-SUBS = {'{"DO", "DO#", "RE", "RE#", "MI", "FA", "FA#", "SOL", "SOL#", "LA", "LA#", "SI"}':
-        '{"ド", "ド#", "レ", "レ#", "ミ", "ファ", "ファ#", "ソ", "ソ#", "ラ", "ラ#", "シ"}'}
+SUBS = {'{"DO", "REb", "RE", "MIb", "MI", "FA", "FA#", "SOL", "LAb", "LA", "SIb", "SI"}':
+        '{"ド", "レb", "レ", "ミb", "ミ", "ファ", "ファ#", "ソ", "ラb", "ラ", "シb", "シ"}'}
 
 PAGE = {   # its page on the site (web/make_lang_page.py)
     'lang': 'ja',

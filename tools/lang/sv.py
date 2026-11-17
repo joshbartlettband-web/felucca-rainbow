@@ -2,7 +2,7 @@
 # The notes are C D E F G A H, as Swedish children learn them (SUBS: kid.c's note names with H for B).
 DOREMI = False
 
-SUBS = {'"A", "A#", "B"};': '"A", "A#", "H"};'}
+SUBS = {'"A", "Bb", "B"};': '"A", "B", "H"};'}
 
 PAGE = {   # its page on the site (web/make_lang_page.py)
     'lang': 'sv',
