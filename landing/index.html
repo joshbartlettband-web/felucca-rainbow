@@ -220,29 +220,127 @@
 
 
 <!--COUNT-->
-<p id="count" class="lede" style="font-size:1rem;margin:40px 0 0" hidden></p>
+<style>
+  /* the flip counter: digits on split-flap cards, as an old flip clock shows the time; each flips down to the next */
+  .counts { display: flex; flex-wrap: wrap; gap: 18px 28px; justify-content: center; margin: 48px 0 0; }
+  .counts[hidden] { display: none; }
+  .count { text-align: center; }
+  .count figcaption { margin-top: 8px; color: var(--soft); font-size: .95rem; }
+  .flips { display: inline-flex; gap: 5px; padding: 8px; border-radius: 14px; background: #120c1a; box-shadow: inset 0 0 0 2px #3a2850; }
+  .flap { position: relative; width: 40px; height: 58px; perspective: 260px; font: 800 44px/58px var(--font);
+          font-variant-numeric: tabular-nums; color: #fff; text-align: center; }
+  .flap span { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; background: #2a1d38; backface-visibility: hidden; }
+  .flap .t, .flap .ft { top: 0; border-radius: 7px 7px 0 0; line-height: 58px; background: #31233f; }
+  .flap .b, .flap .fb { bottom: 0; border-radius: 0 0 7px 7px; line-height: 0; }
+  .flap .ft { transform-origin: 50% 100%; z-index: 2; }
+  .flap .fb { transform-origin: 50% 0; z-index: 2; transform: rotateX(90deg); }
+  .flap::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px; background: #120c1a; z-index: 3; }
+  .flap.go .ft { animation: ftop .16s ease-in forwards; }
+  .flap.go .fb { animation: fbot .16s .16s ease-out forwards; }
+  @keyframes ftop { to { transform: rotateX(-90deg); } }
+  @keyframes fbot { to { transform: rotateX(0deg); } }
+  .count:nth-child(1) .flips { box-shadow: inset 0 0 0 2px var(--yellow); }
+  .count:nth-child(2) .flips { box-shadow: inset 0 0 0 2px var(--blue); }
+  @media (max-width: 400px) { .flap { width: 32px; height: 48px; font-size: 36px; line-height: 48px; } .flap .t, .flap .ft { line-height: 48px; } }
+  .counts-note { text-align: center; color: var(--dim); font-size: .9rem; margin: 10px 0 0; }
+</style>
+<div class="counts" id="counts" hidden>
+  <figure class="count" style="margin:0"><div class="flips" id="flip-install"></div><figcaption>FM-1s with Rainbow mode installed</figcaption></figure>
+  <figure class="count" style="margin:0"><div class="flips" id="flip-play"></div><figcaption>plays in a browser</figcaption></figure>
+</div>
+<p class="counts-note" id="counts-note" hidden>Counted since November 16, 2026.</p>
 <script>
   /* how many: installs and browser plays, as GitHub counts them (the "counter" release's two little files, fetched once by
-     the installer when an FM-1 finishes installing and by the browser version when its sound is switched on) */
+     the installer when an FM-1 finishes installing and by the browser version when its sound is switched on), shown on a
+     flip counter that rolls up from zero when it comes into view */
   (function () {
     var REPO = "@REPO@";
     if (!/^[\w.-]+\/[\w.-]+$/.test(REPO)) return;
+    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function build(box, digits) {
+      box.innerHTML = "";
+      for (var i = 0; i < digits; i++) {
+        var f = document.createElement("span");
+        f.className = "flap";
+        f.innerHTML = '<span class="t">0</span><span class="b">0</span><span class="ft">0</span><span class="fb">0</span>';
+        box.appendChild(f);
+      }
+    }
+    function flip(f, to) {                       /* one card down: the old top folds over, the new bottom falls into place */
+      var q = function (c) { return f.querySelector("." + c); }, from = q("t").textContent;
+      if (from === to) return;
+      q("ft").textContent = from; q("b").textContent = from; q("t").textContent = to; q("fb").textContent = to;
+      f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+      setTimeout(function () { q("b").textContent = to; }, 320);
+    }
+    function show(box, n) {                      /* each card rolls 0, 1, 2 .. to its digit, the last card first */
+      var s = String(n), digits = Math.max(4, s.length), cards;
+      s = ("0000000000" + s).slice(-digits);
+      build(box, digits);
+      cards = box.querySelectorAll(".flap");
+      box.setAttribute("role", "img");
+      box.setAttribute("aria-label", n.toLocaleString("en-US"));
+      for (var i = 0; i < digits; i++) (function (f, d, k) {
+        if (still) { ["t", "b", "ft", "fb"].forEach(function (c) { f.querySelector("." + c).textContent = d; }); return; }
+        for (var v = 1; v <= d; v++) (function (v) { setTimeout(function () { flip(f, String(v)); }, k * 140 + v * 340); })(v);
+      })(cards[i], +s[i], digits - 1 - i);
+    }
     fetch("https://api.github.com/repos/" + REPO + "/releases/tags/counter").then(function (r) { return r.ok ? r.json() : null; })
       .then(function (rel) {
         if (!rel || !rel.assets) return;
-        var n = {}, parts = [], f = function (x) { return x.toLocaleString("en-US"); };
+        var n = {};
         rel.assets.forEach(function (a) { n[a.name] = a.download_count; });
-        if (n["install.txt"]) parts.push("installed on " + f(n["install.txt"]) + " FM-1" + (n["install.txt"] === 1 ? "" : "s"));
-        if (n["play.txt"]) parts.push("played " + f(n["play.txt"]) + " time" + (n["play.txt"] === 1 ? "" : "s") + " in a browser");
-        if (!parts.length) return;
-        var el = document.getElementById("count");
-        el.textContent = "So far, Rainbow mode has been " + parts.join(" and ") + ".";
-        el.hidden = false;
+        var inst = n["install.txt"] || 0, play = n["play.txt"] || 0;
+        if (!inst && !play) return;
+        var box = document.getElementById("counts");
+        box.hidden = false;
+        document.getElementById("counts-note").hidden = false;
+        build(document.getElementById("flip-install"), Math.max(4, String(inst).length));
+        build(document.getElementById("flip-play"), Math.max(4, String(play).length));
+        var go = function () { show(document.getElementById("flip-install"), inst); show(document.getElementById("flip-play"), play); };
+        if (!("IntersectionObserver" in window)) return go();
+        var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); go(); } }, { threshold: 0.6 });
+        io.observe(box);
       }, function () {});
   })();
 </script>
 <!--/COUNT-->
-<p class="lede" style="font-size:1rem;margin:16px 0 0">AudioPilz put Rainbow mode in S tier on his <a href="https://youtu.be/2puO1fV6Wi4?t=638">FM-1 Tier List</a>.</p>
+<style>
+  /* AudioPilz's clip: our own picture and a play button until it is pressed (nothing from YouTube before), then YouTube's
+     player (its no-cookie address) at the chapter */
+  .clip { margin: 40px auto 0; max-width: 520px; }
+  .clip p { margin: 0 0 12px; color: var(--soft); font-size: 1rem; text-align: center; }
+  .clip button { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 16px;
+                 overflow: hidden; cursor: pointer; background: #000; }
+  .clip button img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .7; image-rendering: pixelated; }
+  .clip button .tier { position: absolute; left: 14px; top: 12px; width: 52px; height: 52px; border-radius: 12px; background: #ff7f7f;
+                       color: #241830; font: 900 34px/52px var(--font); text-align: center; box-shadow: 0 3px 0 rgba(0,0,0,.3); }
+  .clip button i { position: absolute; left: 0; right: 0; bottom: 12px; color: #fff; font: 700 1rem var(--font); font-style: normal;
+                   text-align: center; text-shadow: 0 1px 3px #000; }
+  .clip button span { position: absolute; left: 50%; top: 50%; width: 72px; height: 50px; margin: -25px 0 0 -36px; border-radius: 14px;
+                      background: #ec3440; }
+  .clip button span::after { content: ""; position: absolute; left: 29px; top: 15px; border-style: solid; border-width: 10px 0 10px 17px;
+                             border-color: transparent transparent transparent #fff; }
+  .clip button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .clip iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 16px; }
+</style>
+<div class="clip">
+  <p>AudioPilz put Rainbow mode in S tier on his <a href="https://youtu.be/2puO1fV6Wi4?t=638">FM-1 Tier List</a>. Here's his 15 seconds on it:</p>
+  <button id="clip-play" type="button" aria-label="Play AudioPilz's clip about Rainbow mode (YouTube)">
+    <img src="screen-3.png" alt="" width="480" height="480" loading="lazy"><b class="tier">S</b><i>AudioPilz · FM-1 Tier List</i><span></span>
+  </button>
+</div>
+<script>
+  /* nothing from YouTube until it is pressed; then its player, from 10:38 to 10:53 (the Rainbow mode chapter) */
+  document.getElementById("clip-play").addEventListener("click", function () {
+    var f = document.createElement("iframe");
+    f.src = "https://www.youtube-nocookie.com/embed/2puO1fV6Wi4?start=638&end=653&autoplay=1&rel=0&playsinline=1";
+    f.title = "AudioPilz: FM-1 Tier List, Rainbow mode";
+    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    f.allowFullscreen = true;
+    this.replaceWith(f);
+  });
+</script>
 
 <section class="thanks" aria-labelledby="thanks">
   <h2 id="thanks">Thank you</h2>
