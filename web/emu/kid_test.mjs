@@ -106,6 +106,18 @@ check("PRESETS: another friend (the band shows its name)", band() !== name0);
   press(14);
   check("and starts again from the left when playing again", lines() && px(56, KID_Y(4)) === G_TEAL && px(77, KID_Y(4)) !== G_TEAL);
   render(6500);
+  // a black key alone sits on its own letter's line with a flat (Eb on the E line), in a chord where the chord spells it
+  // (C D# G: C, E flat, G); G# B D# keeps its sharps
+  const EB = col(255, 184, 30);                                               // KID_NOTE_COL: Eb
+  const chordKeys = (ks) => { ex.web_keys(ks.reduce((m, k) => m | 1 << k, 0)); render(120); ex.web_keys(0); render(250); };
+  press(10);                                                                   // D#4 / Eb4
+  shot("staff_flat");
+  check("a black key alone: Eb on the E line, a flat beside it", px(56, KID_Y(2)) === EB && px(45, KID_Y(2) - 5) === INK && px(47, KID_Y(2) - 3) !== INK);
+  chordKeys([7, 10, 14]);                                                      // C4 D#4 G4
+  check("C D# G: C, E flat, G (no sharp on the D line)", px(77, KID_Y(0)) === C_RED && px(77, KID_Y(2)) === EB && px(77, KID_Y(4)) === G_TEAL && px(66, KID_Y(2) - 5) === INK && px(65, KID_Y(1) + 1) !== INK);
+  chordKeys([3, 6, 10]);                                                       // G#3 B3 D#4
+  check("G# B D#: D sharp on the D line, a sharp beside it", px(98, KID_Y(1)) === EB && px(87, KID_Y(1) - 3) === INK && px(98, KID_Y(2)) !== EB);
+  render(6500);
 }
 
 // note values (by how long a key is held, against the beat): a tap a sixteenth (a stem, two flags), about a beat a
@@ -426,6 +438,15 @@ check("PLAY again stops it", ex.web_playing() === 0);
   ex.web_keys(0); render(1200);
   ex.web_keys((1 << 9) | (1 << 12) | (1 << 16)); render(300);     // D F A: D minor
   check("another chord, another name (D F A)", band() !== named && bandHas(D_OR));
+  ex.web_keys(0); render(1500);
+  // spelled from the root: C D# G is C Eb G, C MINOR; Eb G Bb is Eb MAJOR, not D# MAJOR; a black key alone is Db Eb F# Ab Bb
+  const txt = (f) => { let s = ""; for (let i = 0, c; (c = f(i)); i++) s += String.fromCharCode(c); return s; };
+  const spelled = (keys) => { ex.web_keys(keys.reduce((m, k) => m | (1 << k), 0)); render(300); const s = `${txt(ex.web_kid_txt)} / ${txt(ex.web_kid_txt2)}`; ex.web_keys(0); render(1500); return s; };
+  const cMin = spelled([7, 10, 14]), ebMaj = spelled([10, 14, 17]), gsMin = spelled([3, 6, 10]);
+  check(`C D# G is spelled C Eb G (${cMin})`, cMin === "C Eb G / C MINOR");
+  check(`Eb G Bb is Eb MAJOR (${ebMaj}); G# B D# keeps its sharps (${gsMin})`, ebMaj === "Eb G Bb / Eb MAJOR" && gsMin === "G# B D# / G# MINOR");
+  ex.web_keys(1 << 10); render(200);
+  check(`a black key alone: Eb (${txt(ex.web_kid_txt)})`, txt(ex.web_kid_txt) === "Eb");
   ex.web_keys(0); render(1500);
   while (ex.web_kid_friend() === 12) { ex.web_enc(EN.PRESETS, 1); render(400); }   // (not SCISSORS: its keys are drums)
   render(1500);

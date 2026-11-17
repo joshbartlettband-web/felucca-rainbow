@@ -28,9 +28,9 @@
  *   HOME        a surprise friend
  *   SAVE        WRITE: the child writes a song on a big staff, each note a friend (kw_*, below); SAVE again, back
  *   THE STAFF   a treble clef drops in at the top when the child plays, and writes the notes as coloured noteheads, up to 8,
- *               chords stacked, sharps with a #, ledger lines, 8VA / 8VB over the staff for the octave (OCT); each
- *               note's value by how long it was held against the beat (a sixteenth .. a whole, growing while held);
- *               it goes after 6 s of quiet. The big letter stays in the band
+ *               chords stacked, black keys with a # or a b as the band spells them, ledger lines, 8VA / 8VB over the
+ *               staff for the octave (OCT); each note's value by how long it was held against the beat (a sixteenth ..
+ *               a whole, growing while held); it goes after 6 s of quiet. The big letter stays in the band
  *   HOME held 1 s, then OCT- / OCT+   the grown-ups' VOLUME: how loud MASTER can go (8 steps, kept over power-off)
  *   HOME held 1 s, then ALGORITHM the grown-ups' NAME: the name the hello greets (PRESETS a letter, ALGORITHM the next,
  *                                 SAVE keeps it, HOME leaves it as it was), kept over power-off
@@ -328,19 +328,39 @@ static const uint8_t KID_FX_BTN[KX_COUNT] = {B_FX, B_SCL, B_ENV, B_LFO, B_EDIT, 
 static const uint8_t KID_FX_PF[KX_COUNT] = {PF_R16, PF_REV, PF_TAPE, PF_OUP, PF_ODN, PF_FRZ};
 static const char *const KID_FX_NAME[KX_COUNT] = {"HICCUP", "BACKWARDS", "SLEEPY", "SQUEAKY", "GIANT", "FREEZE"};
 
-/* the twelve notes from C: their letters and colours */
-static const char *const KID_NOTE[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+/* the twelve notes from C: their letters ('b' the flat sign; in a named chord, from its root) and colours */
+static const char *const KID_NOTE[12] = {"C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
 /* .. or as many countries say them (DO RE MI: the grown-ups' NOTE NAMES, HOME held 1 s, then KNOB 2; an idea from
  * u/Competitive_Tank_150 in Brazil). Kept in a spare settings byte: favorites.factory[13][18] (SLICE's favourites,
  * two presets, never past byte 0): 1 = DO RE MI, 2 = C D E, anything else the build's own (C D E; DO RE MI in a
  * translated build that says so, KID_DOREMI_FIRST) */
-static const char *const KID_SOLFA[12] = {"DO", "DO#", "RE", "RE#", "MI", "FA", "FA#", "SOL", "SOL#", "LA", "LA#", "SI"};
+static const char *const KID_SOLFA[12] = {"DO", "REb", "RE", "MIb", "MI", "FA", "FA#", "SOL", "LAb", "LA", "SIb", "SI"};
 #define KID_DOREMI_BYTE (favorites.factory[13][18])
 #ifndef KID_DOREMI_FIRST
 #define KID_DOREMI_FIRST 0               /* 1: DO RE MI until the grown-ups pick C D E (a build in another language) */
 #endif
 #define KID_DOREMI (KID_DOREMI_FIRST ? KID_DOREMI_BYTE != 2u : KID_DOREMI_BYTE == 1u)   /* (2: C D E picked) */
 static const char *kid_note_name(uint32_t pc) { return (KID_DOREMI ? KID_SOLFA : KID_NOTE)[pc % 12u]; }
+/* a note spelled on a letter (C = 0 .. B = 6): the letter as kid_note_name says it (H, DO RE MI, kana in a translated
+ * build), then a '#' or 'b' for each semitone off it; B flat where B is H (German and Nordic builds) */
+static const uint8_t KID_LETTER_PC[7] = {0, 2, 4, 5, 7, 9, 11};
+static const uint8_t KID_LETTER_OF[12] = {0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6};   /* KID_NOTE's letters: C Db D Eb E F F# .. */
+static int32_t kid_acc(uint32_t letter, uint32_t pc) { return (int32_t)((pc + 18u - KID_LETTER_PC[letter]) % 12u) - 6; }
+static void kid_spell(char *b, uint32_t letter, uint32_t pc)   /* -> b (8 bytes) */
+{
+    const char *l = kid_note_name(KID_LETTER_PC[letter % 7u]);
+    int32_t a = kid_acc(letter, pc);
+    if (*l == 'H' && a < 0) {
+        l = "B";
+        a++;
+    }
+    str_cpy(b, l, 8);
+    for (b += str_len(b); a > 0; a--)
+        *b++ = '#';
+    for (; a < 0; a++)
+        *b++ = 'b';
+    *b = 0;
+}
 static const uint16_t KID_NOTE_COL[12] = {
     RGB(236, 40, 52), RGB(246, 92, 40), RGB(255, 140, 26), RGB(255, 184, 30), RGB(255, 218, 36), RGB(130, 214, 56),
     RGB(70, 196, 110), RGB(30, 176, 150), RGB(70, 120, 210), RGB(146, 84, 226), RGB(196, 84, 210), RGB(242, 86, 176),
@@ -352,7 +372,7 @@ static const uint16_t KID_RAINBOW[7] = {
 #define KID_INK RGB(52, 26, 58)          /* outlines (the pictures' too) */
 #define KID_WHITE RGB(255, 255, 255)
 
-/* 5 x 7 capitals, digits 1, 3, 5 and 8, '#', '!' and '-': a row a byte, bit 4 the left column */
+/* 5 x 7 capitals, digits 1, 3, 5 and 8, '#', '!', '-' and the flat sign ('b'): a row a byte, bit 4 the left column */
 #ifndef KID_ADV
 #define KID_ADV 6     /* a letter's step in the band's font: 5 px and a gap (8 in a Japanese build: 7 px kana, KID_KANA) */
 #endif
@@ -392,7 +412,9 @@ static const uint8_t KID_FONT[][7] = {
     {0x0A, 0x00, 0x0E, 0x11, 0x1F, 0x11, 0x11}, {0x0A, 0x00, 0x0E, 0x11, 0x11, 0x11, 0x0E},   /* \x96 A diaeresis, \x97 O diaeresis */
     {0x04, 0x0A, 0x04, 0x0A, 0x11, 0x1F, 0x11}, {0x0F, 0x14, 0x14, 0x1F, 0x14, 0x14, 0x17},   /* \x98 A ring, \x99 AE */
     {0x01, 0x0E, 0x13, 0x15, 0x19, 0x0E, 0x10},                                               /* \x9A O slash */
+    {0x10, 0x10, 0x10, 0x16, 0x19, 0x12, 0x1C},                                               /* b: the flat sign */
 };
+#define KID_GLYPH_FLAT 64
 #define KID_GLYPH_N ((int32_t)(sizeof KID_FONT / sizeof KID_FONT[0]))
 static int32_t kid_glyph_of(char c)
 {
@@ -404,6 +426,8 @@ static int32_t kid_glyph_of(char c)
 #endif
     if ((uint8_t)c >= 0x80u && (uint8_t)c <= 0x9Au)               /* (an accented capital: a translated build) */
         return 37 + ((uint8_t)c - 0x80);
+    if (c == 'b')                                                 /* (the flat sign: a lower-case b, nothing else is) */
+        return KID_GLYPH_FLAT;
     return c == '1' ? 26 : c == '3' ? 27 : c == '#' ? 28 : c == '!' ? 29 : c == '5' ? 30 : c == '8' ? 31 : c == '-' ? 32 : c == '?' ? 33 : c == '7' ? 34 : c == '9' ? 35 : c == '4' ? 36 : -1;
 }
 
@@ -454,7 +478,7 @@ _Static_assert(KID_ICON_N == KM_COUNT, "a picture for each of ALGORITHM's modes 
 #define KID_ST_Y(step) (54 - 3 * (step))   /* a step: a line or a space; C4 is 0, the bottom line (E4) 2, the top (F5) 10 */
 typedef struct {
     int8_t step[6];
-    uint8_t sharp;                      /* bit i: head i has a sharp */
+    uint8_t sharp, flat;                /* bit i: head i has a sharp, a flat */
     uint8_t n;
     uint16_t ms;                        /* how long its keys were held (ms): its note value (KID_ST_TYPE) */
     uint32_t keys;                      /* its keys (a bit a key) */
@@ -1131,14 +1155,50 @@ static uint32_t kid_st_len(uint32_t m)  /* .. and its length in sixteenths (the 
     return 1u << kid_st_type(m);
 }
 
+static void kid_st_spell(const uint8_t *pcs, uint32_t n, uint8_t *let);
+
+static void kid_st_head(kid_st_t *e, int32_t s, int32_t a)     /* a head on step s, a # (a > 0) or a b (a < 0) */
+{
+    uint32_t d = e->n, i, sh = a > 0, fl = a < 0;
+    for (i = 0; i < d; i++)
+        if (e->step[i] == s && ((e->sharp >> i) & 1u) == sh && ((e->flat >> i) & 1u) == fl)
+            return;
+    if (d >= 6u)
+        return;
+    e->step[d] = (int8_t)s;
+    e->sharp = (uint8_t)(e->sharp | sh << d);
+    e->flat = (uint8_t)(e->flat | fl << d);
+    e->n++;
+}
+
+static int32_t kid_st_step(uint32_t n, uint32_t l, int32_t *a)  /* note n written on letter l: its step (C4 = 0) */
+{
+    *a = kid_acc(l, n % 12u);
+    return (((int32_t)n - *a) / 12 - 5) * 7 + (int32_t)l;
+}
+
+static void kid_st_chord(kid_st_t *e, const uint8_t *an, uint32_t na)   /* a chord's notes, spelled as the band does */
+{
+    uint8_t pcs[CHORD_MAX], let[CHORD_MAX];
+    uint32_t i;
+    int32_t a, s;
+    for (i = 0; i < na; i++)
+        pcs[i] = (uint8_t)(an[i] % 12u);
+    kid_st_spell(pcs, na, let);
+    for (i = 0; i < na; i++) {
+        s = kid_st_step(an[i], let[i], &a);
+        kid_st_head(e, s, a);
+    }
+}
+
 /* the staff gets the keys pressed now (a bit a key: key k plays MIDI 53 + k, F3 .. G5 at OCT 0), with a chord's
- * third and fifth if CHORD is on; keys within 90 ms of the entry's start are one chord */
+ * third and fifth if CHORD is on; keys within 90 ms of the entry's start are one chord, written again with each key
+ * so they are spelled as the chord they make (C D# G: C, E flat, G) */
 static void kid_staff_add(uint32_t keys, uint32_t now)
 {
-    static const uint8_t IDX[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};          /* a pitch class's letter, C = 0 */
-    static const uint8_t SHARP[12] = {0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0};
     kid_st_t *e;
-    uint32_t k, j;
+    uint32_t k, j, np = 0, fr = kid.chord && !drum_track(&trk[0]);
+    uint8_t pcs[12], let[12], lof[12];
     if (kid.st_n && now - kid.st_t0 < 90u && now - kid.st_ms < 90u) {
         e = &kid.st[kid.st_n - 1u];
     } else {
@@ -1151,36 +1211,40 @@ static void kid_staff_add(uint32_t keys, uint32_t now)
         if (!kid.st_n)
             kid.st_pos0 = 0;
         e = &kid.st[kid.st_n++];
-        e->n = 0;
-        e->sharp = 0;
         e->ms = 0;
         e->keys = 0;
         kid.st_t0 = now;
     }
     e->keys |= keys;
-    for (k = 0; k < 27u; k++) {
-        uint32_t n = 53u + k, pc = n % 12u, h, acc = 0;
-        int32_t st = ((int32_t)(n / 12u) - 5) * 7 + IDX[pc];
-        if (!((keys >> k) & 1u))
-            continue;
-        uint8_t an[CHORD_MAX];
-        if (kid.mode == KM_ACCORD && SHARP[pc])                   /* ACCORDION: a black key's chord (seq.c) */
-            acc = accord_chord(&trk[0], k, 0, an);
-        else if (kid.chord && !drum_track(&trk[0])) {             /* 3 FRIENDS: the major chord on the key, as it sounds */
-            an[0] = (uint8_t)n; an[1] = (uint8_t)(n + 4u); an[2] = (uint8_t)(n + 7u);
-            acc = 3;
+    e->n = 0;
+    e->sharp = e->flat = 0;
+    for (k = 0; k < 27u; k++) {                                  /* (the keys that are a note each: their chord) */
+        uint32_t pc = (53u + k) % 12u;
+        if (((e->keys >> k) & 1u) && !fr && !(kid.mode == KM_ACCORD && ((0x54Au >> pc) & 1u))) {
+            for (j = 0; j < np && pcs[j] != pc; j++)
+                ;
+            if (j == np)
+                pcs[np++] = (uint8_t)pc;
         }
-        for (h = 0; h < (acc ? acc : kid.chord ? 3u : 1u); h++) {
-            uint32_t d = e->n, sh = h || acc ? 0u : SHARP[pc], i;
-            int32_t s = acc ? ((int32_t)(an[h] / 12u) - 5) * 7 + IDX[an[h] % 12u] : st + (int32_t)h * 2;
-            for (i = 0; i < d; i++)
-                if (e->step[i] == s && ((e->sharp >> i) & 1u) == sh)
-                    break;
-            if (i < d || d >= 6u)
-                continue;
-            e->step[d] = (int8_t)s;
-            e->sharp = (uint8_t)(e->sharp | sh << d);
-            e->n++;
+    }
+    kid_st_spell(pcs, np, let);
+    for (j = 0; j < np; j++)
+        lof[pcs[j]] = let[j];
+    for (k = 0; k < 27u; k++) {
+        uint32_t n = 53u + k, pc = n % 12u, h;
+        int32_t a, st;
+        uint8_t an[CHORD_MAX];
+        if (!((e->keys >> k) & 1u))
+            continue;
+        if (kid.mode == KM_ACCORD && ((0x54Au >> pc) & 1u)) {    /* ACCORDION: a black key's chord (seq.c) */
+            kid_st_chord(e, an, accord_chord(&trk[0], k, 0, an));
+        } else if (fr) {                                          /* 3 FRIENDS: the major chord on the key, as it sounds */
+            an[0] = (uint8_t)n; an[1] = (uint8_t)(n + 4u); an[2] = (uint8_t)(n + 7u);
+            kid_st_chord(e, an, 3);
+        } else {
+            st = kid_st_step(n, lof[pc], &a);
+            for (h = 0; h < (kid.chord ? 3u : 1u); h++)           /* (CHORD on a drum friend: two letters up, plain) */
+                kid_st_head(e, st + (int32_t)h * 2, h ? 0 : a);
         }
     }
     kid.st_ms = now;
@@ -2593,34 +2657,93 @@ static uint32_t kid_band_word(const char *s, int16_t sc, uint16_t bg, uint32_t s
     return sig;
 }
 
-/* a chord in the band: its letters in their colours (low to high), and its name under them when it has one (named:
- * that name, its root nroot; CHORDS' lessons name their rootless chords) */
-static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *named, uint32_t nroot)
+/* a chord tone's letter, its root on letter rl: the 3rd two letters up, the 5th four (a b5 by a M3 or M7: a #11) */
+static uint32_t kid_chord_letter(uint32_t rl, uint32_t root, uint32_t pc, uint32_t rel)
+{
+    static const uint8_t STEP[12] = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};
+    uint32_t iv = (pc + 12u - root) % 12u;
+    return (rl + (iv == 6u && (rel & 0x810u) ? 3u : STEP[iv])) % 7u;
+}
+static uint32_t kid_chord_cost(const uint8_t *pcs, uint32_t n, uint32_t root, uint32_t rl, uint32_t rel)
+{   /* (its sharps and flats spelled on rl) */
+    uint32_t c = 0;
+    while (n--) {
+        int32_t a = kid_acc(kid_chord_letter(rl, root, pcs[n], rel), pcs[n]);
+        c += (uint32_t)(a < 0 ? -a : a);
+    }
+    return c;
+}
+
+static uint32_t kid_chord_rel(const uint8_t *pcs, uint32_t n, uint32_t root)   /* its notes as intervals from root */
+{
+    uint32_t mask = 0;
+    while (n--)
+        mask |= 1u << pcs[n];
+    return ((mask >> root) | (mask << (12u - root))) & 0xFFFu;
+}
+
+/* the name of the chord pcs make (MAJOR, MIN7, ..; 0: none) and its root */
+static const char *kid_chord_q(const uint8_t *pcs, uint32_t n, uint32_t *root)
 {
     static const struct { uint16_t m; const char *q; } T[] = {
         {0x091, "MAJOR"}, {0x089, "MINOR"}, {0x491, "SEVEN"}, {0x049, "DIM"}, {0x0A1, "SUS"},
         {0x891, "MAJ7"}, {0x489, "MIN7"}, {0x815, "MAJ9"}, {0x415, "NINE"}, {0x40D, "MIN9"}, {0x851, "MAJ7#11"},
         {0x811, "MAJ7"}, {0x411, "SEVEN"}, {0x409, "MIN7"}, {0x841, "MAJ7#11"}};   /* (shells: no 5th; ACCORDION) */
-    uint32_t mask = 0, i, j, root = pcs[0], sig = 0x600u, w;
-    const char *q = 0;
-    char *p = kf.l1;
+    uint32_t i, j;
+    for (i = 0; i < n; i++) {                                     /* (any of its notes can be the root: inversions) */
+        uint32_t rel = kid_chord_rel(pcs, n, pcs[i]);
+        for (j = 0; j < sizeof T / sizeof T[0]; j++)
+            if (rel == T[j].m) {
+                *root = pcs[i];
+                return T[j].q;
+            }
+    }
+    return 0;
+}
+
+/* a named chord's root letter: a black-key root takes the spelling with fewer sharps and flats (Db F Ab, but G# B D#),
+ * a tie KID_NOTE's */
+static uint32_t kid_chord_rl(const uint8_t *pcs, uint32_t n, uint32_t root, uint32_t rel)
+{
+    uint32_t rl = KID_LETTER_OF[root], o;
+    if (KID_LETTER_PC[rl] == root)
+        return rl;
+    o = KID_LETTER_PC[rl] > root ? rl - 1u : rl + 1u;
+    return kid_chord_cost(pcs, n, root, o, rel) < kid_chord_cost(pcs, n, root, rl, rel) ? o : rl;
+}
+
+/* notes sounding together, for the staff: spelled as the band spells them (a chord from its root, else KID_NOTE's) */
+static void kid_st_spell(const uint8_t *pcs, uint32_t n, uint8_t *let)
+{
+    uint32_t root, rl = 0, rel = 0, i;
+    const char *q = n >= 2u ? kid_chord_q(pcs, n, &root) : 0;
+    if (q) {
+        rel = kid_chord_rel(pcs, n, root);
+        rl = kid_chord_rl(pcs, n, root, rel);
+    }
     for (i = 0; i < n; i++)
-        mask |= 1u << pcs[i];
+        let[i] = (uint8_t)(q ? kid_chord_letter(rl, root, pcs[i], rel) : KID_LETTER_OF[pcs[i]]);
+}
+
+/* a chord in the band: its letters in their colours (low to high), and its name under them when it has one (named:
+ * that name, its root nroot; CHORDS' lessons name their rootless chords) */
+static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *named, uint32_t nroot)
+{
+    uint32_t i, root = pcs[0], sig = 0x600u, w, rl = 0, rel;
+    const char *q = 0;
+    char *p = kf.l1, nm[8];
     if (named) {
         q = named;
         root = nroot;
+    } else {
+        q = kid_chord_q(pcs, n, &root);
     }
-    for (i = 0; i < n && !q; i++) {                               /* (any of its notes can be the root: inversions) */
-        uint32_t rel = ((mask >> pcs[i]) | (mask << (12u - pcs[i]))) & 0xFFFu;
-        for (j = 0; j < sizeof T / sizeof T[0]; j++)
-            if (rel == T[j].m) {
-                q = T[j].q;
-                root = pcs[i];
-                break;
-            }
-    }
+    rel = kid_chord_rel(pcs, n, root);
+    if (q)
+        rl = kid_chord_rl(pcs, n, root, rel);
     for (i = 0; i < n && p < kf.l1 + 18; i++) {                   /* (DO RE MI: up to 4 letters a note) */
-        const char *l = kid_note_name(pcs[i]);
+        const char *l = nm;
+        kid_spell(nm, q ? kid_chord_letter(rl, root, pcs[i], rel) : KID_LETTER_OF[pcs[i]], pcs[i]);   /* (spelled from the root) */
         if (i)
             *p++ = ' ';
         for (; *l; l++, p++) {
@@ -2644,11 +2767,13 @@ static uint32_t kid_chord_band_n(const uint8_t *pcs, uint32_t n, const char *nam
                 rest++;
             if (*rest == '#')
                 rest++;
-            str_cpy(kf.l2, rest != named ? kid_note_name(root) : "", sizeof kf.l2);
+            kid_spell(nm, rl, root);
+            str_cpy(kf.l2, rest != named ? nm : "", sizeof kf.l2);
             p = kf.l2 + str_len(kf.l2);
             str_cpy(p, rest, sizeof kf.l2 - (uint32_t)(p - kf.l2));
         } else {
-            str_cpy(kf.l2, kid_note_name(root), sizeof kf.l2);
+            kid_spell(nm, rl, root);
+            str_cpy(kf.l2, nm, sizeof kf.l2);
             p = kf.l2 + str_len(kf.l2);
             *p++ = ' ';
             str_cpy(p, q, sizeof kf.l2 - (uint32_t)(p - kf.l2));
@@ -3614,7 +3739,7 @@ static uint32_t kid_staff_setup(uint32_t now)
         }
         kf.st_lo[i] = (int8_t)lo;
         kf.st_hi[i] = (int8_t)hi;
-        sig = sig * 31u + e->n + (uint32_t)e->sharp * 7u + (uint32_t)kf.st_ty[i] * 4099u;
+        sig = sig * 31u + e->n + (uint32_t)e->sharp * 7u + (uint32_t)e->flat * 263u + (uint32_t)kf.st_ty[i] * 4099u;
         for (j = 0; j < e->n; j++)
             sig = sig * 31u + (uint8_t)e->step[j];
     }
@@ -3662,12 +3787,14 @@ static uint16_t kid_staff_px(int32_t x, int32_t y)
         for (h = 0; h < (int32_t)e->n; h++) {
             int32_t s = e->step[h], dy = y - KID_ST_Y(s), a = dx * dx, pc;
             if (dx >= -4 && dx <= 4 && dy >= -3 && dy <= 3 && 49 * a + 81 * dy * dy <= 992) {
-                pc = (SPC[((s % 7) + 7) % 7] + (int32_t)((e->sharp >> h) & 1u)) % 12;
+                pc = (SPC[((s % 7) + 7) % 7] + 12 + (int32_t)((e->sharp >> h) & 1u) - (int32_t)((e->flat >> h) & 1u)) % 12;
                 if (36 * a + 49 * dy * dy > 440)
                     return KID_INK;
                 return ty >= KT_HALF && 36 * a + 49 * dy * dy <= 100 ? KID_WHITE : KID_NOTE_COL[pc];   /* half, whole: open */
             }
             if (((e->sharp >> h) & 1u) && kid_char_ink('#', cx - 12, KID_ST_Y(s) - 3, 1, x, y))
+                return KID_INK;
+            if (((e->flat >> h) & 1u) && kid_char_ink('b', cx - 11, KID_ST_Y(s) - 5, 1, x, y))   /* (its bowl beside the head) */
                 return KID_INK;
         }
         if (ty != KT_WHOLE) {                                         /* the stem, up on the right below the middle */
