@@ -3562,10 +3562,17 @@ static int32_t kid_hello_line(const char *s, int32_t sc, int32_t top, uint32_t f
 static const char KID_HI[] = "HI!";          /* the hello without a name (a longer word, in a translation, draws smaller) */
 #define KID_HI_W(sc) ((sizeof KID_HI - 1u) * KID_ADV * (sc) - (sc))
 #define KID_HI_SC (KID_HI_W(8) <= 228u ? 8 : KID_HI_W(6) <= 228u ? 6 : KID_HI_W(5) <= 228u ? 5 : 4)
+static int32_t kid_hello_fit(const char *s, int32_t sc)   /* a longer greeting (a translation) a size smaller, as the name's is */
+{
+    while (sc > 4 && (int32_t)str_len(s) * KID_ADV * sc - sc > 236)
+        sc--;
+    return sc;
+}
+
 static uint16_t kid_hello_px(int32_t x, int32_t y)
 {
     int32_t c;
-    if (kid.hello_name[0] ? (c = kid_hello_line("HI", 7, 14, 0u, x, y)) >= 0 ||
+    if (kid.hello_name[0] ? (c = kid_hello_line("HI", kid_hello_fit("HI", 7), 14, 0u, x, y)) >= 0 ||
                             (c = kid_hello_line(kid.hello_name, kid.hello_sc, 76, 2u, x, y)) >= 0
                           : (c = kid_hello_line(KID_HI, KID_HI_SC, 34 + (8 - KID_HI_SC) * 4, 0u, x, y)) >= 0)
         return (uint16_t)c;

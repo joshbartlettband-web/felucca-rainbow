@@ -59,7 +59,7 @@ WORDS = {
     "STAR!": "ЗВЕЗДА!", "NEW HAT!": "НОВАЯ ШЛЯПА!", "NEW FRIEND!": "НОВЫЙ ДРУГ!", "NEW SKY!": "НОВОЕ НЕБО!",
     "NEW SONG": "НОВАЯ ПЕСНЯ", "NO HAT": "БЕЗ ШЛЯПЫ", "STARS": "ЗВЁЗДЫ", "LOOK-ALIKES OFF": "ДВОЙНИКИ ВЫКЛ",
     "STAFF ON": "НОТЫ ВКЛ", "STAFF OFF": "НОТЫ ВЫКЛ", "KEY": "ТОН", "VOLUME": "ГРОМКОСТЬ", "LOOP": "ПО КРУГУ",
-    "LOOK-ALIKES ON": "ДВОЙНИКИ ВКЛ", "HI!": "ПРИВЕТ!", "HI": "ХЭЙ", "YOUR NAME": "ТВОЁ ИМЯ",
+    "LOOK-ALIKES ON": "ДВОЙНИКИ ВКЛ", "HI!": "ПРИВЕТ!", "HI": "ПРИВЕТ", "YOUR NAME": "ТВОЁ ИМЯ",
     "PRESETS  LETTER": "PRESETS  БУКВА", "ALGORITHM  NEXT": "ALGORITHM  ДАЛЬШЕ", "SAVE  KEEP IT": "SAVE  ОСТАВИТЬ",
     "HOME  LEAVE IT": "HOME  ВЫЙТИ", "SPARKLE": "ПЕРЕЛИВ", "SPARKLE TUNE": "ПЕРЕЛИВ МЕЛОДИИ", "SPARKLE ALL": "ПЕРЕЛИВ ВЕЗДЕ",
     "WRITE": "СОЧИНЯЙ", "DO RE MI": "ДО РЕ МИ",

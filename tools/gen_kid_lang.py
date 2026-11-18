@@ -155,7 +155,7 @@ def fits(code, src, en, tr):
     elif en in WRITE_WORDS and n * ADV * 2 - 2 > 176:                          # (WRITE: beside the friend, scale 2)
         ok = False
     elif en in ("HI!", "HI"):                                                  # (the hello: scale 4 at the smallest
-        ok = n * ADV * 4 - 4 <= 228 if en == "HI!" else n * ADV * 7 - 7 <= 232   #  alone, 7 with a name)
+        ok = n * ADV * 4 - 4 <= (228 if en == "HI!" else 236)   #  alone, 7 with a name, smaller as it needs: kid_hello_fit)
     elif n * ADV * 3 - 3 <= 232:                                               # (the band: scale 3 at the smallest)
         ok = True
     else:                                                                      # (or two lines, split at a space)
