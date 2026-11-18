@@ -45,6 +45,20 @@ The Japanese version's kana are from the Misaki Gothic 2nd font by Num Kadoma (<
 which is free to use, change and pass on (`LICENSES/Misaki.txt`). Its FOLLOW songs are read from the scores in Japanese
 Wikipedia's articles on them (and German Wikipedia's for ちょうちょう, かっこう and きよしこのよる).
 
+## Russian
+
+The Russian version's FOLLOW has eight songs known everywhere (Twinkle, Frère Jacques, Ode to Joy and the like), with the same notes as the
+English list. Two Russian songs are read from the scores in Wikipedia's articles on them:
+
+- "Ёлочка" (В лесу родилась ёлочка, Leonid Karlovich Beckman, 1871 to 1939): the public domain score in English Wikipedia's
+  [A Spruce Was Born in the Forest](https://en.wikipedia.org/wiki/A_Spruce_Was_Born_in_the_Forest) (Wikimedia Commons,
+  "В лесу родилась ёлочка (in F).svg"), moved down to C major.
+- "Во поле берёза стояла" (a folk song, no. 39 of Rimsky-Korsakov's 100 Russian Folk Songs, op. 24, 1877): the score in Russian
+  Wikipedia's [Во поле берёза стояла](https://ru.wikipedia.org/wiki/Во_поле_берёза_стояла) (Wikimedia Commons,
+  `Rimsky-Korsakov_Vo_pole_bereza_stoyala.jpg` by Dmitrismirnov, CC BY-SA 4.0), moved down to A minor.
+
+Its Cyrillic letters are 5 x 7 capitals drawn for this project (`CYR` in `tools/gen_kid_lang.py`).
+
 ## The songs in the other languages
 
 The German, French, Spanish, Italian, Dutch, Swedish, Norwegian and Danish versions' FOLLOW songs are read note for note from

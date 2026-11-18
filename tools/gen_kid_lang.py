@@ -5,9 +5,11 @@ kid.c stays the English source. Each word to translate is one of its string lite
 with its \\n), and must be there, or this stops: a literal that changed in kid.c is a translation to look at again.
 The accented capitals become the bytes kid.c's font has (\\200 .. \\213, its KID_FONT after 4); gen_kid_art.py uses enc()
 for the friends' and the hats' names. FOLLOW's songs are replaced by the language's own.
-A language written in kana (SCRIPT = "kana": Japanese) gets 7 px letters on an 8 px step (KID_ADV 8): each kana it uses
-is a byte from \200 up, in the order of their code points, drawn from tools/fonts/misaki_kana.bdf (Misaki Gothic 2nd,
-Num Kadoma's free 8x8 font) into KID_KANA; the capitals and digits stay, centred in the wider step."""
+A language with letters of its own sets SCRIPT (SCRIPTS below says what each does). Its letters are bytes from \\200 up, in the
+order of their code points, drawn into kid.c's KID_KANA table (the name is from the first, kana, build):
+  "kana" (Japanese): 7 px letters on an 8 px step (KID_ADV 8), drawn from tools/fonts/misaki_kana.bdf (Misaki Gothic 2nd,
+    Num Kadoma's free 8x8 font); the capitals and digits stay, centred in the wider step.
+  "cyrillic" (Russian): the 6 px step as it is: 5 x 7 capitals, CYR below."""
 import importlib.util
 import re
 import sys
@@ -20,32 +22,61 @@ KEYS = ["F3", "FS3", "G3", "GS3", "A3", "AS3", "B3", "C4", "CS4", "D4", "DS4", "
         "AS4", "B4", "C5", "CS5", "D5", "DS5", "E5", "F5", "FS5", "G5"]   # kid.c K_*: key 0 is F3 (MIDI 53)
 
 
-ADV = 6                                  # a letter's step at scale 1 (kid.c KID_ADV)
-KANA = {}                                # a kana language's letters: character -> byte (from 0x80)
+DEFAULT_ADV = 6                          # a letter's step at scale 1 in kid.c (KID_ADV)
+ADV = DEFAULT_ADV                        # ... in this language
+SCRIPT = ""                              # this language's SCRIPT ("", "kana", "cyrillic")
+LETTERS = {}                             # its own letters (kana, Cyrillic): character -> byte (from 0x80)
+
+CYR = {                                  # 5 x 7 Cyrillic capitals, as kid.c's KID_FONT: a row a byte, bit 4 the left column
+    "А": [0x0E, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11], "Б": [0x1F, 0x10, 0x10, 0x1E, 0x11, 0x11, 0x1E],
+    "В": [0x1E, 0x11, 0x11, 0x1E, 0x11, 0x11, 0x1E], "Г": [0x1F, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10],
+    "Д": [0x0F, 0x09, 0x09, 0x09, 0x09, 0x1F, 0x11], "Е": [0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x1F],
+    "Ё": [0x0A, 0x00, 0x1F, 0x10, 0x1E, 0x10, 0x1F], "Ж": [0x15, 0x15, 0x15, 0x0E, 0x15, 0x15, 0x15],
+    "З": [0x1E, 0x01, 0x01, 0x0E, 0x01, 0x01, 0x1E], "И": [0x11, 0x11, 0x13, 0x15, 0x19, 0x11, 0x11],
+    "Й": [0x0A, 0x04, 0x11, 0x13, 0x15, 0x19, 0x11], "К": [0x11, 0x12, 0x14, 0x18, 0x14, 0x12, 0x11],
+    "Л": [0x0F, 0x09, 0x09, 0x09, 0x09, 0x11, 0x11], "М": [0x11, 0x1B, 0x15, 0x15, 0x11, 0x11, 0x11],
+    "Н": [0x11, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11], "О": [0x0E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E],
+    "П": [0x1F, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11], "Р": [0x1E, 0x11, 0x11, 0x1E, 0x10, 0x10, 0x10],
+    "С": [0x0E, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0E], "Т": [0x1F, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04],
+    "У": [0x11, 0x11, 0x0A, 0x04, 0x08, 0x10, 0x10], "Ф": [0x04, 0x0E, 0x15, 0x15, 0x15, 0x0E, 0x04],
+    "Х": [0x11, 0x11, 0x0A, 0x04, 0x0A, 0x11, 0x11], "Ц": [0x11, 0x11, 0x11, 0x11, 0x11, 0x1F, 0x01],
+    "Ч": [0x11, 0x11, 0x11, 0x0F, 0x01, 0x01, 0x01], "Ш": [0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x1F],
+    "Щ": [0x15, 0x15, 0x15, 0x15, 0x15, 0x1F, 0x01], "Ъ": [0x18, 0x08, 0x08, 0x0E, 0x09, 0x09, 0x0E],
+    "Ы": [0x11, 0x11, 0x11, 0x1D, 0x15, 0x15, 0x1D], "Ь": [0x10, 0x10, 0x10, 0x1E, 0x11, 0x11, 0x1E],
+    "Э": [0x1E, 0x01, 0x01, 0x0F, 0x01, 0x01, 0x1E], "Ю": [0x12, 0x15, 0x15, 0x1D, 0x15, 0x15, 0x12],
+    "Я": [0x0F, 0x11, 0x11, 0x0F, 0x05, 0x09, 0x11],
+}
 
 
 def lang(code):
-    global ADV, KANA
+    global ADV, SCRIPT, LETTERS
     p = ROOT / "tools" / "lang" / f"{code}.py"
     if not p.exists():
         raise SystemExit(f"gen_kid_lang: no tools/lang/{code}.py")
     spec = importlib.util.spec_from_file_location(f"lang_{code}", p)
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
-    ADV, KANA = 6, {}
-    if getattr(m, "SCRIPT", "") == "kana":
-        ADV = 8
+    ADV, SCRIPT, LETTERS = DEFAULT_ADV, getattr(m, "SCRIPT", ""), {}
+    if SCRIPT:
+        if SCRIPT not in SCRIPTS:
+            raise SystemExit(f"gen_kid_lang: {code}: SCRIPT {SCRIPT!r} is not one of {', '.join(SCRIPTS)}")
+        ADV = SCRIPTS[SCRIPT][0]
         texts = list(m.WORDS.values()) + list(m.NAMES.values()) + list(m.HATS.values()) + \
             [n for n, *_ in m.SOLFA_SONGS + m.SONGS] + "".join(getattr(m, "SUBS", {}).values()).split('"')
         used = sorted({ch for t in texts for ch in t if ord(ch) > 0x7f})
         if len(used) > 128:
-            raise SystemExit(f"gen_kid_lang: {code}: {len(used)} kana, 128 at most")
-        KANA = {ch: 0x80 + i for i, ch in enumerate(used)}
+            raise SystemExit(f"gen_kid_lang: {code}: {len(used)} letters, 128 at most")
+        LETTERS = {ch: 0x80 + i for i, ch in enumerate(used)}
     return m
 
 
+def glyph_line(ch, b, rows):
+    return "    {" + ", ".join(f"0x{v:02X}" for v in rows) + "},   /* \\%03o %s */" % (b, ch)
+
+
 def kana_glyphs():
-    """KID_KANA: each kana's 7 rows of 7 px (the left one bit 6), from the BDF, its baseline under the 7th row"""
+    """KID_KANA of a kana language: each kana's 7 rows of 7 px (the left one bit 6), from the BDF, its baseline under
+    the 7th row"""
     bdf = (ROOT / "tools" / "fonts" / "misaki_kana.bdf").read_text(encoding="latin-1")
     font = {}
     for c in re.findall(r"STARTCHAR.*?ENDCHAR", bdf, re.S):
@@ -58,11 +89,28 @@ def kana_glyphs():
                 rows[y] = (int(hexrow, 16) >> (1 + xo)) & 0x7f
         font[chr(e)] = rows
     out = []
-    for ch, b in sorted(KANA.items(), key=lambda kv: kv[1]):
+    for ch, b in sorted(LETTERS.items(), key=lambda kv: kv[1]):
         if ch not in font:
             raise SystemExit(f"gen_kid_lang: {ch!r} is not in tools/fonts/misaki_kana.bdf")
-        out.append("    {" + ", ".join(f"0x{v:02X}" for v in font[ch]) + "},   /* \\%03o %s */" % (b, ch))
+        out.append(glyph_line(ch, b, font[ch]))
     return out
+
+
+def cyrillic_glyphs():
+    """KID_KANA of a Cyrillic language: each letter's 7 rows of 5 px, from CYR"""
+    out = []
+    for ch, b in sorted(LETTERS.items(), key=lambda kv: kv[1]):
+        if ch not in CYR:
+            raise SystemExit(f"gen_kid_lang: {ch!r} is not in CYR (the Cyrillic capitals)")
+        out.append(glyph_line(ch, b, CYR[ch]))
+    return out
+
+
+# SCRIPT: (a letter's step, its glyphs' function, where they come from: the comment on KID_KANA)
+SCRIPTS = {
+    "kana": (8, kana_glyphs, "tools/fonts/misaki_kana.bdf: Misaki Gothic 2nd, (C) Num Kadoma, free"),
+    "cyrillic": (DEFAULT_ADV, cyrillic_glyphs, "tools/gen_kid_lang.py CYR: 5 x 7 Cyrillic capitals"),
+}
 
 
 def enc(s):
@@ -71,10 +119,10 @@ def enc(s):
         return "\\n".join(enc(x) for x in s.split("\\n"))
     out = []
     for ch in s:
-        if ch in KANA:
-            out.append("\\%03o" % KANA[ch])
-        elif KANA and ord(ch) > 0x7f:
-            raise SystemExit(f"gen_kid_lang: {s!r}: {ch!r} is not one of the kana")
+        if ch in LETTERS:
+            out.append("\\%03o" % LETTERS[ch])
+        elif LETTERS and ord(ch) > 0x7f:
+            raise SystemExit(f"gen_kid_lang: {s!r}: {ch!r} is not one of the {SCRIPT} letters")
         elif ch in ACCENTS:
             out.append("\\%03o" % (0x80 + ACCENTS.index(ch)))
         elif re.fullmatch(r"[A-Z0-9 #!?\-_=]", ch):
@@ -92,7 +140,8 @@ def shown(s):
 ONE_LINE = {"KICK", "SNARE", "CLAP", "HI-HAT", "OPEN HAT", "RIM", "COWBELL", "CYMBAL", "TOM", "CONGA", "CLAVE", "CYM",
             "SHAKER"}                     # (kid_drum_word: the band says them on one line, so 13 letters at most)
 WRITE_WORDS = {"NO BEAT", "NEW SONG", "WRITE", "LOOP", "DANCE", "MARCH", "SPOOKY", "ROCK", "DISCO", "HIP HOP", "TRAIN",
-               "SAMBA", "REGGAE", "LULLABY", "HOEDOWN", "LOFI", "ACID", "POLKA"}   # (kid.c KID_BEATS: the beats' names)
+               "SAMBA", "REGGAE", "LULLABY", "HOEDOWN", "LOFI", "ACID", "POLKA", "BOSSA", "FUNK", "SKA", "TRAP", "SALSA",
+               "SHUFFLE", "BREAK"}   # (kid.c KID_BEATS: the beats' names)
 
 
 def fits(code, src, en, tr):
@@ -160,7 +209,7 @@ def main(code, out):
         if lit not in src:
             raise SystemExit(f"gen_kid_lang: {code}: {lit} is not in kid.c any more")
         if "\\n" in en:                    # a card: up to 3 lines of 17 (13 kana)
-            ls, most = tr.split("\\n"), 17 if ADV == 6 else 220 // (2 * ADV)
+            ls, most = tr.split("\\n"), 17 if ADV == DEFAULT_ADV else 220 // (2 * ADV)
             if len(ls) > 3 or max(shown(x) for x in ls) > most:
                 raise SystemExit(f"gen_kid_lang: {code}: {tr!r}: a card has 3 lines of {most} at most")
         else:
@@ -184,15 +233,15 @@ def main(code, out):
     songs = [song_line(n, solfa_keys(t, sh), pics[n]) for n, sh, _, t in L.SOLFA_SONGS] + \
             [song_line(n, note_keys(t), pics[n]) for n, t in L.SONGS]
     for n, *_ in L.SOLFA_SONGS + L.SONGS:
-        if shown(n) > 14 * 6 // ADV:
-            raise SystemExit(f"gen_kid_lang: {code}: the song {n!r}: {14 * 6 // ADV} letters at most")
+        if shown(n) > 14 * DEFAULT_ADV // ADV:
+            raise SystemExit(f"gen_kid_lang: {code}: the song {n!r}: {14 * DEFAULT_ADV // ADV} letters at most")
     src = src[:i] + "static const kid_song_t KID_SONGS[] = {\n" + "\n".join(songs) + src[j:]
     head = (f"/* generated by tools/gen_kid_lang.py from firmware/src/kid.c and tools/lang/{code}.py: Rainbow mode in "
             f"this language. Do not edit: edit those. */\n#define KID_DOREMI_FIRST {1 if L.DOREMI else 0}\n")
-    if KANA:                                       # (its letters: kana, 7 px on an 8 px step)
-        head += (f"#define KID_ADV {ADV}\n#define KID_KANA_N {len(KANA)}\n"
-                 "static const uint8_t KID_KANA[KID_KANA_N][7] = {   /* tools/fonts/misaki_kana.bdf: Misaki Gothic 2nd, "
-                 "(C) Num Kadoma, free */\n" + "\n".join(kana_glyphs()) + "\n};\n")
+    if LETTERS:                                    # (its own letters: a table of them, and the step when it is not 6 px)
+        _, glyphs, source = SCRIPTS[SCRIPT]
+        head += ((f"#define KID_ADV {ADV}\n" if ADV != DEFAULT_ADV else "") + f"#define KID_KANA_N {len(LETTERS)}\n"
+                 f"static const uint8_t KID_KANA[KID_KANA_N][7] = {{   /* {source} */\n" + "\n".join(glyphs()) + "\n};\n")
     Path(out).write_text(head + src)
     print(f"kid lang: {code}, {len(L.WORDS)} words, {len(songs)} songs -> {out}")
 

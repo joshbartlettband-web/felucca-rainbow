@@ -277,8 +277,8 @@ repository and its website are public.
 ## Other languages
 
 Each language is its own firmware file, so nothing has to be cut to fit: each package carries only its own words and songs.
-`./build.sh --lang de` builds `build/felucca-de-X.Y.fwsc`. There are ten: Portuguese (pt), Spanish (es), French (fr), Italian
-(it), German (de), Dutch (nl), Swedish (sv), Norwegian (no), Danish (da) and Japanese (ja). The workflow's `LANGS` lists them.
+`./build.sh --lang de` builds `build/felucca-de-X.Y.fwsc`. There are eleven: Portuguese (pt), Spanish (es), French (fr), Italian
+(it), German (de), Dutch (nl), Swedish (sv), Norwegian (no), Danish (da), Japanese (ja) and Russian (ru). The workflow's `LANGS` lists them.
 
 - `tools/lang/LL.py` holds everything that changes: the words on the screen (`WORDS`), the friends' and hats' names (`NAMES`,
   `HATS`), the FOLLOW songs (`SOLFA_SONGS` in do re mi, `SONGS` in note names), `DOREMI` (True: the note names start as DO RE
@@ -297,6 +297,11 @@ Each language is its own firmware file, so nothing has to be cut to fit: each pa
   Kadoma's free Misaki Gothic 2nd font (`tools/fonts/misaki_kana.bdf`, `LICENSES/Misaki.txt`). gen_kid_lang.py gives each
   kana the build uses a byte from 0x80 (128 at most; it uses about 125) and writes their rows into `KID_KANA`. A line holds
   fewer of them: 9 in the band, 13 on a card, and the checks know it. The note names are ド レ ミ.
+- Russian (`SCRIPT = "cyrillic"`) is written in capitals, as the band's font is. Its 5 x 7 letters are `CYR` in
+  `tools/gen_kid_lang.py`, drawn for this project, on the usual 6 px step (`KID_ADV` stays 6). Like the kana, each letter a build
+  uses is a byte from 0x80, in the same `KID_KANA` table (33 letters at most; Ё counts). The note names start as ДО РЕ МИ (`SUBS`).
+  The hello before a name is drawn at a fixed size, so it is `ХЭЙ`, not ПРИВЕТ: six letters are 5 px too wide.
+  FOLLOW has the songs known everywhere (the English list's notes under Russian names) and two Russian ones, "Ёлочка" and "Во поле берёза стояла", from the scores in Wikipedia's articles on them.
 - The songs: Portuguese's from Cifra Visual's recorder pages. The others' from the scores in Wikipedia's articles on them,
   with `tools/wiki_song.py LL "Article" [block] [NAME]` (it renders the article's LilyPond to MIDI and reads the tune back;
   needs lilypond and mido, and only for adding songs). Then a few known everywhere, as in the English list. German and French

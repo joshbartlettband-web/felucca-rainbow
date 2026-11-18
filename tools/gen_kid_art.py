@@ -2447,7 +2447,7 @@ def main(out, png=None):
             raise SystemExit(f"STAND_INS: {k} is not a friend")
     for en, _ in FRIENDS + list(STAND_INS.values()):     # the band shows the name: one line at scale 4 or 3, or two at 3
         name = tr_name(en)
-        if not re.fullmatch(r"[A-Z\u00c0-\u00dd\u3041-\u30fc-]+( [A-Z\u00c0-\u00dd\u3041-\u30fc-]+)*", name):
+        if not re.fullmatch(r"[A-Z\u00c0-\u00dd\u0401\u0410-\u042f\u3041-\u30fc-]+( [A-Z\u00c0-\u00dd\u0401\u0410-\u042f\u3041-\u30fc-]+)*", name):
             raise SystemExit(f"{name!r}: capitals, hyphens and single spaces only (the band's font)")
         cuts = [i for i, ch in enumerate(name) if ch == " "]     # (kid.c splits at the space nearest the middle)
         cut = min(cuts, key=lambda i: abs(i - len(name) // 2)) if cuts else 0
