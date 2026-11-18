@@ -127,6 +127,9 @@ SONG_PICS = {
     'КОЛЫБЕЛЬНАЯ': 'PANDA',
 }
 
+# the letters of the grown-ups' NAME (HOME held, then ALGORITHM): all 33, so a kept name keeps its bytes over updates
+NAME_ALPHABET = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+
 SOLFA_SONGS = []
 SONGS = [
     ("ЁЛОЧКА", "G3 E4 E4 D4 E4 C4 G3 G3 G3 E4 E4 D4 A4 G4 G4 A3 A3 F4 F4 E4 D4 C4 G3 E4 E4 D4 E4 C4 G4 A3 A3 F4 F4 E4 D4 C4 G3 E4 E4 D4 E4 C4"),

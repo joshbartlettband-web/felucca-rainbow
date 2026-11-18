@@ -300,6 +300,8 @@ Each language is its own firmware file, so nothing has to be cut to fit: each pa
 - Russian (`SCRIPT = "cyrillic"`) is written in capitals, as the band's font is. Its 5 x 7 letters are `CYR` in
   `tools/gen_kid_lang.py`, drawn for this project, on the usual 6 px step (`KID_ADV` stays 6). Like the kana, each letter a build
   uses is a byte from 0x80, in the same `KID_KANA` table (33 letters at most; Ё counts). The note names start as ДО РЕ МИ (`SUBS`).
+  The grown-ups' NAME turns through the 33 letters (`NAME_ALPHABET`, `KID_NAME_ABC` in `kid.c`; all of them are in the byte
+  table, so a kept name keeps its bytes); a name of A to Z from the website's name box is still shown.
   The hello before a name is drawn at a fixed size, so it is `ХЭЙ`, not ПРИВЕТ: six letters are 5 px too wide.
   FOLLOW has the songs known everywhere (the English list's notes under Russian names) and two Russian ones, "Ёлочка" and "Во поле берёза стояла", from the scores in Wikipedia's articles on them.
 - The songs: Portuguese's from Cifra Visual's recorder pages. The others' from the scores in Wikipedia's articles on them,
