@@ -1,0 +1,163 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only
+     USB check: what an FM-1 that does not start presents over USB, read in Chrome (Android included) with WebUSB and
+     Web MIDI. Read-only: it never opens the device, claims an interface or sends anything. The workflow copies landing/
+     to the site's root, so this page is served at <site>/usb-check.html. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FM-1 USB check</title>
+<style>
+  :root { --bg: #fff; --fg: #000; --dim: #666; --line: #ddd; --ok: #1a7f37; --warn: #9a6700; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #000; --fg: #fff; --dim: #999; --line: #333; --ok: #4ac26b; --warn: #d4a72c; }
+  }
+  :root[data-theme="dark"] { --bg: #000; --fg: #fff; --dim: #999; --line: #333; --ok: #4ac26b; --warn: #d4a72c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 40px 16px 64px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 16px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  p, ol { margin: 0 0 16px; }
+  ol { padding-left: 1.3em; }
+  button { font: inherit; background: var(--fg); color: var(--bg); border: 0; padding: 10px 20px; margin: 0 8px 8px 0;
+           cursor: pointer; min-height: 44px; }
+  button:disabled { opacity: .3; cursor: default; }
+  .small { color: var(--dim); font-size: 13px; }
+  .verdict { border-left: 4px solid var(--dim); padding: 4px 12px; margin: 16px 0; }
+  .verdict.ok { border-color: var(--ok); }
+  .verdict.warn { border-color: var(--warn); }
+  pre { font-size: 12px; white-space: pre-wrap; word-break: break-word; border: 1px solid var(--line); padding: 12px;
+        margin: 8px 0 16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>FM-1 USB check</h1>
+  <p>For an FM-1 whose screen stays black after an interrupted install. This page shows what the FM-1 tells the phone
+     or computer over USB, so you know which way back applies. It only reads: nothing is sent to the FM-1 and nothing
+     is written.</p>
+  <ol>
+    <li>Use Chrome (Android, Windows, macOS, Linux, ChromeOS) or Edge.</li>
+    <li>On a phone, connect the FM-1 through an OTG adapter (USB-C plug to USB-A socket) and a USB-A to USB-C data
+        cable. Switch the FM-1 on and wait 10 seconds.</li>
+    <li>Press <b>Look for USB devices</b> and pick the FM-1 in the list (it may be called "Unknown device"). If the
+        list shows nothing, unplug it, plug it in again and press the button again.</li>
+  </ol>
+  <button id="usb">Look for USB devices</button>
+  <button id="midi">List MIDI ports</button>
+  <button id="copy" disabled>Copy the report</button>
+  <p class="small" id="support"></p>
+  <div id="out"></div>
+  <h2>The report</h2>
+  <p class="small">Paste it where you ask for help (an issue on GitHub, the community Discord).</p>
+  <pre id="report">(nothing yet)</pre>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const hex4 = (n) => n.toString(16).toUpperCase().padStart(4, "0");
+const hex2 = (n) => n.toString(16).toUpperCase().padStart(2, "0");
+const lines = [];
+const log = (s) => { lines.push(s); $("report").textContent = lines.join("\n"); $("copy").disabled = false; };
+
+/* what each identity means for an FM-1 (firmware/src/usb.c, firmware/loader/loader.c, README "If the FM-1 does not start") */
+const KNOWN = {
+  "1209:0001": ["ok", "Felucca or Rainbow mode is running.",
+                "The firmware started. If the screen stays black, the display is the problem, not the install."],
+  "1209:0002": ["ok", "Update mode (the Felucca update loader).",
+                "The install was cut off and the FM-1 is waiting to finish it. Open the installer and press Install: it "
+                + "finishes the write. If the installer does not find it, the MIDI ports below say why."],
+  "4C4A:8057": ["warn", "The chip's built-in boot mode (WL80UBOOT).",
+                "No firmware is running. The installer cannot reach this mode; it needs a recovery tool for the boot "
+                + "mode (README: If the FM-1 does not start)."],
+};
+const CLASS = { 0x00: "per interface", 0x01: "audio", 0x02: "communications (CDC)", 0x03: "HID", 0x08: "mass storage",
+                0x09: "hub", 0x0A: "CDC data", 0xEF: "miscellaneous", 0xFE: "application specific", 0xFF: "vendor specific" };
+const ifaceName = (a) => a.interfaceClass === 1 && a.interfaceSubclass === 3 ? "audio / MIDI streaming"
+  : a.interfaceClass === 1 && a.interfaceSubclass === 1 ? "audio control"
+  : a.interfaceClass === 1 && a.interfaceSubclass === 2 ? "audio streaming"
+  : CLASS[a.interfaceClass] || "class " + hex2(a.interfaceClass);
+
+function verdict(kind, title, text) {
+  const d = document.createElement("div");
+  d.className = "verdict " + kind;
+  const b = document.createElement("b"), p = document.createElement("div");
+  b.textContent = title;
+  p.textContent = text;
+  d.append(b, p);
+  $("out").append(d);
+}
+
+function describe(dev) {
+  const id = `${hex4(dev.vendorId)}:${hex4(dev.productId)}`;
+  log(`USB device ${id}`);
+  log(`  manufacturer: ${dev.manufacturerName ?? "(none)"}`);
+  log(`  product:      ${dev.productName ?? "(none)"}`);
+  log(`  serial:       ${dev.serialNumber ?? "(none)"}`);
+  log(`  USB ${dev.usbVersionMajor}.${dev.usbVersionMinor}${dev.usbVersionSubminor}, device version `
+      + `${dev.deviceVersionMajor}.${dev.deviceVersionMinor}${dev.deviceVersionSubminor}, class ${hex2(dev.deviceClass)} `
+      + `(${CLASS[dev.deviceClass] || "?"}) / ${hex2(dev.deviceSubclass)} / ${hex2(dev.deviceProtocol)}`);
+  for (const c of dev.configurations || []) {
+    log(`  configuration ${c.configurationValue}${c.configurationName ? ` "${c.configurationName}"` : ""}`);
+    for (const i of c.interfaces) {
+      for (const a of i.alternates) {
+        const eps = a.endpoints.map((e) => `${e.direction} ${e.endpointNumber} ${e.type} ${e.packetSize}`).join(", ");
+        log(`    interface ${i.interfaceNumber} alt ${a.alternateSetting}: ${ifaceName(a)} `
+            + `(${hex2(a.interfaceClass)}/${hex2(a.interfaceSubclass)}/${hex2(a.interfaceProtocol)})`
+            + `${eps ? `, endpoints: ${eps}` : ""}`);
+      }
+    }
+  }
+  if (!(dev.configurations || []).length)
+    log("  no configuration read: the device did not finish connecting");
+  const k = KNOWN[id];
+  if (k) verdict(k[0], `${id}: ${k[1]}`, k[2]);
+  else verdict("", `${id}: not an identity this page knows.`,
+               "Copy the report below and share it; the numbers and the list of interfaces tell what is running.");
+}
+
+$("usb").addEventListener("click", async () => {
+  if (!navigator.usb) { log("This browser has no WebUSB: use Chrome or Edge."); return; }
+  try {
+    const dev = await navigator.usb.requestDevice({ filters: [] });
+    describe(dev);
+  } catch (e) {
+    if (e && e.name === "NotFoundError")
+      log("No device was picked. If the list was empty, the phone or computer does not see any USB device: "
+          + "check the OTG adapter and the cable with another device (a USB stick, a keyboard).");
+    else log(`WebUSB error: ${e && e.name}: ${e && e.message}`);
+  }
+});
+
+$("midi").addEventListener("click", async () => {
+  if (!navigator.requestMIDIAccess) { log("This browser has no Web MIDI: use Chrome or Edge."); return; }
+  try {
+    const m = await navigator.requestMIDIAccess();     // no SysEx: listing ports only
+    const fmt = (ps) => [...ps.values()].map((p) => `"${p.name}" (${p.manufacturer || "no maker"}, ${p.state})`)
+                                        .join(", ") || "none";
+    log(`MIDI in:  ${fmt(m.inputs)}`);
+    log(`MIDI out: ${fmt(m.outputs)}`);
+    const all = [...m.inputs.values(), ...m.outputs.values()].map((p) => p.name || "");
+    if (all.some((n) => /felucca update|ota-/i.test(n)))
+      verdict("ok", "MIDI: the update loader is there.", "Open the installer and press Install to finish the write.");
+  } catch (e) {
+    log(`Web MIDI was not allowed (${e && e.name}). Allow MIDI devices in the site settings and press the button again.`);
+  }
+});
+
+$("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("report").textContent); $("copy").textContent = "Copied"; }
+  catch (e) { $("copy").textContent = "Select the text below and copy it"; }
+  setTimeout(() => { $("copy").textContent = "Copy the report"; }, 2500);
+});
+
+log(`page: FM-1 USB check, ${new Date().toISOString()}`);
+log(`browser: ${navigator.userAgent}`);
+$("support").textContent = `WebUSB ${navigator.usb ? "available" : "not available"}, Web MIDI `
+  + `${navigator.requestMIDIAccess ? "available" : "not available"} in this browser.`;
+</script>
+</body>
+</html>

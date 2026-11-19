@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: GPL-3.0-only
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'io.github.joshbartlettbandweb.fm1rescue'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'io.github.joshbartlettbandweb.fm1rescue'
+        minSdk 29                       // MediaStore.Downloads for the backups
+        targetSdk 34
+        versionCode 3
+        versionName '0.3'
+    }
+    signingConfigs {
+        // a fixed key for the test builds, so a new build installs over the last one (it is public on purpose:
+        // these are test builds, not releases)
+        test {
+            storeFile file('test-signing.jks')
+            storePassword 'fm1rescue-test'
+            keyAlias 'test'
+            keyPassword 'fm1rescue-test'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.test
+        }
+    }
+    buildFeatures {
+        buildConfig true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    lint {
+        abortOnError false
+    }
+}

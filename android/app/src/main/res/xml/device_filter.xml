@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<resources>
+    <!-- JieLi WL82 ROM boot mode "WL80UBOOT1.00": VID 0x4C4A, PID 0x8057 -->
+    <usb-device vendor-id="19530" product-id="32855" />
+</resources>

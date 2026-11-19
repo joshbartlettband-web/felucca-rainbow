@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# FM-1 Rescue: the Android app (android/) and its FM-1 Transporter firmware (transporter/). Tests the rescue core
+# against a simulated FM-1 and a simulated Transporter, builds the APK and the XIAO RP2040 firmware, and publishes
+# both as the prerelease "fm1-rescue-test" so a phone can download them directly.
+name: FM-1 Rescue (Android app)
+
+on:
+  push:
+    paths: ["android/**", "transporter/**", ".github/workflows/fm1-rescue.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write                 # the prerelease
+
+concurrency:
+  group: fm1-rescue
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: The rescue core against a simulated FM-1 and Transporter
+        working-directory: android/core-test
+        run: |
+          curl -fsSL -o wl82loader.bin "https://raw.githubusercontent.com/kagaimiq/jl-uboot-tool/c32b28e7a04f873f526ba929cb1bae9f05442fe9/data/loaderblobs/usb/wl82loader.bin"
+          echo "d41da6126760c9d66660bcc0cac8d27d221806c5e369a8036921efe68dca5376  wl82loader.bin" | sha256sum -c
+          javac --release 17 -d build $(find ../app/src/main/java -path '*core*' -name '*.java') SimTest.java
+          java -cp build SimTest wl82loader.bin
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build the APK
+        run: gradle -p android :app:assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fm1-rescue-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  transporter:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ARM toolchain
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+      - name: Build the Transporter firmware (XIAO RP2040, no JieLi loader inside)
+        run: transporter/build.sh "$RUNNER_TEMP/fm1t-work" out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fm1-transporter
+          path: out/
+
+  publish:
+    needs: [apk, transporter]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+
+      - name: Publish the test build (prerelease fm1-rescue-test)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cp dl/fm1-rescue-apk/app-debug.apk fm1-rescue.apk
+          cp dl/fm1-transporter/fm1-transporter.uf2 dl/fm1-transporter/fm1-transporter-LICENSES.txt .
+          apk=$(sha256sum fm1-rescue.apk | cut -d' ' -f1)
+          uf2=$(sha256sum fm1-transporter.uf2 | cut -d' ' -f1)
+          gh release delete fm1-rescue-test --yes --cleanup-tag || true
+          gh release create fm1-rescue-test fm1-rescue.apk fm1-transporter.uf2 fm1-transporter-LICENSES.txt \
+            --prerelease --target "$GITHUB_SHA" --title "FM-1 Rescue (test build)" \
+            --notes "Test build from ${GITHUB_REF_NAME} at ${GITHUB_SHA::7}.
+
+          - fm1-rescue.apk: the Android app (android/README.md). sha256 ${apk}. Signed with the public test key (android/app/test-signing.jks), so a new test build installs over the last one.
+          - fm1-transporter.uf2: FM-1 Transporter firmware for a Seeed XIAO RP2040 (transporter/README.md): kurogedelic/FM-1-transporter (MIT), built without JieLi's loader. The app uploads the loader at run time. sha256 ${uf2}. Its license notices are in fm1-transporter-LICENSES.txt."
