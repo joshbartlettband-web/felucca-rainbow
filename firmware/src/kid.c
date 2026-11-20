@@ -2000,10 +2000,21 @@ static int32_t kid_lit_key(uint32_t now)                         /* the key to l
     return -1;
 }
 
-static uint32_t kid_lit_mask(uint32_t now)                       /* the keys to light: CHORDS' chord, or kid_lit_key's */
+static uint32_t kid_lit_mask(uint32_t now)
 {
     int32_t k;
-    if (kid.mode == KM_CHORDS && !kw.on) {
+    if (kw.on) {
+        uint32_t mask = 0, j;
+        if (!song.playing) {
+            for (j = 0; j < 2u; j++) {
+                uint32_t key = kw.note[kw.cur][j] & 31u;   /* zero is empty, otherwise the key index plus one */
+                if (key)
+                    mask |= 1u << (key - 1u);
+            }
+        }
+        return mask;
+    }
+    if (kid.mode == KM_CHORDS) {
         if (kid.c_beat && song.playing && trk[1].seq_idx % 16u >= 12u)   /* the bar's last beat: the next chord, blinking */
             return (now / 150u) & 1u ? kid_lesson_chord(kid.c_lesson, (kid.c_pos + 1u) % KID_LESSON_LEN, 0, 0, 0) : 0u;
         return kid.c_ok ? 0u : kid_lesson_chord(kid.c_lesson, kid.c_pos, 0, 0, 0);
