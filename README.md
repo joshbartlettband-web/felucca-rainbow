@@ -4,8 +4,9 @@ A music toy for little hands: this fork of [Felucca](https://github.com/hugelton
 young children. 95 friends, each with its own picture, sound, sky and favorite beat; a color for every note; 21 beats with a
 bass line that always fits; and a knob for big and small, day and night, echo and wiggle.
 
-- **The website** (the link under *About* on this page) has a demo video and two buttons: **Try it in your browser**, no FM-1
-  needed, and **Put it on an FM-1** (Chrome or Edge, USB).
+- [Install Rainbow mode on an FM-1](https://joshbartlettband-web.github.io/felucca-rainbow/webapp/installer/) over USB in Chrome or Edge.
+- [Try Rainbow mode in your browser](https://joshbartlettband-web.github.io/felucca-rainbow/webapp/try/). No FM-1 needed.
+- [Rainbow mode website](https://joshbartlettband-web.github.io/felucca-rainbow/) for the demo video and other languages.
 - **Every control, and how it is built:** [RAINBOW.md](RAINBOW.md)
 - **M-Vave SMK-37:** see [SMK-37 instructions](SMK37.md).
 
@@ -14,7 +15,7 @@ made or endorsed by M-VAVE. Everything below is Felucca's own README, by Leo Kur
 
 ---
 
-# Felucca
+# Upstream Felucca README
 
 [![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue.svg)](LICENSE)
 [![Sponsor](https://img.shields.io/badge/Sponsor-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/hugelton)
