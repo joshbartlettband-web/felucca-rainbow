@@ -128,7 +128,7 @@ friends, the way Mario Paint's composer did, and plays it back.
 | PRESETS | The friend to write with (shown in the band). A song has a band of up to three friends; a fourth takes the place of the one used least (its notes become the new friend's). |
 | OCT- / OCT+ | Move the yellow cursor back and forward (32 columns, 4 pages of 8). While stopped, the keys for the selected column's notes light up. |
 | HOME | Wipes the column (held 1 s it is the grown-ups' VOLUME, as always). While the song plays, it wipes the column that is playing. |
-| PLAY | Plays the song from the start, in a loop: the column turns green and the friend of each note hops along over it. PLAY again stops. On a song with nothing written yet, the loop is two bars, to play into (below). |
+| PLAY | Plays the song from the start, in a loop: the column turns green, its notes' keys light up, and the friend of each note hops along over it. PLAY again stops. On a song with nothing written yet, the loop is two bars, to play into (below). |
 | Keys, while it plays | Loop and layer: a key is written where the beat is (into the nearest column), and is heard the next time round. The band says LOOP. PRESETS picks another friend for the next layer (up to three friends, two notes a column). A note is only added while it plays; HOME wipes the column being played. |
 | SEQ | A beat under it: none, then each of the 21 (drums only). |
 | SELECT | Slower or faster. |

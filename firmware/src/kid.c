@@ -2004,13 +2004,11 @@ static uint32_t kid_lit_mask(uint32_t now)
 {
     int32_t k;
     if (kw.on) {
-        uint32_t mask = 0, j;
-        if (!song.playing) {
-            for (j = 0; j < 2u; j++) {
-                uint32_t key = kw.note[kw.cur][j] & 31u;   /* zero is empty, otherwise the key index plus one */
-                if (key)
-                    mask |= 1u << (key - 1u);
-            }
+        uint32_t mask = 0, j, column = (uint32_t)kw_at();
+        for (j = 0; j < 2u; j++) {
+            uint32_t key = kw.note[column][j] & 31u;   /* zero is empty, otherwise the key index plus one */
+            if (key)
+                mask |= 1u << (key - 1u);
         }
         return mask;
     }
