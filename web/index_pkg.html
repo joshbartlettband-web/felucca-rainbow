@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Felucca</title>
+<title>Install Rainbow mode</title>
 <style>
   :root { --bg: #fff; --fg: #000; --dim: #777; }
   @media (prefers-color-scheme: dark) {
@@ -29,13 +29,15 @@
 <body>
 <main>
   <button class="lang" id="lang"></button>
-  <h1>Felucca</h1>
+  <h1 data-t="install">Install Rainbow mode</h1>
+  <p data-t="about"></p>
   <p data-t="intro"></p>
   <p data-t="warn"></p>
   <p class="small" data-t="direct"></p>
-  <p class="small" data-t="beta"></p>
+  <p class="small" data-t="risk"></p>
   <p class="small"><span data-t="brick"></span>
     <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener" style="color:inherit">FM-1-transporter</a></p>
+  <p class="small" id="version" hidden></p>
   <p><button id="go" disabled data-t="install"></button></p>
   <div id="mbootopt" hidden>
     <p class="small"><label><input id="mboot" type="checkbox"> <span data-t="mboot"></span></label></p>
@@ -106,22 +108,24 @@ function counted(what) {
 
 /*LIB*/
 const $ = (id) => document.getElementById(id);
+const APP = "Rainbow mode";
 const TEXT = {
   ja: {
+    about: APP + " は Felucca をもとにした、M-VAVE FM-1 用のファームウェアです。",
     intro: "FM-1 を USB で接続してください。（Chrome か Edge で使えます）",
     warn: "書き込み中は USB を抜かないでください。",
-    install: "インストール", other: "English",
+    install: APP + " をインストール", other: "English",
     editor: "エディタ（インストール後、パソコンから音色やシーケンスを編集）",
     direct: "USB ケーブルはパソコンに直接つないでください。Probe や Transporter などの機材は不要です。",
     brick: "万一インストールに失敗して起動しなくなった場合は、復旧に Transporter が必要です:",
-    beta: "Felucca 1.0 は実地テスト版です。不具合は GitHub で知らせてください。このカスタムファームウェアを使ったことで FM-1 が壊れたり不具合が起きたりしても、作者は一切の責任を負いません。自己責任でお使いください。",
+    risk: "不具合は GitHub で知らせてください。カスタムファームウェアは自己責任でインストールしてください。",
     back: "M-VAVEから公式FM-1 V15を取得し、未変更のFM-1.fwscを選んでください。ファイルはこのブラウザ内で検証し、サーバーへ送りません。",
     stockTitle: "公式V15に戻す", stockFile: "公式FM-1.fwsc", stockGo: "バックアップして公式V15へ戻す",
-    stockBackup: "現在の曲・保存曲・音色バンク・サンプル・設定を先に保存します。全体バックアップ非対応版は、Feluccaを更新してから行ってください。復元はFeluccaを再インストールしてエディタから行います。",
+    stockBackup: "現在の曲・保存曲・音色バンク・サンプル・設定を先に保存します。全体バックアップに未対応の場合は、対応する版に更新してください。復元するときは、バックアップを作成したファームウェアを再インストールしてエディタを使います。",
     stockRecovery: "更新中断の再開：全体バックアップはすでにパソコンへ保存済み",
-    stockValid: "公式V15を確認しました", stockConfirm: "全体バックアップファイルをパソコンに保存できましたか？ 続けると公式V15へ戻します。Feluccaの曲は公式V15では開けません。",
+    stockValid: "公式V15を確認しました", stockConfirm: "全体バックアップファイルをパソコンに保存できましたか？ 続けると公式V15へ戻します。バックアップした曲は公式V15では開けません。",
     stockNeedBackup: "書き込みモードからはバックアップできません。保存済みバックアップがある場合だけ、更新中断の再開にチェックしてください。",
-    stockUnsupported: "このFeluccaは全体バックアップに未対応です。先に最新版をインストールしてください。",
+    stockUnsupported: "このファームウェアは全体バックアップに未対応です。先に全体バックアップに対応する版に更新してください。",
     backup: "全体バックアップ保存中 ", stockError: "公式ファイルを確認できません: ",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
@@ -139,20 +143,21 @@ const TEXT = {
     license: "GPL-3.0、無保証。ソース:",
   },
   en: {
+    about: APP + " is firmware for the M-VAVE FM-1, built on Felucca.",
     intro: "Connect the FM-1 by USB. (Works in Chrome or Edge.)",
     warn: "Do not unplug the USB cable while writing.",
-    install: "Install", other: "日本語",
+    install: "Install " + APP, other: "日本語",
     editor: "Editor (after installing: edit sounds and sequences from the computer)",
     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
     brick: "If an install fails and the FM-1 no longer starts, recovering it needs a Transporter:",
-    beta: "Felucca 1.0 is a field-testing release; please report problems on GitHub. The author accepts no responsibility if your FM-1 is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
+    risk: "Please report problems on GitHub. Installing custom firmware is at your own risk.",
     back: "Get official FM-1 V15 from M-VAVE and select the unmodified FM-1.fwsc. The browser validates it locally; it is not sent to a server.",
     stockTitle: "Return to official V15", stockFile: "Official FM-1.fwsc", stockGo: "Back up and return to official V15",
-    stockBackup: "Current music, saved music, sound banks, samples and settings are saved first. Older firmware needs a Felucca update for complete backups. To restore an archive later, reinstall Felucca and use the editor.",
+    stockBackup: "The installer first backs up your current music, saved music, sound banks, samples and settings. If your firmware is too old to make a complete backup, update it to a version that supports backups. To restore later, reinstall the firmware you backed up from and open the editor.",
     stockRecovery: "Resume an interrupted update: I already saved a complete backup to this computer",
-    stockValid: "Official V15 verified", stockConfirm: "Has the complete backup file been saved to this computer? Continue to return to official V15. Official V15 cannot open Felucca music.",
+    stockValid: "Official V15 verified", stockConfirm: "Has the complete backup file been saved to this computer? Continue to return to official V15. Official V15 cannot open the music in this backup.",
     stockNeedBackup: "An update loader cannot export a backup. Only select resume if you already saved a complete backup.",
-    stockUnsupported: "This Felucca does not support complete backups. Install the current Felucca first.",
+    stockUnsupported: "This firmware does not support complete backups. Update to a version that supports them first.",
     backup: "Saving complete backup ", stockError: "Cannot validate official firmware: ",
     nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
@@ -190,7 +195,6 @@ Object.assign(TEXT.en, {
 });
 /* the check before installing, M-VAVE's Open firmware, a port under another name and m-bootloader (after
  * fm1-base's installer, Charles Vestal) */
-const APP = "Rainbow mode";
 Object.assign(TEXT.ja, {
   confirmInstall: "インストールの前に: 書き込み中、FM-1 の画面には UPDATING と進み具合が出るか、暗いままになります。このページに「完了」と出るまで、USB ケーブルを抜いたり電源を切ったりしないでください。数分かかることがあります。書き込みで " + APP + " に保存したものが消えることがあります。残したいものがあれば、先にエディタでバックアップしてください。続けますか？",
   confirmboot: "ファームウェアの後に m-bootloader を書き込みます。FM-1 はその間にもう一度再起動します。",
@@ -257,6 +261,7 @@ const t = (k) => TEXT[lang][k];
 let lastKey = null, lastArg = "";
 function applyLang() {
   document.documentElement.lang = lang;
+  document.title = t("install");
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
   $("lang").textContent = t("other");
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
@@ -294,7 +299,8 @@ window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault
     const pkg = new Uint8Array(await r.arrayBuffer());
     if (productOf(pkg) !== meta.product) { sayK("badpkg"); return; }
     image = logicalImage(pkg);
-    say(`Felucca ${meta.version}`);
+    $("version").textContent = `${APP} ${meta.version}`;
+    $("version").hidden = false;
     $("go").disabled = false;
   } catch (e) { sayK("loadfail", e.message); }
 })();
