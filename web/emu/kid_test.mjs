@@ -630,19 +630,41 @@ check("PLAY again stops it", ex.web_playing() === 0);
   check("keys write their notes, a column each (C red, C red, G teal, A purple)",
         ball(0, 0) === C_RED && ball(1, 0) === C_RED && ball(2, 4) === G_TEAL && ball(3, 5) === A_PUR);
   tapb(B.OCTDN);                                                              // back to column 3 (the A)
+  check("WRITE: moving back lights the key for the selected column", ex.web_lit_keys() === (1 << 16));
   key(16);
   check("the same key again takes its note out", ball(3, 5) !== A_PUR);
+  check("WRITE: removing the note turns its LED off", ex.web_lit_keys() === 0);
   key(14);                                                                    // a G there instead, then column 4
   tapb(B.OCTDN); tapb(B.HOME);                                                // HOME wipes column 3
   check("HOME wipes the column", ball(3, 4) !== G_TEAL && ball(2, 4) === G_TEAL);
   ex.web_keys((1 << 7) | (1 << 11)); render(150); ex.web_keys(0); render(250);   // C and E together: one column
   check("two keys together: a chord in one column", ball(3, 0) === C_RED && ball(3, 2) !== ball(3, 1));
+  tapb(B.OCTDN);
+  check("WRITE: both keys light in a column with a chord", ex.web_lit_keys() === ((1 << 7) | (1 << 11)));
   peak = 0;
   tapb(B.PLAY); render(2200);
   shot("write2");
   check(`PLAY: the song plays (peak ${peak.toFixed(3)})`, ex.web_playing() === 1 && peak > 0.03);   // (silence is ~0; a
                                                   // song 0.05 or so: the friend's own level and phase move it a little)
+  const playbackKeys = [1 << 7, 1 << 7, 1 << 14, (1 << 7) | (1 << 11)];
+  const litColumns = new Set();
+  let playbackMatches = true, wraps = 0, previousColumn = ex.web_kid_wat();
+  for (let i = 0; i < 600 && wraps < 2; i++) {
+    render(30);                                             // allow the 15 ms UI frame to refresh the LEDs
+    const column = ex.web_kid_wat();
+    if (column === previousColumn) {
+      litColumns.add(column);
+      playbackMatches &&= ex.web_lit_keys() === playbackKeys[column];
+    }
+    if (column < previousColumn) wraps++;
+    previousColumn = column;
+  }
+  check("WRITE: playback lights each column's notes and chords through two loops",
+        playbackMatches && litColumns.size === 4 && wraps === 2);
   tapb(B.PLAY); render(500);
+  check("WRITE: stopping restores the cursor's chord LEDs", ex.web_lit_keys() === ((1 << 7) | (1 << 11)));
+  tapb(B.OCTUP);
+  check("WRITE: moving forward to an empty column turns the LEDs off", ex.web_lit_keys() === 0);
   for (let i = 0; i < 18; i++) tapb(B.SEQ);                                   // (a late beat: it needs 5 bits to be kept)
   const wb = ex.web_kid_wbeat();
   render(5000);
