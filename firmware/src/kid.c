@@ -69,8 +69,32 @@ static const uint16_t KID_VOL_CAP[8] = {362, 512, 724, 1024, 1448, 2048, 2896, 4
 
 enum { KS_RAINBOW, KS_STARS, KS_HEARTS, KS_BUBBLES, KS_FLOWERS, KS_CONFETTI, KS_CLOUDS, KS_SNOW, KS_LEAVES, KS_DESERT,
        KS_STREET, KS_SEA, KS_RAIN, KS_FIREWORKS, KS_AURORA, KS_COUNT };         /* (KS_AURORA is the secret sky: 25 stars) */
-enum { KB_DANCE, KB_MARCH, KB_SPOOKY, KB_ROCK, KB_DISCO, KB_HIPHOP, KB_TRAIN, KB_SAMBA, KB_REGGAE, KB_LULLABY,
-       KB_HOEDOWN, KB_LOFI, KB_ACID, KB_POLKA, KB_BOSSA, KB_FUNK, KB_SKA, KB_TRAP, KB_SALSA, KB_SHUFFLE, KB_BREAK, KB_COUNT };
+/* SEQ goes in this order. A beat's WRITE save ID stays the same if it moves. */
+#define KID_BEAT_ROSTER(X) \
+    X(DANCE, 1) \
+    X(MARCH, 2) \
+    X(SPOOKY, 3) \
+    X(ROCK, 4) \
+    X(DISCO, 5) \
+    X(HIPHOP, 6) \
+    X(TRAIN, 7) \
+    X(SAMBA, 8) \
+    X(REGGAE, 9) \
+    X(LULLABY, 10) \
+    X(HOEDOWN, 11) \
+    X(LOFI, 12) \
+    X(ACID, 13) \
+    X(POLKA, 14) \
+    X(BOSSA, 15) \
+    X(FUNK, 16) \
+    X(SKA, 17) \
+    X(TRAP, 18) \
+    X(SALSA, 19) \
+    X(SHUFFLE, 20) \
+    X(BREAK, 21)
+#define KID_BEAT_INDEX(name, id) KB_##name,
+enum { KID_BEAT_ROSTER(KID_BEAT_INDEX) KB_COUNT };
+#undef KID_BEAT_INDEX
 
 /* each friend's sound, in the order of KID_NAME: an engine and one of its factory presets (by name), its level
  * (P_LEVEL, 1/2 dB steps: the friends measured alike, about 0.14 peak with MASTER up), its home sky and its
@@ -258,69 +282,69 @@ typedef struct {
     uint8_t brk;                        /* the drums are Felucca's own break (SLICE's BREAK, its 16 slices in order), not a kit */
 } kid_beat_t;
 static const kid_beat_t KID_BEATS[KB_COUNT] = {
-    {"DANCE", 112, KD_HOP, 92, 100,
+    [KB_DANCE] = {"DANCE", 112, KD_HOP, 92, 100,
      {"x...x...x...x...", "....x.......x...", "............x...", "..x...x...x...x.", "..............x.", 0, 0, 0},
      {36, 0, 48, 0, 36, 0, 48, 0, 36, 0, 48, 0, 43, 0, 48, 0}},
-    {"MARCH", 100, KD_HOP, 91, 99,
+    [KB_MARCH] = {"MARCH", 100, KD_HOP, 91, 99,
      {"x.......x.......", "....x.......x.x.", 0, 0, 0, "..............xx", "x...x...x...x...", 0},
      {36, 0, 0, 0, 43, 0, 0, 0, 36, 0, 0, 0, 43, 0, 0, 0}},
-    {"SPOOKY", 116, KD_BOTH, 90, 99,                 /* a ghost-hunting funk (in the spirit, not the tune) */
+    [KB_SPOOKY] = {"SPOOKY", 116, KD_BOTH, 90, 99,                 /* a ghost-hunting funk (in the spirit, not the tune) */
      {"x..x...x..x.....", "....x.......x...", "....x.......x..x", "x.xxx.xxx.xxx.x.", "......x.......x.", 0, 0,
       "x.....x...x....."},
      {33, 0, 0, 45, 0, 33, 0, 0, 36, 0, 38, 0, 40, 0, 38, 36}},
-    {"ROCK", 120, KD_HOP, 92, 100,
+    [KB_ROCK] = {"ROCK", 120, KD_HOP, 92, 100,
      {"x.....x.x.......", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", "..............x.", 0, 0, 0},
      {36, 0, 36, 0, 36, 0, 36, 0, 41, 0, 41, 0, 43, 0, 43, 0}},
-    {"DISCO", 118, KD_BOTH, 89, 99,
+    [KB_DISCO] = {"DISCO", 118, KD_BOTH, 89, 99,
      {"x...x...x...x...", "....x.......x...", "....x.......x...", "x.x.x.x.x.x.x.x.", "..x...x...x...x.", 0, 0, 0},
      {36, 0, 48, 0, 36, 0, 48, 0, 41, 0, 53, 0, 43, 0, 55, 0}},
-    {"HIP HOP", 90, KD_SWAY, 97, 109,
+    [KB_HIPHOP] = {"HIP HOP", 90, KD_SWAY, 97, 109,
      {"x......x..x.....", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, "...........x....", 0},
      {33, 0, 0, 0, 0, 0, 0, 33, 0, 0, 31, 0, 0, 0, 0, 0}},
-    {"TRAIN", 132, KD_HOP, 90, 102,                   /* choo choo */
+    [KB_TRAIN] = {"TRAIN", 132, KD_HOP, 90, 102,                   /* choo choo */
      {"x.......x.......", "..x...x...x...x.", 0, "xxxxxxxxxxxxxxxx", 0, 0, 0, 0},
      {36, 0, 0, 0, 43, 0, 0, 0, 41, 0, 0, 0, 43, 0, 0, 0}},
-    {"SAMBA", 100, KD_BOTH, 88, 98,
+    [KB_SAMBA] = {"SAMBA", 100, KD_BOTH, 88, 98,
      {"x..xx..xx..xx..x", 0, 0, "xxxxxxxxxxxxxxxx", 0, 0, "x.x..x.x.x..x.x.", "..x...x...x...x."},
      {36, 0, 0, 43, 36, 0, 0, 43, 36, 0, 0, 43, 36, 0, 0, 43}},
-    {"REGGAE", 80, KD_SWAY, 98, 113,
+    [KB_REGGAE] = {"REGGAE", 80, KD_SWAY, 98, 113,
      {"........x.......", 0, 0, "x.x.x.x.x.x.x.x.", 0, 0, "........x.......", 0},
      {0, 0, 33, 0, 36, 0, 0, 0, 40, 0, 0, 0, 38, 0, 36, 0}},
-    {"LULLABY", 70, KD_SLOW, 92, 106,
+    [KB_LULLABY] = {"LULLABY", 70, KD_SLOW, 92, 106,
      {"x.......x.......", 0, 0, 0, 0, 0, "....x.......x...", 0},
      {36, 1, 1, 1, 1, 1, 1, 1, 31, 1, 1, 1, 1, 1, 1, 1}},
-    {"HOEDOWN", 126, KD_HOP, 93, 105,                 /* boom-chick, a walking bass (RANCHER's and RODEO's) */
+    [KB_HOEDOWN] = {"HOEDOWN", 126, KD_HOP, 93, 105,                 /* boom-chick, a walking bass (RANCHER's and RODEO's) */
      {"x.......x.......", "....x.......x...", 0, "..x...x...x...x.", 0, 0, "..x...x...x...x.", 0},
      {36, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 40, 0, 41, 0}},
-    {"LOFI", 80, KD_SWAY, 95, 104,                    /* slow and swung (CHORDS: the bass plays each chord's root) */
+    [KB_LOFI] = {"LOFI", 80, KD_SWAY, 95, 104,                    /* slow and swung (CHORDS: the bass plays each chord's root) */
      {"x.........x.....", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, "..............x.", 0},
      {41, 1, 1, 1, 0, 0, 0, 0, 40, 1, 1, 1, 0, 0, 38, 0}, {0}, 0, 30},
-    {"ACID", 124, KD_BOTH, 91, 96,                    /* four on the floor, and Felucca's acid line (engines.c PATTERNS:
+    [KB_ACID] = {"ACID", 124, KD_BOTH, 91, 96,                    /* four on the floor, and Felucca's acid line (engines.c PATTERNS:
                                                   * A minor, accents and slides) on the ACID sound */
      {"x...x...x...x...", 0, "....x.......x...", "x.x.x.x.x.x.x.x.", "..x...x...x...x.", 0, 0, 0},
      {45, 45, 57, 45, 0, 48, 45, 55, 45, 0, 57, 52, 45, 48, 0, 50},
      {1, 0, 2, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0, 2, 0, 1}, 1},
-    {"POLKA", 138, KD_HOP, 91, 100,                   /* oom-pah: the bass leaps between the root and the fifth */
+    [KB_POLKA] = {"POLKA", 138, KD_HOP, 91, 100,                   /* oom-pah: the bass leaps between the root and the fifth */
      {"x.......x.......", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0},
      {36, 0, 43, 0, 36, 0, 43, 0, 36, 0, 43, 0, 36, 0, 43, 0}},
-    {"BOSSA", 118, KD_SWAY, 87, 103,                  /* the bossa nova's rim pattern over a soft kick */
+    [KB_BOSSA] = {"BOSSA", 118, KD_SWAY, 87, 103,                  /* the bossa nova's rim pattern over a soft kick */
      {"x..x..x...x..x..", 0, 0, "x.x.x.x.x.x.x.x.", 0, 0, "x..x..x...x..x..", 0},
      {36, 0, 0, 43, 0, 0, 36, 0, 0, 0, 43, 0, 0, 36, 0, 0}},
-    {"FUNK", 106, KD_BOTH, 90, 100,                   /* a tight kick and a snare, sixteenth hats, a bass that jumps */
+    [KB_FUNK] = {"FUNK", 106, KD_BOTH, 90, 100,                   /* a tight kick and a snare, sixteenth hats, a bass that jumps */
      {"x..x..x...x..x..", "....x..x.x..x...", 0, "xxxxxxxxxxxxxxxx", 0, 0, 0, 0},
      {36, 0, 0, 36, 0, 0, 38, 0, 36, 0, 0, 41, 0, 43, 0, 0}},
-    {"SKA", 138, KD_HOP, 90, 100,                     /* the hats on the off-beats, a walking bass */
+    [KB_SKA] = {"SKA", 138, KD_HOP, 90, 100,                     /* the hats on the off-beats, a walking bass */
      {"x...x...x...x...", "....x.......x...", 0, "..x...x...x...x.", 0, 0, 0, 0},
      {36, 0, 0, 0, 40, 0, 0, 0, 43, 0, 0, 0, 40, 0, 0, 0}},
-    {"TRAP", 70, KD_SLOW, 88, 100,                    /* slow and heavy, rolling hats, a long low bass (the richest lows) */
+    [KB_TRAP] = {"TRAP", 70, KD_SLOW, 88, 100,                    /* slow and heavy, rolling hats, a long low bass (the richest lows) */
      {"x.....x...x.....", "........x.......", "........x.......", "x.x.x.x.xxxxx.xx", 0, 0, 0, 0},
      {33, 1, 1, 1, 1, 1, 1, 0, 33, 0, 1, 1, 36, 1, 1, 1}},
-    {"SALSA", 96, KD_BOTH, 88, 100,                   /* a clave on the rim, a cowbell, a bass that lands before the beat */
+    [KB_SALSA] = {"SALSA", 96, KD_BOTH, 88, 100,                   /* a clave on the rim, a cowbell, a bass that lands before the beat */
      {"x.......x.......", 0, 0, 0, 0, "..x...x...x...x.", "x..x..x...x.x...", "x.x.x.x.x.x.x.x."},
      {36, 0, 0, 43, 0, 0, 0, 36, 0, 0, 43, 0, 36, 0, 0, 0}},
-    {"SHUFFLE", 100, KD_SWAY, 92, 102, {"x.....x...x.....", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0},   /* swung, a walking bass */
+    [KB_SHUFFLE] = {"SHUFFLE", 100, KD_SWAY, 92, 102, {"x.....x...x.....", "....x.......x...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0},   /* swung, a walking bass */
      {36, 0, 0, 0, 36, 0, 40, 0, 43, 0, 0, 0, 45, 0, 43, 0}, {0}, 0, 33},
-    {"BREAK", 120, KD_BOTH, 104, 96,                 /* a drum loop, played back as it was made (one bar at 120 BPM) */
+    [KB_BREAK] = {"BREAK", 120, KD_BOTH, 104, 96,                 /* a drum loop, played back as it was made (one bar at 120 BPM) */
      {0}, {36, 0, 0, 36, 0, 0, 43, 0, 36, 0, 0, 36, 0, 41, 43, 0}, {0}, 0, 0, 1},
 };
 
@@ -1244,25 +1268,44 @@ static uint32_t kw_bits_get(uint32_t *at, uint32_t n)
     return v;
 }
 
-/* the song into its bytes: a version (4 bits), the band (3 x 7: friend + 1), the tempo ((BPM - 60) / 5), the beat (0 none; 5 bits),
+static const uint8_t KW_BEAT_IDS[KB_COUNT + 1] = {
+#define KW_BEAT_ID(name, id) [KB_##name + 1] = id,
+    KID_BEAT_ROSTER(KW_BEAT_ID)
+#undef KW_BEAT_ID
+};
+
+static uint8_t kw_beat_from_id(uint32_t id)
+{
+    switch (id) {                          /* distinct case labels also guard against duplicate save IDs */
+#define KW_BEAT_CASE(name, id) case id: return KB_##name + 1;
+        KID_BEAT_ROSTER(KW_BEAT_CASE)
+#undef KW_BEAT_CASE
+    default:
+        return 0;
+    }
+}
+
+#define KW_BEAT_FITS(name, id) _Static_assert(id > 0 && id < 32, "WRITE beat IDs fit in 5 bits (0 is no beat)");
+KID_BEAT_ROSTER(KW_BEAT_FITS)
+#undef KW_BEAT_FITS
+
+/* the song into its bytes: a version (4 bits), the band (3 x 7: friend IDs), the tempo ((BPM - 60) / 5), the beat (0 none; 5 bits),
  * then each column as one number: ((track A * 3 + track B) * 28 + key A) * 28 + key B (keys + 1, 0 empty), 13 bits */
 static void kw_pack(void)
 {
     uint32_t at = 0, c, i;
     kw_bits_put(&at, 3, 4);                                      /* (version 3: the beat in 5 bits; 2 had 4, and a band friend in 7: 1 had 6) */
     for (i = 0; i < 3u; i++)
-        kw_bits_put(&at, kw.band[i] == 0xFFu ? 0u : kw.band[i] + 1u, 7);
+        kw_bits_put(&at, kw.band[i] == 0xFFu ? 0u : KID_WRITE_ID[kw.band[i]], 7);
     kw_bits_put(&at, (uint32_t)clamp((song.g[G_BPM] - 60) / 5, 0, 24), 5);
-    kw_bits_put(&at, kw.beat, 5);
+    kw_bits_put(&at, KW_BEAT_IDS[kw.beat], 5);
     for (c = 0; c < KW_COLS; c++) {
         uint32_t a = kw.note[c][0], b = kw.note[c][1];
         kw_bits_put(&at, (((a >> 5) % 3u * 3u + (b >> 5) % 3u) * 28u + (a & 31u)) * 28u + (b & 31u), 13);
     }
 }
 
-_Static_assert(KID_N <= 126, "WRITE keeps a band friend in 7 bits (kw_pack): at most 126 friends");
 _Static_assert(4 + 3 * 7 + 5 + 5 + KW_COLS * 13 <= 58 * 8, "WRITE's song fits its 58 bytes");
-_Static_assert(KB_COUNT < 32, "WRITE keeps the beat in 5 bits (kw_pack)");
 
 static void kw_unpack(void)
 {
@@ -1277,11 +1320,13 @@ static void kw_unpack(void)
         return;
     for (i = 0; i < 3u; i++) {
         v = kw_bits_get(&at, ver >= 2u ? 7u : 6u);               /* (a song saved before 63 friends: 6 bits) */
-        kw.band[i] = v && v <= KID_N ? (uint8_t)(v - 1u) : 0xFFu;
+        /* Before V3, Gold Ducky was friend 77. Old V3 songs share IDs with Cow (77) and Peacock (95),
+         * so V3 keeps the current meanings of those IDs. */
+        kw.band[i] = ver == 2u && v == 77u ? KID_SECRET_FR : v < sizeof KID_WRITE_FRIEND ? KID_WRITE_FRIEND[v] : 0xFFu;
     }
-    song.g[G_BPM] = (int16_t)(60 + 5 * (int32_t)kw_bits_get(&at, 5));
+    song.g[G_BPM] = (int16_t)(60 + 5 * clamp((int32_t)kw_bits_get(&at, 5), 0, 24));
     v = kw_bits_get(&at, ver >= 3u ? 5u : 4u);                   /* (a song saved before 16 beats: 4 bits) */
-    kw.beat = (uint8_t)(v <= KB_COUNT ? v : 0u);
+    kw.beat = kw_beat_from_id(v);
     for (c = 0; c < KW_COLS; c++) {
         uint32_t x = kw_bits_get(&at, 13), kb = x % 28u, ka = x / 28u % 28u, s = x / 784u, sa = s / 3u, sb = s % 3u;
         if (s > 8u || ka > 27u)
@@ -1419,7 +1464,12 @@ static void kw_enter(void)
     song.octave = 0;                                              /* (written as it is heard) */
     for (s = 0; s < 3u; s++)
         kw_track_sound(s);
-    kw_stamp(kid.fr);
+    /* Opening WRITE can use a spare track, but it should never rename notes in a full band. */
+    if (kw.band[0] != 0xFFu && kw.band[1] != 0xFFu && kw.band[2] != 0xFFu &&
+        kid.fr != kw.band[0] && kid.fr != kw.band[1] && kid.fr != kw.band[2])
+        kw_stamp(kw.band[kw.stamp]);
+    else
+        kw_stamp(kid.fr);
     kw.dirty = 0;
     if (kw.beat)
         kid.beat = (uint8_t)(kw.beat - 1u);
