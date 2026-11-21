@@ -28,6 +28,7 @@ int main(int argc, char **argv)
         return 2;
     web_nor_erase();
     web_boot();
+    web_kid(0);                                  /* emu_test.mjs starts in full Felucca too */
     render(500);
     web_test_heavy();
     web_buttons(1u << B_PLAY);
