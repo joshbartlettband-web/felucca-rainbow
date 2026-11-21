@@ -692,6 +692,54 @@ check("PLAY again stops it", ex.web_playing() === 0);
   check("and the keys play as before", peak > 0.05);
 }
 
+// A tempo-only edit must survive the save timer, SAVE, and a power cycle.
+{
+  const boot = async (nor) => {
+    const e = (await WebAssembly.instantiate(fs.readFileSync(wasmPath), {})).instance.exports;
+    e._initialize();
+    if (nor) new Uint8Array(e.memory.buffer, e.web_nor(), e.web_nor_size()).set(nor);
+    else e.web_nor_erase();
+    e.web_boot();
+    const tick = (ms) => { for (let k = 0; k < Math.round(ms * 44.1); k += 128) e.web_render(128); };
+    const tap = (b) => { e.web_buttons(1 << b); tick(60); e.web_buttons(0); tick(120); };
+    const flash = () => new Uint8Array(e.memory.buffer, e.web_nor(), e.web_nor_size()).slice();
+    const beatMs = () => {
+      tap(B.PLAY);
+      let last = e.web_kid_wat(), first = 0, elapsed = 0;
+      for (let i = 0; i < 250; i++) {
+        tick(10);
+        const at = e.web_kid_wat();
+        if (at === last) continue;
+        last = at;
+        if (first) { elapsed = e.web_now_ms() - first; break; }
+        first = e.web_now_ms();
+      }
+      tap(B.PLAY);
+      return elapsed;
+    };
+    tick(6500);
+    tap(B.SAVE);
+    return { e, tick, tap, flash, beatMs };
+  };
+  const a = await boot();
+  a.e.web_keys(1 << 7); a.tick(100); a.e.web_keys(0); a.tick(5000);
+  const original = a.beatMs();
+  a.e.web_enc(EN.SELECT, 24); a.tick(5000);                                 // 180 BPM, autosaved while still in WRITE
+  const fast = a.beatMs();
+  check(`WRITE's tempo-only edit speeds up playback (${original} to ${fast} ms)`, fast > 310 && fast < 355 && original > fast + 40);
+  const b = await boot(a.flash());
+  const restoredFast = b.beatMs();
+  check(`..autosave restores the same note and fast tempo (${restoredFast} ms)`, b.e.web_kid_wnote(0, 0) === 8 && Math.abs(restoredFast - fast) < 20);
+  a.e.web_enc(EN.SELECT, -24); a.tick(60);                                   // 60 BPM, then SAVE before the timer
+  a.tap(B.SAVE);
+  const c = await boot(a.flash());
+  const restoredSlow = c.beatMs();
+  check(`..SAVE restores the same note and slow tempo (${restoredSlow} ms)`, c.e.web_kid_wnote(0, 0) === 8 && Math.abs(restoredSlow - 1000) < 20);
+  a.tap(B.SAVE);
+  const reentered = a.beatMs();
+  check(`..going straight back into WRITE keeps its slow tempo (${reentered} ms)`, Math.abs(reentered - 1000) < 20);
+}
+
 // SEQ: ten beats, each named in the band; the friend's bass line plays with them
 {
   const seen = new Set();
