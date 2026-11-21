@@ -1027,6 +1027,11 @@ static void kid_look_set(int hide)
  * check byte. None kept: the name the build has (KID_HELLO_NAME, the private build), else HI! alone */
 #define KID_NAME_MAX 10u
 #define KID_NAME_AT (&favorites.factory[13][20])
+#ifndef KID_NAME_ABC
+#define KID_NAME_ABC " ABCDEFGHIJKLMNOPQRSTUVWXYZ"   /* the letters PRESETS turns through, a space first (a build in another script: its own) */
+#endif
+static const char KID_ABC[] = KID_NAME_ABC;
+#define KID_ABC_N ((uint32_t)(sizeof KID_ABC - 1u))
 static uint32_t kid_name_check(const uint8_t *b)
 {
     uint32_t i, c = 0x5Au;
@@ -1039,9 +1044,13 @@ static uint32_t kid_name_load(char *out)          /* the kept name, its spaces a
 {
     const uint8_t *b = KID_NAME_AT;
     uint32_t i, n = 0;
-    for (i = 0; i < KID_NAME_MAX; i++)
-        if (b[i] != ' ' && (b[i] < 'A' || b[i] > 'Z'))
+    for (i = 0; i < KID_NAME_MAX; i++) {
+        uint32_t k = 0;
+        while (k < KID_ABC_N && (uint8_t)KID_ABC[k] != b[i])
+            k++;
+        if (k == KID_ABC_N && (b[i] < 'A' || b[i] > 'Z'))   /* (not one of the letters, nor A to Z: the website's name box) */
             return 0;
+    }
     if (kid_name_check(b) != b[KID_NAME_MAX])
         return 0;
     for (i = 0; i < KID_NAME_MAX; i++) {
@@ -1091,14 +1100,13 @@ static void kid_name_open(void)
 
 static void kid_name_input(uint32_t pressed)       /* the NAME's own controls; everything else waits */
 {
-    static const char ABC[] = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     uint32_t id;
     int32_t s;
     if ((s = KID_PRESET_TURN()) != 0) {           /* PRESETS: the letter, round the alphabet (a space first) */
-        int32_t i = 0;
-        while (i < 27 && ABC[i] != kid.name_ed[kid.name_cur])
+        uint32_t i = 0;
+        while (i < KID_ABC_N && KID_ABC[i] != kid.name_ed[kid.name_cur])
             i++;
-        kid.name_ed[kid.name_cur] = ABC[(i % 27 + (s > 0 ? 1 : 26)) % 27];
+        kid.name_ed[kid.name_cur] = KID_ABC[(i % KID_ABC_N + (s > 0 ? 1u : KID_ABC_N - 1u)) % KID_ABC_N];
     }
     if ((s = panel_enc(EN_ALGO)) != 0)            /* ALGORITHM: the next letter or the one before */
         kid.name_cur = (uint8_t)clamp((int32_t)kid.name_cur + (s > 0 ? 1 : -1), 0, (int32_t)KID_NAME_MAX - 1);
@@ -3554,10 +3562,17 @@ static int32_t kid_hello_line(const char *s, int32_t sc, int32_t top, uint32_t f
 static const char KID_HI[] = "HI!";          /* the hello without a name (a longer word, in a translation, draws smaller) */
 #define KID_HI_W(sc) ((sizeof KID_HI - 1u) * KID_ADV * (sc) - (sc))
 #define KID_HI_SC (KID_HI_W(8) <= 228u ? 8 : KID_HI_W(6) <= 228u ? 6 : KID_HI_W(5) <= 228u ? 5 : 4)
+static int32_t kid_hello_fit(const char *s, int32_t sc)   /* a longer greeting (a translation) a size smaller, as the name's is */
+{
+    while (sc > 4 && (int32_t)str_len(s) * KID_ADV * sc - sc > 236)
+        sc--;
+    return sc;
+}
+
 static uint16_t kid_hello_px(int32_t x, int32_t y)
 {
     int32_t c;
-    if (kid.hello_name[0] ? (c = kid_hello_line("HI", 7, 14, 0u, x, y)) >= 0 ||
+    if (kid.hello_name[0] ? (c = kid_hello_line("HI", kid_hello_fit("HI", 7), 14, 0u, x, y)) >= 0 ||
                             (c = kid_hello_line(kid.hello_name, kid.hello_sc, 76, 2u, x, y)) >= 0
                           : (c = kid_hello_line(KID_HI, KID_HI_SC, 34 + (8 - KID_HI_SC) * 4, 0u, x, y)) >= 0)
         return (uint16_t)c;
