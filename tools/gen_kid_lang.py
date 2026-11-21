@@ -173,7 +173,7 @@ def main(code, out):
     i = src.index("static const kid_song_t KID_SONGS[] = {")
     j = src.index("\n};", i)
     art = (ROOT / "tools" / "gen_kid_art.py").read_text()
-    friends = re.findall(r'^\s*\("([A-Z][A-Z -]*)", ', art, re.M) + \
+    friends = re.findall(r'^\s*\(\d+, "([A-Z][A-Z -]*)", ', art, re.M) + \
         re.findall(r'\("([A-Z][A-Z -]*)", ', art[art.index("STAND_INS = {"):art.index("\n}", art.index("STAND_INS = {"))])
     pics = getattr(L, "SONG_PICS", {})                 # each song's picture: a friend (gen_kid_art.py FRIENDS), so a child
     for n, *_ in L.SOLFA_SONGS + L.SONGS:             # who can't read yet knows the song (kid.c kid_band_icon)

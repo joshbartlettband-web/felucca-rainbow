@@ -699,6 +699,56 @@ check("PLAY again stops it", ex.web_playing() === 0);
   check(`SEQ steps through eleven beats (${seen.size} different names)`, seen.size === 11);
 }
 
+// WRITE payloads built from the wire layouts in ec9a8d8 (V1), 9c75d0b^ (V2), and e010124 (V3).
+{
+  const wasm = fs.readFileSync(wasmPath);
+  const boot = async (flash) => {
+    const e = (await WebAssembly.instantiate(wasm, {})).instance.exports;
+    e._initialize();
+    const nor = new Uint8Array(e.memory.buffer, e.web_nor(), e.web_nor_size());
+    if (flash) nor.set(flash);
+    else e.web_nor_erase();
+    e.web_boot();
+    const bytes = new Uint8Array(e.memory.buffer, e.web_test_write_bytes(), 58);
+    const tick = (ms) => { for (let i = 0; i < Math.round(ms * 44.1); i += 128) e.web_render(128); };
+    const tap = (b) => { e.web_buttons(1 << b); tick(60); e.web_buttons(0); tick(120); };
+    tick(6500);
+    return { e, nor, bytes, tick, tap };
+  };
+  const fixtures = [
+    // SCISSORS and RANCHER (then COWBOY), HOEDOWN at 90 BPM. A note in the 32nd column.
+    ["V1", "d1ac80d9ff0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030250000",
+      [10, 9], [8, 47], 90, 1, 32],
+    // GOLD DUCKY and SAX CAT, BOSSA at 120 BPM. At this revision friend ID 77 was GOLD DUCKY.
+    ["V2", "d26402d8ff0f", [7, 4], [8, 47], 120, 73, 4],
+    // COW, PEACOCK and GOLD DUCKY (no DUCKY), BREAK at 180 BPM. All three friends sound as saved.
+    ["V3", "d3fc8271fd1f5415", [9, 9, 7], [8, 47], 180, 0, 4],
+    // A valid note and an out-of-range friend, beat and tempo code.
+    ["Malformed V3", "d3f803feff1f", [10], [8, 0], 180, null, 4],
+  ];
+  const seed = await boot();
+  for (const [name, hex, engines, notes, bpm, drumHits, len] of fixtures) {
+    seed.bytes.fill(0);
+    seed.bytes.set(Buffer.from(hex, "hex"));
+    seed.e.web_test_settings_save();
+    const { e, bytes, tick, tap } = await boot(seed.nor);
+    tap(B.SAVE);
+    const heard = engines.map((_, i) => e.web_test_track_engine(i));
+    check(`WRITE ${name} opens with the same instruments (${heard.join(",")})`, heard.join() === engines.join());
+    check(`..keeps the notes and loop length`, [e.web_kid_wnote(0, 0), e.web_kid_wnote(0, 1)].join() === notes.join() && e.web_kid_wlen() === len);
+    const beatOk = drumHits === null ? e.web_kid_wbeat() === 0 : (e.web_step(3, 0) >> 8) === drumHits;
+    check(`..uses ${bpm} BPM and the saved beat`, e.web_test_tempo() === bpm && beatOk);
+    if (name === "V1")
+      check("..plays the last note in column 32", e.web_step(1, 31) === 53);
+    if (name === "V3") {
+      check("..plays Gold Ducky's note on the third track", e.web_step(2, 1) === 79 && e.web_step(3, 0) === 60);
+      for (let i = 0; i < 22; i++) tap(B.SEQ);                           // back to the same beat, with a save pending
+      tick(5000);
+      check("..writes the same V3 bytes", bytes.every((v, i) => v === seed.bytes[i]));
+    }
+  }
+}
+
 // BREAK: Felucca's own drum loop (SLICE's BREAK, its 16 slices in order, one a step) as a beat; and back to a kit after it
 {
   const tapb = (b) => { ex.web_buttons(1 << b); render(60); ex.web_buttons(0); render(250); };

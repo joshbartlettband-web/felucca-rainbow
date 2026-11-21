@@ -2059,104 +2059,105 @@ STAND_INS = {                    # the look-alike's name: the stand-in's name an
 ICONS = [icon_one, icon_choir, icon_strum, icon_accordion, icon_guess, icon_follow, icon_chords, icon_copy]
 
 
-# order = the firmware's (kid.c KID_SOUND)
+# The order matches kid.c's KID_SOUND. The first value is the permanent WRITE save ID, independent of order.
+# Give new friends an unused ID from 1 to 127. Never reuse a removed friend's ID.
 FRIENDS = [
-    ("DUCKY", ducky("yellow", "dyellow")),
-    ("PINK DUCKY", ducky("pink", "dpink", bow)),
-    ("COOL DUCKY", ducky("green", "lime", bucket_shades)),
-    ("AXOLOTL", axolotl),
-    ("UNICORN", unicorn),
-    ("GIRAFFE", giraffe),
-    ("GOO", goo("pink", "dpink", "lpink")),
-    ("GOOBERT", goo("mblue", "blue", "lblue")),
-    ("BLUE PUP", bluepup),
-    ("RED MONSTER", monster("red", "dred", "orange")),
-    ("BLUE MONSTER", monster("blue", "dblue", None, True)),
-    ("APRIL", doggy),
-    ("SCISSORS", scissors),
-    ("GHOST", ghost),
-    ("WEB HERO", webhero),
-    ("BUTTERFLY", butterfly),
-    ("KITTY", kitty),
-    ("FROG", frog),
-    ("ROBOT", robot),
-    ("RAINBOW", rainbow),
-    ("PRINCESS DUCKY", ducky("lpurple", "purple", crown)),
-    ("RED PUP", redpup),
-    ("YELLOW BIRD", yellowbird),
-    ("SLIMY", slimy),
-    ("BUNNY", bunny),
-    ("PANDA", panda),
-    ("PENGUIN", penguin),
-    ("OWL", owl),
-    ("BEE", bee),
-    ("LADYBUG", ladybug),
-    ("DINO", dino),
-    ("WHALE", whale),
-    ("OCTOPUS", octopus),
-    ("FISH", fish),
-    ("TURTLE", turtle),
-    ("ICE CREAM", icecream),
-    ("CUPCAKE", cupcake),
-    ("ROCKET", rocket),
-    ("STRAWBERRY", strawberry),
-    ("STAR", star),
-    ("T-REX", trex),
-    ("SKELETON", skeleton),
-    ("RANCHER", cowkid("brown", "dbrown", "dbrown", "red", "yellow")),
-    ("RODEO", cowkid("red", "dred", "orange", "yellow", "white", spots=True, braid=True)),
-    ("VACUUM", vacuum),
-    ("SPACE HERO", spacehero),
-    ("BEAT BOT", beatbot),
-    ("TOY DRUM", toydrum),
-    ("BONGO", bongo),
-    ("MONKEY", monkey),
-    ("ELEPHANT", elephant),
-    ("RACE CAR", racecar),
-    ("JELLYFISH", jellyfish),
-    ("BEAR", bear),
-    ("SNOWMAN", snowman),
-    ("CRAB", crab),
-    ("WOLF", wolf),
-    ("CAMEL", camel),
-    ("SCIENTIST", scientist),
-    ("FLYTRAP", flytrap),
-    ("SUNFLOWER", sunflower),
-    ("SPIDER MOM", spidermom),
-    ("DRAGON DUCK", dragonduck),
-    ("SPIDER GRANDMA", spidergrandma),
-    ("NIGHT LIGHT", nightlight),
-    ("GREEN QUEEN", greenqueen),
-    ("KING AXOLOTL", kingaxolotl),
-    ("FAIRY MONSTER", fairymonster),
-    ("MORNING GLORY", morningglory),
-    ("GROUCH", grouch),
-    ("TIGER CUB", tigercub),
-    ("RACCOON", raccoon),
-    ("GOLDENROD", goldenrod),
-    ("PIANO PAL", pianopal),
-    ("FLUTE BIRD", flutebird),
-    ("SAX CAT", saxcat),
-    ("COW", cow),
-    ("PIG", pig),
-    ("SHEEP", sheep),
-    ("SHARK", shark),
-    ("SEAHORSE", seahorse),
-    ("STARFISH", starfish),
-    ("SNAIL", snail),
-    ("CATERPILLAR", caterpillar),
-    ("FIREFLY", firefly),
-    ("TRICERATOPS", triceratops),
-    ("STEGOSAURUS", stegosaurus),
-    ("PIZZA", pizza),
-    ("DONUT", donut),
-    ("BANANA", banana),
-    ("TRAIN", train),
-    ("FIRE TRUCK", firetruck),
-    ("SCHOOL BUS", schoolbus),
-    ("HELICOPTER", helicopter),
-    ("PEACOCK", peacock),                                         # (a request: shimmer and grandeur)
-    ("GOLD DUCKY", ducky("gold", "dyellow", goldcrown)),       # the secret friend (50 stars): always the last
+    (1, "DUCKY", ducky("yellow", "dyellow")),
+    (2, "PINK DUCKY", ducky("pink", "dpink", bow)),
+    (3, "COOL DUCKY", ducky("green", "lime", bucket_shades)),
+    (4, "AXOLOTL", axolotl),
+    (5, "UNICORN", unicorn),
+    (6, "GIRAFFE", giraffe),
+    (7, "GOO", goo("pink", "dpink", "lpink")),
+    (8, "GOOBERT", goo("mblue", "blue", "lblue")),
+    (9, "BLUE PUP", bluepup),
+    (10, "RED MONSTER", monster("red", "dred", "orange")),
+    (11, "BLUE MONSTER", monster("blue", "dblue", None, True)),
+    (12, "APRIL", doggy),
+    (13, "SCISSORS", scissors),
+    (14, "GHOST", ghost),
+    (15, "WEB HERO", webhero),
+    (16, "BUTTERFLY", butterfly),
+    (17, "KITTY", kitty),
+    (18, "FROG", frog),
+    (19, "ROBOT", robot),
+    (20, "RAINBOW", rainbow),
+    (21, "PRINCESS DUCKY", ducky("lpurple", "purple", crown)),
+    (22, "RED PUP", redpup),
+    (23, "YELLOW BIRD", yellowbird),
+    (24, "SLIMY", slimy),
+    (25, "BUNNY", bunny),
+    (26, "PANDA", panda),
+    (27, "PENGUIN", penguin),
+    (28, "OWL", owl),
+    (29, "BEE", bee),
+    (30, "LADYBUG", ladybug),
+    (31, "DINO", dino),
+    (32, "WHALE", whale),
+    (33, "OCTOPUS", octopus),
+    (34, "FISH", fish),
+    (35, "TURTLE", turtle),
+    (36, "ICE CREAM", icecream),
+    (37, "CUPCAKE", cupcake),
+    (38, "ROCKET", rocket),
+    (39, "STRAWBERRY", strawberry),
+    (40, "STAR", star),
+    (41, "T-REX", trex),
+    (42, "SKELETON", skeleton),
+    (43, "RANCHER", cowkid("brown", "dbrown", "dbrown", "red", "yellow")),
+    (44, "RODEO", cowkid("red", "dred", "orange", "yellow", "white", spots=True, braid=True)),
+    (45, "VACUUM", vacuum),
+    (46, "SPACE HERO", spacehero),
+    (47, "BEAT BOT", beatbot),
+    (48, "TOY DRUM", toydrum),
+    (49, "BONGO", bongo),
+    (50, "MONKEY", monkey),
+    (51, "ELEPHANT", elephant),
+    (52, "RACE CAR", racecar),
+    (53, "JELLYFISH", jellyfish),
+    (54, "BEAR", bear),
+    (55, "SNOWMAN", snowman),
+    (56, "CRAB", crab),
+    (57, "WOLF", wolf),
+    (58, "CAMEL", camel),
+    (59, "SCIENTIST", scientist),
+    (60, "FLYTRAP", flytrap),
+    (61, "SUNFLOWER", sunflower),
+    (62, "SPIDER MOM", spidermom),
+    (63, "DRAGON DUCK", dragonduck),
+    (64, "SPIDER GRANDMA", spidergrandma),
+    (65, "NIGHT LIGHT", nightlight),
+    (66, "GREEN QUEEN", greenqueen),
+    (67, "KING AXOLOTL", kingaxolotl),
+    (68, "FAIRY MONSTER", fairymonster),
+    (69, "MORNING GLORY", morningglory),
+    (70, "GROUCH", grouch),
+    (71, "TIGER CUB", tigercub),
+    (72, "RACCOON", raccoon),
+    (73, "GOLDENROD", goldenrod),
+    (74, "PIANO PAL", pianopal),
+    (75, "FLUTE BIRD", flutebird),
+    (76, "SAX CAT", saxcat),
+    (77, "COW", cow),
+    (78, "PIG", pig),
+    (79, "SHEEP", sheep),
+    (80, "SHARK", shark),
+    (81, "SEAHORSE", seahorse),
+    (82, "STARFISH", starfish),
+    (83, "SNAIL", snail),
+    (84, "CATERPILLAR", caterpillar),
+    (85, "FIREFLY", firefly),
+    (86, "TRICERATOPS", triceratops),
+    (87, "STEGOSAURUS", stegosaurus),
+    (88, "PIZZA", pizza),
+    (89, "DONUT", donut),
+    (90, "BANANA", banana),
+    (91, "TRAIN", train),
+    (92, "FIRE TRUCK", firetruck),
+    (93, "SCHOOL BUS", schoolbus),
+    (94, "HELICOPTER", helicopter),
+    (95, "PEACOCK", peacock),                                         # (a request: shimmer and grandeur)
+    (96, "GOLD DUCKY", ducky("gold", "dyellow", goldcrown)),       # the secret friend (50 stars): always the last
 ]
 SECRET_FRIEND = "GOLD DUCKY"
 
@@ -2441,11 +2442,18 @@ def lang_names():
 
 def main(out, png=None):
     tr_name, tr_hat, enc, adv = lang_names()        # (adv: a letter's step, 8 for kana)
-    names = [n for n, _ in FRIENDS]
+    names = [name for _, name, _ in FRIENDS]
+    ids = [save_id for save_id, _, _ in FRIENDS]
+    if len(set(ids)) != len(ids) or any(not 1 <= save_id <= 127 for save_id in ids):
+        raise SystemExit("FRIENDS: WRITE save IDs must be unique and in 1..127")
+    by_id = [255] * (max(ids) + 1)
+    for index, save_id in enumerate(ids):
+        by_id[save_id] = index
+    art = [(name, draw) for _, name, draw in FRIENDS] + list(STAND_INS.values())
     for k in STAND_INS:
         if k not in names:
             raise SystemExit(f"STAND_INS: {k} is not a friend")
-    for en, _ in FRIENDS + list(STAND_INS.values()):     # the band shows the name: one line at scale 4 or 3, or two at 3
+    for en, _ in art:     # the band shows the name: one line at scale 4 or 3, or two at 3
         name = tr_name(en)
         if not re.fullmatch(r"[A-Z\u00c0-\u00dd\u3041-\u30fc-]+( [A-Z\u00c0-\u00dd\u3041-\u30fc-]+)*", name):
             raise SystemExit(f"{name!r}: capitals, hyphens and single spaces only (the band's font)")
@@ -2455,7 +2463,7 @@ def main(out, png=None):
                                               max(cut, len(name) - cut - 1) * 3 * adv - 3 > 232):
             raise SystemExit(f"{name}: too long for the band, even on two lines")
     pics = []
-    for name, f in FRIENDS + list(STAND_INS.values()):  # (the stand-ins after the friends: KID_N .. KID_NART - 1)
+    for name, f in art:  # (the stand-ins after the friends: KID_N .. KID_NART - 1)
         try:
             pics.append((name, f().im))
         except SystemExit as e:
@@ -2463,9 +2471,11 @@ def main(out, png=None):
     hello = re.sub(r"[^A-Z ]", "", os.environ.get("KID_NAME", "").upper()).strip()[:10]
     hello = hello + "!" if hello else ""
     lines = ["/* generated by tools/gen_kid_art.py: Rainbow mode's friends */",
-             *[f"#define KID_PIC_{re.sub(r'[^A-Z0-9]', '_', n)} {i}" for i, (n, _) in enumerate(FRIENDS + list(STAND_INS.values()))],
+             *[f"#define KID_PIC_{re.sub(r'[^A-Z0-9]', '_', n)} {i}" for i, (n, _) in enumerate(art)],
              # (FOLLOW's songs' pictures: a friend, or a stand-in's picture, KID_N ..)
-             f"#define KID_N {len(FRIENDS)}", f"#define KID_SECRET_FR {[n for n, _ in FRIENDS].index(SECRET_FRIEND)}", f"#define KID_NART {len(pics)}", f"#define KID_PW {N}",
+             f"#define KID_N {len(FRIENDS)}", f"#define KID_SECRET_FR {names.index(SECRET_FRIEND)}", f"#define KID_NART {len(pics)}", f"#define KID_PW {N}",
+             "static const uint8_t KID_WRITE_ID[KID_N] = {" + ", ".join(map(str, ids)) + "};",
+             "static const uint8_t KID_WRITE_FRIEND[] = {" + ", ".join(map(str, by_id)) + "};",
              "static const char *const KID_NAME[KID_NART] = {" + ", ".join(f'"{enc(tr_name(n))}"' for n, _ in pics) + "};",
              "/* a look-alike's stand-in (its picture and name, KID_N ..), 0 none: the grown-ups' LOOK-ALIKES (kid.c) */",
              "static const uint8_t KID_ALT[KID_N] = {" + ", ".join(

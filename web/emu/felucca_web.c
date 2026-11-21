@@ -480,6 +480,10 @@ EXPORT void web_test_heavy(void)
 }
 
 EXPORT uint32_t web_test_user_preset(uint32_t i) { return (uint32_t)up_used(i); }
+EXPORT uint8_t *web_test_write_bytes(void) { return kw_byte(0); }
+EXPORT void web_test_settings_save(void) { settings_save(); }
+EXPORT uint32_t web_test_track_engine(uint32_t i) { return trk[i % NTRK].engine; }
+EXPORT int32_t web_test_tempo(void) { return song.g[G_BPM]; }
 
 EXPORT uint16_t *web_screen(void) { return web_fb; }
 EXPORT uint32_t web_screen_draws(void) { return web_draws; }
