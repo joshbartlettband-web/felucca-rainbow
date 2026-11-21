@@ -158,6 +158,9 @@ jobs:
       - name: Python packages
         run: pip install Pillow fonttools
 
+      - name: Check the landing pages' installer links
+        run: python3 web/test_rainbow_pages.py
+
       - name: The FM-1's flash chips (the 2026 units' UC25HQ80 too, or they cannot save or be updated)
         run: |
           mkdir -p build/host
@@ -330,17 +333,12 @@ jobs:
           DONATE: ${{ vars.DONATE_URL || secrets.DONATE_URL }}   # the tip link (a repository variable or secret: Ko-fi,
                                                                  # Buy Me a Coffee ...); none, no tip card
         run: |
-          cp -r landing/. site/
-          for l in $LANGS; do                         # (a language with no page of its own in landing/ gets one made)
-            [ -f "landing/$l/index.html" ] || python3 web/make_lang_page.py "$l" "site/$l/index.html"
-          done
+          read -r -a languages <<< "$LANGS"
+          python3 web/make_rainbow_pages.py site "${languages[@]}" --pin "$PIN"
           repo="${{ github.repository }}"
           sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" -e "s|@REPO@|$repo|g" site/index.html
-          for l in $LANGS; do sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" "site/$l/index.html"; done
+          for l in "${languages[@]}"; do sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" "site/$l/index.html"; done
           find site -name '*.html' -exec sed -i "s|@REPO@|$repo|g" {} +   # (the installers' credits)
-          if [ -z "$PIN" ]; then                      # (the note about a pinned installer is only there while it is pinned)
-            perl -0pi -e 's/\s*<!--PIN-->.*?<!--\/PIN-->//s' site/index.html
-          fi
           d=$(printf '%s' "$DONATE" | tr -d '[:space:]')   # (pasted on a phone: spaces, a line break, no https://)
           case "$d" in
             "") ;;

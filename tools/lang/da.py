@@ -9,6 +9,7 @@ PAGE = {   # its page on the site (web/make_lang_page.py)
     'title': 'Rainbow mode på dansk',
     'lede': 'Et musiklegetøj til små hænder, nu på dansk. Gratis firmware, der gør M-VAVE FM-1-synthen til noget, et lille barn kan spille på.',
     'install': 'Læg det på FM-1',
+    'browser_only': 'Installationsprogrammet til FM-1 er ikke tilgængeligt lige nu. Du kan stadig spille i browseren.',
     'note': 'Ingen FM-1? Man kan spille alligevel, med tangenterne på skærmen eller computerens tastatur. Installationen og browsersiden er stadig på engelsk, men legetøjet taler dansk.',
     'inside': 'Hvad der er i det',
     'facts': ['Alt på skærmen er på dansk, og tonerne hedder C D E F G A H, som i skolen. Hver tangent viser sin tone, stort og i sin egen farve.', '95 venner, hver med sin egen tegning, lyd, himmel og yndlingsrytme, alle med danske navne: ENHJØRNING, SNEMAND, SØHEST.', 'FØLG tænder den næste tangent i 9 sange, som Mester Jakob, Den lille Ole med paraplyen, Jeg ved en lærkerede og Glade jul.', 'For voksne: hold HOME et sekund og så OCT- eller OCT+ for lydstyrken, eller drej KNOB 1 til venstre for at skjule nodelinjerne. HOME og SAVE sammen i 3 sekunder går tilbage til Felucca-synthen.'],

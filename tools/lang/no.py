@@ -9,6 +9,7 @@ PAGE = {   # its page on the site (web/make_lang_page.py)
     'title': 'Rainbow mode på norsk',
     'lede': 'En musikkleke for små hender, nå på norsk. Gratis fastvare som gjør M-VAVE FM-1-synthen til noe et lite barn kan spille på.',
     'install': 'Legg den på FM-1',
+    'browser_only': 'Installasjonsprogrammet for FM-1 er ikke tilgjengelig akkurat nå. Du kan fortsatt spille i nettleseren.',
     'note': 'Ingen FM-1? Du kan spille likevel, med tangentene på skjermen eller tastaturet på datamaskinen. Installasjonen og nettleserversjonen er fortsatt på engelsk, men leken snakker norsk.',
     'inside': 'Hva som er inni',
     'facts': ['Alt på skjermen er på norsk, og tonene heter C D E F G A H, som på skolen. Hver tangent viser tonen sin, stort og i sin egen farge.', '95 venner, hver med egen tegning, egen lyd, egen himmel og favorittrytme, alle med norske navn: ENHJØRNING, SNØMANN, SJØHEST.', 'FØLG lyser opp neste tangent i 7 sanger, som Fader Jakob, Hurra for deg som fyller ditt år og Glade jul.', 'For voksne: hold HOME et sekund, og så OCT- eller OCT+ for volumet, eller vri KNOB 1 mot venstre for å skjule notelinjene. HOME og SAVE sammen i 3 sekunder går tilbake til Felucca-synthen.'],

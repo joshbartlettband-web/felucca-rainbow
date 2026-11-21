@@ -9,6 +9,7 @@ PAGE = {   # its page on the site (web/make_lang_page.py)
     'title': 'Rainbow mode på svenska',
     'lede': 'En musikleksak för små händer, nu på svenska. Gratis firmware som gör M-VAVE FM-1-synten till något som ett litet barn kan spela på.',
     'install': 'Lägg den på FM-1',
+    'browser_only': 'Installationsprogrammet för FM-1 är inte tillgängligt just nu. Du kan fortfarande spela i webbläsaren.',
     'note': 'Ingen FM-1? Det går att spela ändå, med tangenterna på skärmen eller datorns tangentbord. Installationen och webbläsarsidan är fortfarande på engelska, men leksaken pratar svenska.',
     'inside': 'Vad som finns i den',
     'facts': ['Allt på skärmen är på svenska, och tonerna heter C D E F G A H, som i skolan. Varje tangent visar sin ton, stort och i sin egen färg.', '95 kompisar, var och en med egen bild, eget ljud, egen himmel och favorittakt, alla med svenska namn: ENHÖRNING, SNÖGUBBE, SJÖHÄST.', 'FÖLJ tänder nästa tangent i 7 sånger, som Broder Jakob, Blinka lilla stjärna och Stilla natt.', 'För vuxna: håll HOME en sekund och sedan OCT- eller OCT+ för volymen, eller vrid KNOB 1 åt vänster för att gömma notraderna. HOME och SAVE tillsammans i 3 sekunder går tillbaka till Felucca-synten.'],
