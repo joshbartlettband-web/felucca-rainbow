@@ -7,6 +7,7 @@ PAGE = {   # its page on the site (web/make_lang_page.py)
     'title': 'Rainbow mode en español',
     'lede': 'Un juguete musical para manos pequeñas, ahora en español. Un firmware gratis que convierte el sintetizador M-VAVE FM-1 en algo que un niño pequeño puede tocar.',
     'install': 'Ponlo en el FM-1',
+    'browser_only': 'El instalador del FM-1 no está disponible por ahora. Puedes tocar en el navegador.',
     'note': '¿No tienes un FM-1? Igual se puede tocar, con las teclas de la pantalla o el teclado de la computadora. El instalador y la página del navegador siguen en inglés, pero el juguete habla español.',
     'inside': 'Qué tiene',
     'facts': ['Todo en la pantalla está en español, y las notas se llaman DO RE MI. Cada tecla muestra su nota, grande y en su color.', '95 amigos, cada uno con su dibujo, su sonido, su cielo y su ritmo favorito, todos con nombre en español: UNICORNIO, AJOLOTE, CABALLITO.', 'SIGUE enciende la próxima tecla de 10 canciones, como Las mañanitas, La cucaracha, Martinillo y Mambrú.', 'Para los grandes: mantén HOME un segundo y luego OCT- u OCT+ para el volumen, o gira KNOB 1 a la izquierda para quitar el pentagrama. HOME y SAVE juntos durante 3 segundos vuelven al sintetizador Felucca.'],

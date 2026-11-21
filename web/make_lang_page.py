@@ -45,10 +45,11 @@ def main(code, out):
     <p class="lede">{e(P['lede'])}</p>
     <div class="buttons">
       <a class="btn" href="webapp/try/">{e(P['try'])}</a>
-      <a class="btn alt" href="webapp/installer/">{e(P['install'])}</a>
+      <!--INSTALLER--><a class="btn alt" href="webapp/installer/">{e(P['install'])}</a><!--/INSTALLER-->
       <a class="btn alt" href="../" lang="en">In English</a>
     </div>
-    <p class="lede" style="font-size:1rem;margin:0">{e(P['note'])}</p>
+    <!--INSTALLER--><p class="lede" style="font-size:1rem;margin:0">{e(P['note'])}</p><!--/INSTALLER-->
+    <!--BROWSER-ONLY <p class="lede" style="font-size:1rem;margin:0">{e(P['browser_only'])}</p>-->
   </section>
 
   <h2>{e(P['inside'])}</h2>

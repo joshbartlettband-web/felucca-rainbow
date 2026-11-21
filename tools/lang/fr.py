@@ -6,6 +6,7 @@ PAGE = {   # its page on the site (web/make_lang_page.py)
     'title': 'Rainbow mode en français',
     'lede': "Un jouet musical pour les petites mains, maintenant en français. Un firmware gratuit qui transforme le synthé M-VAVE FM-1 en quelque chose qu'un petit enfant peut jouer.",
     'install': 'Installer sur le FM-1',
+    'browser_only': "L'installeur du FM-1 est indisponible pour le moment. Tu peux toujours jouer dans ton navigateur.",
     'note': "Pas de FM-1 ? On peut jouer quand même, avec les touches à l'écran ou le clavier de l'ordinateur. L'installeur et la page du navigateur sont encore en anglais, mais le jouet parle français.",
     'inside': "Ce qu'il y a dedans",
     'facts': ["Tout ce qui s'affiche est en français, et les notes s'appellent DO RÉ MI. Chaque touche montre sa note, en grand et dans sa couleur.", '95 amis, chacun avec son dessin, son son, son ciel et son rythme préféré, tous avec un nom français : LICORNE, BONHOMME, HIPPOCAMPE.', "SUIS allume la prochaine touche de 20 chansons, d'Au clair de la lune et Frère Jacques à Une souris verte et Douce nuit.", 'Pour les grands : tenez HOME une seconde, puis OCT- ou OCT+ pour le volume, ou KNOB 1 vers la gauche pour cacher la portée. HOME et SAVE ensemble pendant 3 secondes ramènent au synthé Felucca.'],

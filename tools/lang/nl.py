@@ -7,6 +7,7 @@ PAGE = {   # its page on the site (web/make_lang_page.py)
     'title': 'Rainbow mode in het Nederlands',
     'lede': 'Een muziekspeeltje voor kleine handjes, nu in het Nederlands. Gratis firmware die de M-VAVE FM-1 synthesizer verandert in iets wat een klein kind kan bespelen.',
     'install': 'Zet het op de FM-1',
+    'browser_only': 'De installer voor de FM-1 is even niet beschikbaar. Je kunt nog steeds in de browser spelen.',
     'note': 'Geen FM-1? Je kunt toch spelen, met de toetsen op het scherm of het toetsenbord van je computer. De installer en de browserpagina zijn nog in het Engels, maar het speeltje spreekt Nederlands.',
     'inside': 'Wat erin zit',
     'facts': ['Alles op het scherm is in het Nederlands, en de noten heten C D E F G A B. Elke toets laat zijn noot zien, groot en in zijn eigen kleur.', '95 vriendjes, elk met een eigen tekening, geluid, lucht en lievelingsbeat, allemaal met een Nederlandse naam: EENHOORN, SNEEUWPOP, ZEEPAARDJE.', 'VOLGEN laat de volgende toets oplichten van 9 liedjes, zoals Vader Jacob, Lang zal hij leven en Altijd is Kortjakje ziek.', 'Voor grote mensen: houd HOME een seconde vast, dan OCT- of OCT+ voor het volume, of KNOB 1 naar links om de notenbalk te verbergen. HOME en SAVE samen 3 seconden vasthouden gaat terug naar de Felucca-synth.'],
