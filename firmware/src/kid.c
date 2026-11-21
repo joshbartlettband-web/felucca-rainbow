@@ -526,6 +526,7 @@ static struct {
 #define KW_SAVE_MS 4000u                /* saved this long after the last change (while stopped), and on leaving */
 static struct {
     uint8_t on, cur, stamp, adv, dirty, beat, loaded, clear_on;
+    uint8_t bpm;                        /* WRITE's tempo, kept when the friend's beat takes over outside WRITE */
     uint8_t floor;                      /* the loop is at least this many columns (a new song played empty: two bars, to play into) */
     uint8_t band[3];                    /* the friend of each track 0..2, 0xFF none */
     uint8_t note[KW_COLS][2];           /* (track << 5) | (key + 1), 0 empty */
@@ -1252,7 +1253,7 @@ static void kw_pack(void)
     kw_bits_put(&at, 3, 4);                                      /* (version 3: the beat in 5 bits; 2 had 4, and a band friend in 7: 1 had 6) */
     for (i = 0; i < 3u; i++)
         kw_bits_put(&at, kw.band[i] == 0xFFu ? 0u : kw.band[i] + 1u, 7);
-    kw_bits_put(&at, (uint32_t)clamp((song.g[G_BPM] - 60) / 5, 0, 24), 5);
+    kw_bits_put(&at, (uint32_t)clamp((kw.bpm - 60) / 5, 0, 24), 5);
     kw_bits_put(&at, kw.beat, 5);
     for (c = 0; c < KW_COLS; c++) {
         uint32_t a = kw.note[c][0], b = kw.note[c][1];
@@ -1279,7 +1280,7 @@ static void kw_unpack(void)
         v = kw_bits_get(&at, ver >= 2u ? 7u : 6u);               /* (a song saved before 63 friends: 6 bits) */
         kw.band[i] = v && v <= KID_N ? (uint8_t)(v - 1u) : 0xFFu;
     }
-    song.g[G_BPM] = (int16_t)(60 + 5 * (int32_t)kw_bits_get(&at, 5));
+    kw.bpm = (uint8_t)(60u + 5u * kw_bits_get(&at, 5));
     v = kw_bits_get(&at, ver >= 3u ? 5u : 4u);                   /* (a song saved before 16 beats: 4 bits) */
     kw.beat = (uint8_t)(v <= KB_COUNT ? v : 0u);
     for (c = 0; c < KW_COLS; c++) {
@@ -1338,10 +1339,15 @@ static void kw_commit(void)
     }
 }
 
-static void kw_changed(void)
+static void kw_mark_dirty(void)
 {
     kw.dirty = 1;
     kw.edit_ms = fm1_ms;
+}
+
+static void kw_changed(void)
+{
+    kw_mark_dirty();
     kw_commit();
 }
 
@@ -1403,12 +1409,11 @@ static void kw_enter(void)
     if (song.playing || chain_busy())
         transport_req = 2;
     if (!kw.loaded) {
-        int16_t bpm = song.g[G_BPM];
+        kw.bpm = (uint8_t)song.g[G_BPM];                          /* (a new song: the tempo it had) */
         kw_unpack();
-        if (kw.band[0] == 0xFFu && kw.band[1] == 0xFFu && kw.band[2] == 0xFFu)
-            song.g[G_BPM] = bpm;                                  /* (a new song: the tempo it had) */
         kw.loaded = 1;
     }
+    song.g[G_BPM] = kw.bpm;
     kw.on = 1;
     kb_strum = kb_accord = 0;
     kid.acc_fr = 0xFF;                                            /* (track 3 is the band's now) */
@@ -2306,6 +2311,10 @@ static void kid_input(void)
     if (s != 0) {
         any = 1u;
         song.g[G_BPM] = (int16_t)clamp(song.g[G_BPM] + s * 5, 60, 180);
+        if (kw.on && kw.bpm != song.g[G_BPM]) {
+            kw.bpm = (uint8_t)song.g[G_BPM];
+            kw_mark_dirty();
+        }
         kid_hint(KH_SPEED);
     }
     s = panel_enc(EN_K1);                                         /* (read once: a read takes the turn) */
