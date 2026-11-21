@@ -63,7 +63,8 @@ a { color: inherit; }
 .start button { font: inherit; font-size: 18px; padding: 12px 28px; background: #fff; color: #000; border: 0; cursor: pointer; }
 .start button:disabled { opacity: .4; cursor: progress; }
 .start p { margin: 0; max-width: 32em; text-align: center; color: #fff; }
-.keys, footer { margin: 16px 0 0; color: var(--dim); text-align: center; }
+.save-status, .keys, footer { margin: 16px 0 0; color: var(--dim); text-align: center; }
+.save-status:empty { margin: 0; }
 .keys span { white-space: nowrap; margin: 0 8px; }
 kbd { font: 600 11px ui-monospace, Menlo, monospace; border: 1px solid var(--rule); padding: 0 4px; color: var(--fg); }
 footer { margin-top: 12px; font-size: 12px; }
@@ -79,6 +80,7 @@ footer small { font-size: 11px; opacity: .8; }
   <div class="start" id="start"><button id="go" type="button">Switch on</button><p id="status" hidden></p></div>
 </div>
 
+<p class="save-status" id="save-status" role="status"></p>
 <p class="keys">
   <span><kbd>Z</kbd>–<kbd>'</kbd> <kbd>Q</kbd>–<kbd>O</kbd> keys</span>
   <span><kbd>1</kbd>–<kbd>=</kbd> FX … REC</span>
@@ -403,6 +405,23 @@ function drawLights([litB, litK, dimB, dimK, dimLo = 0, brB = 0, brK = 0, midK =
 }
 
 // ------------------------------------------------------------------ the flash, kept in this browser
+const SAVE_BUSY = "Another tab is open for saving. Changes here are temporary. Close that tab and reload this one to save here.";
+const SAVE_UNAVAILABLE = "This browser can't keep your saves here. Changes last until you leave this page.";
+const SAVE_RELOAD = "Reload this page to save again. Changes here are temporary.";
+const saveStatus = document.getElementById("save-status");
+
+// The worklet sends its whole flash, so one tab owns the save from before it reads the flash until it leaves.
+function lockFlash() {
+  return new Promise((resolve, reject) => {
+    const locks = navigator.locks;
+    if (!locks) return resolve({ notice: SAVE_UNAVAILABLE });
+    locks.request(STORE, { ifAvailable: true }, (lock) => {
+      if (!lock) return resolve({ notice: SAVE_BUSY });
+      return new Promise((release) => resolve({ release }));
+    }).catch(reject);
+  }).catch(() => ({ notice: SAVE_UNAVAILABLE }));
+}
+
 function loadFlash() {
   try {
     const raw = JSON.parse(localStorage.getItem(STORE) || "{}"), out = {};
@@ -456,14 +475,30 @@ async function switchOn() {
   const go = document.getElementById("go");
   go.disabled = true;
   go.textContent = "Starting…";
+  let ac, releaseFlash, leftPage = false;
+  const stopSaving = (notice) => {
+    const release = releaseFlash;
+    releaseFlash = null;
+    release?.();
+    saveStatus.textContent = notice;
+  };
+  const onPageHide = () => {
+    leftPage = true;
+    if (releaseFlash) stopSaving(SAVE_RELOAD);
+  };
+  // A page restored from the back/forward cache still has its old flash in memory.
+  addEventListener("pagehide", onPageHide, { once: true });
   try {
-    const ac = new AudioContext({ sampleRate: 44100, latencyHint: "interactive" });
+    ac = new AudioContext({ sampleRate: 44100, latencyHint: "interactive" });
     const [wasm] = await Promise.all([
       fetch("felucca.wasm").then((r) => { if (!r.ok) throw new Error(`felucca.wasm: ${r.status}`); return r.arrayBuffer(); }),
       ac.audioWorklet.addModule("worklet.js")]);
+    const flash = await lockFlash();
+    releaseFlash = flash.release;
+    saveStatus.textContent = flash.notice || "";
+    if (leftPage && releaseFlash) stopSaving(SAVE_RELOAD);
     node = new AudioWorkletNode(ac, "felucca", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
     node.connect(ac.destination);
-    let warned = false;
     await new Promise((res, rej) => {
       node.port.onmessage = (e) => {
         const m = e.data;
@@ -472,10 +507,7 @@ async function switchOn() {
         else if (m.type === "frame") {
           if (m.fb) drawScreen(m.fb);
           if (m.leds) drawLights(lastLeds = m.leds, m.anim);
-          if (m.sectors && !saveFlash(m.sectors) && !warned) {
-            warned = true;
-            console.warn("Felucca: this browser does not keep the saves; they last until the page closes.");
-          }
+          if (releaseFlash && m.sectors && !saveFlash(m.sectors)) stopSaving(SAVE_UNAVAILABLE);
         }
       };
       node.port.postMessage({ type: "load", wasm, sectors: loadFlash(), master: masterValue }, [wasm]);
@@ -490,7 +522,10 @@ async function switchOn() {
     send({ type: "visible", on: !document.hidden });
     midiOn();
   } catch (err) {
+    removeEventListener("pagehide", onPageHide);
+    stopSaving("");
     node = null;
+    if (ac) ac.close().catch(() => {});
     go.disabled = false;
     go.textContent = "Switch on";
     say("Could not start: " + (err && err.message || err) + ". A current Chrome, Edge, Firefox or Safari should work.");
