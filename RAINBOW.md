@@ -140,6 +140,14 @@ The song is kept when the FM-1 is switched off: in 58 bytes of the settings that
 stopped) and when WRITE is left. A column is a beat (a quarter note); each friend plays on its own track (tracks 1 to 3, the
 drums on 4), through Felucca's own sequencer.
 
+## The battery
+
+A little battery sits at the top right of the band, so a grown-up can see how much play is left. It uses the full
+Felucca's reading (`ui_draw.c` `batt_shown`): three bars are green, two yellow and one red, and with none left it's an
+empty battery that blinks red. On USB power it shows full, with a yellow bolt beside it. It never sits on top of the
+band's words: names and notes sit lower in the band, and the few long hints that reach the corner hide it while they
+show. It waits for the first battery reading, so it doesn't flash empty at power-up (`kid.c` `kid_batt_setup`).
+
 ## Volume, for grown-ups
 
 Two guards, both in `kid.c` (`kid_master`):

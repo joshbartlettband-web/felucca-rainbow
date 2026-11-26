@@ -31,6 +31,8 @@
  *               chords stacked, sharps with a #, ledger lines, 8VA / 8VB over the staff for the octave (OCT); each
  *               note's value by how long it was held against the beat (a sixteenth .. a whole, growing while held);
  *               it goes after 6 s of quiet. The big letter stays in the band
+ *   THE BATTERY a little battery at the band's top right: 3 bars green, 2 yellow, 1 red, none blinking red; a bolt
+ *               beside it on USB power (the full Felucca's reading: kid_batt_setup)
  *   HOME held 1 s, then OCT- / OCT+   the grown-ups' VOLUME: how loud MASTER can go (8 steps, kept over power-off)
  *   HOME held 1 s, then ALGORITHM the grown-ups' NAME: the name the hello greets (PRESETS a letter, ALGORITHM the next,
  *                                 SAVE keeps it, HOME leaves it as it was), kept over power-off
@@ -2467,6 +2469,8 @@ static struct {
     int16_t ol;                         /* its outline (px) */
     uint16_t ink, bg, bg2;
     int8_t meter;                       /* dots lit (HINT), -1 none */
+    int8_t batt;                        /* the battery at the band's top right (kid_batt_setup): 0 .. 3 bars, 4 USB, -1 none */
+    uint8_t batt_blink;                 /* .. empty, and its blink is on */
     uint8_t staff;                      /* the staff shows */
     uint8_t card, card_n;               /* .. as ALGORITHM's card instead (KID_HELP): it shows, its lines */
     int16_t card_y;                     /* .. its first line's top */
@@ -3027,9 +3031,69 @@ static uint32_t kid_band_icon(uint32_t sig)
     return sig * 31u + (uint32_t)(pic >= 0 ? 1000 + pic : m + 1);
 }
 
+/* the BATTERY: a little battery at the band's top right, so a grown-up can see how much play is left. Its reading is
+ * the full Felucca's (ui_draw.c batt_shown: 0 .. 3 bars, 4 on USB power: full, with a bolt beside it). Three bars:
+ * green; two: yellow; one: red; none: an empty battery that blinks red. The band's words never go under it: a long
+ * one (a few of the hints) hides it while it shows; and it waits for the first reading */
+#define KID_BAT_X 215                   /* its left; 19 x 10, the nub included (the bolt: left of it) */
+#define KID_BAT_Y ((int32_t)KID_BAND_Y + 4)
+#define KID_BAT_W 19
+#define KID_BAT_H 10
+static const char *const KID_BOLT[8] = {"...##", "..##.", ".##..", "#####", "..##.", ".##..", "##...", "#...."};
+
+static uint32_t kid_batt_setup(uint32_t now)
+{
+    int32_t l = batt_shown(), x0 = KID_BAT_X - (l == 4 ? 9 : 0) - 2, y1 = KID_BAT_Y + KID_BAT_H + 2;
+    const kid_txt_t *t[2] = {&kf.bt, &kf.bt2};
+    uint32_t i;
+    kf.batt = -1;
+    if (!song.batt_raw && l != 4)
+        return 0;
+    for (i = 0; i < 2u; i++) {                                    /* (the band's words: not under it) */
+        int32_t sc = t[i]->sc, len = t[i]->s ? (int32_t)str_len(t[i]->s) : 0;
+        if (sc && len && t[i]->x + len * KID_ADV * sc - sc + kf.ol > x0 && t[i]->y - kf.ol < y1)
+            return 0;
+    }
+    kf.batt = (int8_t)l;
+    kf.batt_blink = (uint8_t)(l == 0 && ((now / 500u) & 1u));
+    return 0x5A000000u | (uint32_t)l << 4 | kf.batt_blink;
+}
+
+static int32_t kid_batt_px(int32_t x, int32_t y)
+{
+    static const uint16_t BAR[4] = {0, RGB(236, 52, 64), RGB(255, 200, 40), RGB(80, 200, 90)};
+    int32_t l = kf.batt, bx = x - KID_BAT_X, by = y - KID_BAT_Y, n = l == 4 ? 3 : l;
+    uint16_t rim = kf.batt_blink ? RGB(236, 52, 64) : KID_INK;
+    if (l == 4 && bx >= -9 && bx < -2 && by >= 0 && by < 10) {    /* USB power: a yellow bolt, outlined */
+        int32_t gx = bx + 8, gy = by - 1, dx, dy;
+        #define KID_BOLT_AT(xx, yy) ((xx) >= 0 && (xx) < 5 && (yy) >= 0 && (yy) < 8 && KID_BOLT[yy][xx] == '#')
+        if (KID_BOLT_AT(gx, gy))
+            return RGB(255, 216, 46);
+        for (dy = -1; dy <= 1; dy++)
+            for (dx = -1; dx <= 1; dx++)
+                if (KID_BOLT_AT(gx + dx, gy + dy))
+                    return KID_INK;
+        #undef KID_BOLT_AT
+        return -1;
+    }
+    if (bx < 0 || by < 0 || bx >= KID_BAT_W || by >= KID_BAT_H)
+        return -1;
+    if (bx >= 17)                                                 /* the nub */
+        return by >= 3 && by <= 6 ? rim : -1;
+    if ((bx == 0 || bx == 16) && (by == 0 || by == 9))            /* (round corners) */
+        return -1;
+    if (bx < 2 || bx > 14 || by < 2 || by > 7)
+        return rim;
+    if (by >= 3 && by <= 6 && (bx - 3) % 4 < 3 && (bx - 3) / 4 < n)   /* the bars: x 3..5, 7..9, 11..13 */
+        return BAR[n];
+    return KID_WHITE;
+}
+
 static uint16_t kid_band_px(int32_t x, int32_t y)
 {
     int k;
+    if (kf.batt >= 0 && x >= KID_BAT_X - 9 && y < KID_BAT_Y + KID_BAT_H && (k = kid_batt_px(x, y)) >= 0)
+        return (uint16_t)k;                                       /* (the battery) */
     if (kf.icon >= 0 && x >= 6 && x < 54 && y >= (int32_t)KID_BAND_Y + 5 && y < (int32_t)KID_BAND_Y + 53) {
         uint32_t ix = (uint32_t)(x - 6), iy = (uint32_t)(y - ((int32_t)KID_BAND_Y + 5)), b;   /* the mode's picture */
         b = kid_row(KID_ICON_ART + (uint32_t)kf.icon % KID_ICON_N, iy)[ix];
@@ -3973,6 +4037,7 @@ static void kid_draw(void)
     uint32_t now = fm1_ms, i, band = kid_band_icon(kid_band_setup(now)), sig = 0, ssig, top = 0;
     int32_t x0 = 240, y0 = 240, x1 = 0, y1 = 0;
     int anim = kid.scene == KS_STARS || kid.scene == KS_HEARTS || kid.scene == KS_BUBBLES || kid.scene == KS_CONFETTI || kid.scene >= KS_SEA;
+    band ^= kid_batt_setup(now);                                  /* (the battery: the band again when it changes) */
     kid_frame_setup(now);
     if (kid.name_on) {                                            /* the grown-ups' NAME: all of it, when it changes */
         uint32_t ns = kid_name_sig(now);

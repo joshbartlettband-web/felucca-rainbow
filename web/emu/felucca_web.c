@@ -211,7 +211,8 @@ uint32_t _data_start[1], _data_end[1], _data_load[1], _bss_start[1], _bss_end[1]
 uint32_t _pool_start[1], _pool_end[1], _rt_start[1], _rt_end[1], _rt_load[1];
 static uint32_t web_master_adc = 700;   /* MASTER, 0..1023 as the ADC reads it */
 enum { FM1_ADC_BATT = 3, FM1_ADC_MASTER = 4 };
-static int32_t fm1_adc_read(uint32_t ch) { return ch == FM1_ADC_MASTER ? (int32_t)web_master_adc : 620; }
+static uint32_t web_batt_adc = 620;      /* the battery divider's reading: full (kid_test.mjs: web_batt sets it) */
+static int32_t fm1_adc_read(uint32_t ch) { return ch == FM1_ADC_MASTER ? (int32_t)web_master_adc : (int32_t)web_batt_adc; }
 static void fm1_adc_init(void) {}
 static void fm1_timer5_ack(void) {}
 static void fm1_timer5_start(void (*isr)(void), uint32_t prio) { (void)isr; (void)prio; }
@@ -388,6 +389,8 @@ EXPORT void web_enc(uint32_t role, int32_t n)
     if (role < NE)
         web_enc_steps[panel.enc[role] % 7u] += n * panel.dir[role];
 }
+EXPORT void web_batt(uint32_t v) { web_batt_adc = v; song.batt_raw = (int32_t)v; }   /* (kid_test.mjs: the battery, at once) */
+EXPORT void web_usb_power(uint32_t on) { usb.config = on ? 1u : 0u; usb.suspended = 0; }   /* (kid_test.mjs: on USB power) */
 EXPORT void web_master(uint32_t v) { web_master_adc = v > 1023u ? 1023u : v; }
 /* a channel message from Web MIDI, as a USB-MIDI packet arrives (usb.c midi_enqueue): 0 = the ring was full */
 EXPORT uint32_t web_midi(uint32_t status, uint32_t d1, uint32_t d2)
