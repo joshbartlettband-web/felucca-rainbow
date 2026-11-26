@@ -1,9 +1,13 @@
 // The soundtrack, from the real thing: each line of script.mjs is played on the friend's own sound by Rainbow mode
 // itself (the firmware's browser build, felucca.wasm), one fresh toy per line, and mixed at its time. The party's
-// beat is the toy's own DANCE beat (PLAY with Ducky). Writes soundtrack.wav (44.1 kHz stereo).
-//   node audio.mjs felucca.wasm out.wav
+// beat is the toy's own beat (PLAY with the episode's BEAT_FRIEND: Ducky's DANCE, or Ghost's SPOOKY). Writes a 44.1 kHz
+// stereo WAV.
+//   node audio.mjs felucca.wasm out.wav [script.mjs | halloween.mjs]
 import fs from "fs";
-import { LINES, PARTY, DUR, midi } from "./script.mjs";
+import path from "path";
+import { pathToFileURL } from "url";
+const EP = await import(pathToFileURL(path.resolve(process.argv[4] || new URL("./script.mjs", import.meta.url).pathname)).href);
+const { LINES, PARTY, DUR, midi, CAST } = EP;
 
 const SR = 44100;
 const B = { HOME: 6, PLAY: 10, OCTDN: 12, OCTUP: 13 };
@@ -65,10 +69,10 @@ async function sing(line) {
   return { at: line.t - 0.2, l: r.l, r: r.r };
 }
 
-// the beat: PLAY on Ducky (DANCE), recorded, then lined up on its first hit
+// the beat: PLAY on the beat's friend (its favourite beat), recorded, then lined up on its first hit
 async function beat() {
   const t = await toy();
-  t.ex.web_kid_friend_set(CASTFR.DUCKY);
+  t.ex.web_kid_friend_set(CASTFR[EP.BEAT_FRIEND || "DUCKY"]);
   t.render(2.5);
   t.start();
   t.render(0.3);
@@ -87,7 +91,6 @@ async function beat() {
   return { at: PARTY.t0, l, r: rr };
 }
 
-const { CAST } = await import("./script.mjs");
 const CASTFR = Object.fromEntries(Object.entries(CAST).map(([k, v]) => [k, v.fr]));
 const stems = [];
 for (const line of LINES) {
@@ -111,7 +114,8 @@ const loud = (s) => {
 const lv = LINES.map((l) => l.tag);
 stems.forEach((s, i) => {
   const tag = i < LINES.length ? lv[i] : "beat";
-  const want = tag === "beat" ? 0.075 : tag === "giggle" || tag === "together" || tag === "ooh" || tag === "all" || tag === "end" ? 0.07 : 0.1;
+  const group = ["giggle", "together", "ooh", "all", "end", "trick", "boo", "eek"];
+  const want = tag === "beat" ? 0.075 : tag === "bed" ? 0.022 : group.includes(tag) ? 0.07 : 0.1;
   const g = Math.max(0.4, Math.min(5, want / Math.max(1e-4, loud(s))));
   for (let j = 0; j < s.l.length; j++) { s.l[j] *= g; s.r[j] *= g; }
 });
