@@ -195,6 +195,28 @@ check("MASTER all the way up stays at about half (no friend peaks over 0.3)", pm
   const b = grown(-1), bn = sounds(); grown(1);
   check(`..and one under C: "${b}", half an octave at most (${bn}, from ${c0})`, bn === c0 - 1);
 }
+// THE BATTERY: at the band's top right, the full Felucca's reading: 3 bars green, 2 yellow, 1 red, none an empty
+// battery blinking red; on USB power, full with a yellow bolt beside it
+{
+  const col = (r, g, b) => ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+  const INK = col(52, 26, 58), RED = col(236, 52, 64), WHITE = 0xFFFF;
+  const bar = (i) => px(219 + 4 * i, 192), rim = () => px(216, 192);
+  const at = (adc) => { ex.web_batt(adc); render(400); };
+  render(4000);
+  at(620); const full = [0, 1, 2].map(bar);
+  at(570); const two = [0, 1, 2].map(bar);
+  at(540); const one = [0, 1, 2].map(bar);
+  at(500); const rims = new Set(); for (let i = 0; i < 6; i++) { render(250); rims.add(rim()); }
+  const empty = [0, 1, 2].map(bar);
+  ex.web_batt(620); ex.web_usb_power(1); render(400);
+  let bolt = false; for (let x = 205; x < 214; x++) for (let y = 188; y < 198; y++) bolt ||= px(x, y) === col(255, 216, 46);
+  const usb = [0, 1, 2].map(bar);
+  ex.web_usb_power(0); render(400);
+  check(`BATTERY: full ${full.every((c) => c === col(80, 200, 90))}, two yellow ${two[0] === col(255, 200, 40) && two[2] === WHITE}, one red ${one[0] === RED && one[1] === WHITE}`,
+        full.every((c) => c === col(80, 200, 90)) && two[0] === col(255, 200, 40) && two[1] === two[0] && two[2] === WHITE && one[0] === RED && one[1] === WHITE);
+  check(`..empty: no bars, its outline blinks red (${[...rims].length} colours); USB: a bolt (${bolt}) and full`,
+        empty.every((c) => c === WHITE) && rims.has(RED) && rims.has(INK) && bolt && usb.every((c) => c === col(80, 200, 90)));
+}
 // ALGORITHM's card: a few words on how the mode plays, in the staff's panel, until a key (or 7 s)
 ex.web_enc(EN.ALGO, 1); render(300);
 const card1 = ex.web_kid_card();
