@@ -10,6 +10,7 @@ reddit-*.mp4
 tools/video/island/node_modules/
 tools/video/island/package*.json
 tools/video/island/pics.js
-tools/video/island/frames/
+tools/video/island/frames*/
+tools/video/island/logs/
 tools/video/island/*.wav
 tools/video/island/*.mp4

@@ -33,6 +33,32 @@ ffmpeg -framerate 30 -i frames/f%05d.jpg -i soundtrack.wav -c:v libx264 -crf 20 
 
 The frames take about half a second each in software WebGL, so four browsers at once do the whole film in about
 15 minutes. `renderAt(t)` draws any moment on its own, so `node stills.mjs st 1280 720 11.5 42.5 97` jumps straight to
-those seconds for a quick look.
+those seconds for a quick look (`PAGE=halloween.html` for the second episode).
 
 The cast is all original friends. The look-alikes stay out of it.
+
+## Halloween
+
+A second episode, about 1 minute 36, made at a young viewer's request "with all the spooky guys included". It's night on
+the island under a big moon, with jack-o'-lanterns everywhere:
+
+1. The Bat flies over and rings each letter of HALLOWEEN.
+2. The spooky friends come out one by one: the Pumpkin lights up, the Ghost rises and glows, the Bat flaps in, the
+   Spider drops on its thread, the Wolf leaps onto its rock and howls, then the Skeleton, Slimy (a loop-de-loop), the
+   Flytrap (chomp) and the Scientist with a bubbling flask.
+3. Ducky, Kitty, Bunny, Frog and April come trick-or-treating in the toy's hats (two wizard hats, a top hat, a crown
+   and a cowboy hat). BOO! They jump, everyone laughs, and the Pumpkin throws candy.
+4. Ghost's SPOOKY beat from the toy: the Skeleton, the Ghost, the Wolf, the Bat, the Flytrap and the Scientist take
+   turns, then everyone plays together.
+5. HAPPY HALLOWEEN, more candy, and the Owl's last hoo.
+
+This one includes Skeleton and Slimy, which are drawn after film characters, because the request was for all of them.
+Bat, Pumpkin and Spider are the toy's stand-ins (LOOK-ALIKES), so they sing in their look-alikes' sounds, as on the
+toy: Bat on Skeleton's theremin, Pumpkin on Slimy's glitch, Spider on Web Hero's sync lead.
+
+```sh
+node audio.mjs ../../../build/emu/felucca.wasm halloween.wav halloween.mjs
+for k in 0 1 2 3; do PAGE=halloween.html node render.mjs $((k*720)) $(((k+1)*720)) frames_h 1920 1080 & done; wait
+ffmpeg -framerate 30 -i frames_h/f%05d.jpg -i halloween.wav -c:v libx264 -crf 24 -preset slow -tune animation \
+  -pix_fmt yuv420p -c:a aac -b:a 160k -shortest -movflags +faststart rainbow-island-halloween.mp4
+```

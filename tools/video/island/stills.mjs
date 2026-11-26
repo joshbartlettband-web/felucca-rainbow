@@ -8,7 +8,7 @@ const page = await browser.newPage({ viewport: { width: +w, height: +h } });
 page.on("pageerror", (e) => console.error("page error:", e.message));
 page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") console.error("console:", m.text()); });
 let t1 = Date.now();
-await page.goto(`http://127.0.0.1:8765/world.html?w=${w}&h=${h}`);
+await page.goto(`http://127.0.0.1:8765/${process.env.PAGE || "world.html"}?w=${w}&h=${h}`);
 await page.waitForFunction(() => window.ready === true, null, { timeout: 120000 });
 console.log(`ready in ${Date.now() - t1} ms`);
 for (const t of ts) {

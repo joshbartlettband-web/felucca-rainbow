@@ -8,7 +8,7 @@ const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=sw
 const page = await browser.newPage({ viewport: { width: +w, height: +h } });
 page.on("pageerror", (e) => console.error("page error:", e.message));
 page.on("console", (m) => { if (m.type() === "error") console.error("console:", m.text()); });
-await page.goto(`http://127.0.0.1:${port}/world.html?w=${w}&h=${h}`);
+await page.goto(`http://127.0.0.1:${port}/${process.env.PAGE || "world.html"}?w=${w}&h=${h}`);
 await page.waitForFunction(() => window.ready === true, null, { timeout: 120000 });
 const t0 = Date.now();
 for (let f = +from; f < +to; f++) {
