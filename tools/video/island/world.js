@@ -4,6 +4,7 @@
 import * as THREE from "three";
 import * as S from "./script.mjs";
 import { PICS, FONT, OUTLINE } from "./pics.js";
+import { bubbleSystem } from "./common.js";
 
 const Q = new URLSearchParams(location.search);
 const W = +(Q.get("w") || 1920), H = +(Q.get("h") || 1080);
@@ -398,7 +399,6 @@ const sparkles = (() => {                              // golden sparkles round 
 })();
 
 // ------------------------------------------------------------------ speech bubbles: the notes, coloured, with their letters
-const BUB_W = 600, BUB_H = 320;
 function drawLetters(ctx, text, x, y, s, fill) {     // the toy's font, with a dark outline
   for (const pass of [0, 1]) {
     [...text].forEach((ch, i) => {
@@ -412,55 +412,7 @@ function drawLetters(ctx, text, x, y, s, fill) {     // the toy's font, with a d
     });
   }
 }
-const bubbles = [];
-for (let i = 0; i < 6; i++) {
-  const cv = document.createElement("canvas");
-  cv.width = BUB_W; cv.height = BUB_H;
-  const tex = new THREE.CanvasTexture(cv);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.minFilter = THREE.LinearFilter;
-  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
-  sp.renderOrder = 10;
-  sp.visible = false;
-  scene.add(sp);
-  bubbles.push({ cv, ctx: cv.getContext("2d"), tex, sp });
-}
-function drawBubble(b, line, t) {
-  const ctx = b.ctx, sung = line.notes.filter(([d]) => line.t + d <= t + 0.02);
-  ctx.clearRect(0, 0, BUB_W, BUB_H);
-  // the bubble, as wide as its notes, with its tail down to the friend
-  const slots = Math.min(6, line.notes.length) + (line.tag === "oops" ? 1 : 0), slot = 86;
-  const bw = slots * slot + 64, x0 = (BUB_W - bw) / 2, x1 = x0 + bw, y0 = 10, y1 = BUB_H - 62, r = 50;
-  const tx = BUB_W / 2 - 20;
-  ctx.beginPath();
-  ctx.moveTo(x0 + r, y0); ctx.arcTo(x1, y0, x1, y1, r); ctx.arcTo(x1, y1, x0, y1, r);
-  ctx.lineTo(tx + 34, y1); ctx.lineTo(tx - 10, BUB_H - 8); ctx.lineTo(tx - 4, y1);
-  ctx.arcTo(x0, y1, x0, y0, r); ctx.arcTo(x0, y0, x1, y0, r); ctx.closePath();
-  ctx.fillStyle = "#ffffff"; ctx.fill();
-  ctx.lineWidth = 10; ctx.strokeStyle = OUTLINE; ctx.stroke();
-  // the last six notes: a coloured head (higher for a higher note) with a stem, and its letter under it
-  const show = sung.slice(-6), n = show.length;
-  const all = line.notes.map(([, nn]) => S.midi(nn)), lo = Math.min(...all), hi = Math.max(...all);
-  const left = x0 + 32 + slot / 2 - 8;
-  show.forEach(([d, nn, len], i) => {
-    const m = S.midi(nn), pc = m % 12, age = t - (line.t + d);
-    const pop = 1 + 0.5 * Math.exp(-age * 10);
-    const cx = left + i * slot, cy = 146 - (hi > lo ? ((m - lo) / (hi - lo)) * 62 : 31);
-    ctx.save();
-    ctx.translate(cx, cy); ctx.scale(pop, pop); ctx.rotate(-0.35);
-    ctx.beginPath(); ctx.ellipse(0, 0, 23, 16, 0, 0, Math.PI * 2);
-    ctx.fillStyle = NOTE_COL[pc]; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = OUTLINE; ctx.stroke();
-    ctx.restore();
-    ctx.fillStyle = OUTLINE;
-    ctx.fillRect(cx + 17 * pop, cy - 62 * pop, 6, 60 * pop);
-    if (len < 0.3) { ctx.beginPath(); ctx.moveTo(cx + 23 * pop, cy - 62 * pop); ctx.quadraticCurveTo(cx + 46 * pop, cy - 42 * pop, cx + 40 * pop, cy - 22 * pop); ctx.lineWidth = 6; ctx.stroke(); }
-    const name = NOTE_NAME[pc], ls = name.length > 1 ? 6 : 8;
-    drawLetters(ctx, name, cx - ((name.length * 6 - 1) * ls) / 2, 196, ls, NOTE_COL[pc]);
-  });
-  // a wrong note gets a question mark; a right answer a !
-  if (line.tag === "oops" && n === line.notes.length && t > lineEnd(line) - 0.1) drawLetters(ctx, "?", left + 4 * slot - 12, 92, 9, "#ff5470");
-  b.tex.needsUpdate = true;
-}
+const bubbles = bubbleSystem(scene, { midi: S.midi, lineEnd });   // (common.js: the notes, evenly padded)
 
 // ------------------------------------------------------------------ the toy's band at the bottom: a word, sliding up
 const hud = new THREE.Scene(), hudCam = new THREE.OrthographicCamera(0, W, H, 0, -1, 1);
@@ -781,18 +733,7 @@ window.renderAt = (t) => {
   }
   // speech bubbles
   const active = S.LINES.filter((l) => l.bubble && t >= l.t - 0.1 && t < lineEnd(l) + 1.0);
-  bubbles.forEach((b, i) => {
-    const l = active[i];
-    b.sp.visible = !!l;
-    if (!l) return;
-    const f = friends[l.who], p = f.root.position, n = active.length;
-    const age = t - (l.t - 0.1), out = lineEnd(l) + 1.0 - t;
-    const far = clamp(camera.position.distanceTo(p) / 13, 1, 2.1);
-    const s = Math.min(backOut(age / 0.3), smooth(out / 0.25)) * (n > 2 ? 0.8 : 1) * far;
-    drawBubble(b, l, t);
-    b.sp.position.set(p.x + 0.6, p.y + f.height + 1.25 * s + 0.35 + (n > 2 ? (i % 2) * 0.9 * far : 0), p.z + 0.5);
-    b.sp.scale.set(3.9 * s, 3.9 * s * (BUB_H / BUB_W), 1);
-  });
+  bubbles(t, active, (l) => ({ pos: friends[l.who].root.position, height: friends[l.who].height }), camera);
   renderer.clear();
   renderer.render(scene, camera);
   drawBand(t);

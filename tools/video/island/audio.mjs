@@ -97,7 +97,7 @@ for (const line of LINES) {
   stems.push(await sing(line));
   process.stdout.write(".");
 }
-stems.push(await beat());
+if (PARTY) stems.push(await beat());              // (an episode without a beat: none)
 console.log(`\n${stems.length} stems`);
 
 // each line to about the same loudness (its loudest 50 ms), the beat a little under the voices
@@ -114,7 +114,7 @@ const loud = (s) => {
 const lv = LINES.map((l) => l.tag);
 stems.forEach((s, i) => {
   const tag = i < LINES.length ? lv[i] : "beat";
-  const group = ["giggle", "together", "ooh", "all", "end", "trick", "boo", "eek"];
+  const group = ["giggle", "together", "ooh", "all", "end", "trick", "boo", "eek", "pad"];
   const want = tag === "beat" ? 0.075 : tag === "bed" ? 0.022 : group.includes(tag) ? 0.07 : 0.1;
   const g = Math.max(0.4, Math.min(5, want / Math.max(1e-4, loud(s))));
   for (let j = 0; j < s.l.length; j++) { s.l[j] *= g; s.r[j] *= g; }

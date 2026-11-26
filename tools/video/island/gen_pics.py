@@ -20,7 +20,42 @@ CAST = {"STAR": "STAR", "DUCKY": "DUCKY", "KITTY": "KITTY", "BUNNY": "BUNNY", "E
         "PUMPKIN": "PUMPKIN", "GHOST": "GHOST", "BAT": "BAT", "SPIDER": "SPIDER", "WOLF": "WOLF", "SKELETON": "SKELETON",
         "SLIMY": "SLIMY", "FLYTRAP": "FLYTRAP", "SCIENTIST": "SCIENTIST",
         "DUCKY_WIZARD": ("DUCKY", "WIZARD"), "KITTY_WIZARD": ("KITTY", "WIZARD"), "BUNNY_TOPHAT": ("BUNNY", "TOP HAT"),
-        "FROG_CROWN": ("FROG", "CROWN"), "APRIL_WESTERN": ("APRIL", "WESTERN")}
+        "FROG_CROWN": ("FROG", "CROWN"), "APRIL_WESTERN": ("APRIL", "WESTERN"),
+        # The Bear and the Balloon (honey.mjs): Bear, Bear covered in mud, the bees' Bee, the Butterfly, and Robin (kid())
+        "BEE": "BEE", "BUTTERFLY": "BUTTERFLY", "BEAR_MUD": "BEAR MUD", "ROBIN": "ROBIN"}
+
+
+def kid():
+    """Robin, a child in a yellow smock: drawn for the films in the toy's way (gen_kid_art.Pic), not one of the toy's friends"""
+    p = g.Pic()
+    p.rect(18, 39, 21, 43, "tan"); p.rect(26, 39, 29, 43, "tan")                 # legs
+    p.ell(19, 44, 3, 2, "red"); p.ell(28, 44, 3, 2, "red")                        # shoes
+    p.rect(16, 34, 31, 39, "blue"); p.rect(23, 37, 24, 39, "dblue")               # shorts
+    p.poly([(17, 23), (30, 23), (34, 36), (13, 36)], "yellow")                    # the smock
+    p.poly([(27, 23), (30, 23), (34, 36), (30, 36)], "dyellow")
+    p.poly([(17, 25), (11, 33), (13, 35), (18, 29)], "yellow"); p.ell(12, 35, 2, 2, "tan")   # arms, hands
+    p.poly([(30, 25), (36, 33), (34, 35), (29, 29)], "dyellow"); p.ell(35, 35, 2, 2, "tan")
+    p.rect(20, 23, 27, 25, "white")                                               # a collar
+    p.ball(24, 14, 11, 10, "tan", "dtan")                                         # head
+    p.ell(24, 8, 11, 6, "brown")                                                  # hair, with a fringe
+    p.poly([(13, 9), (14, 14), (17, 10), (20, 13), (23, 9), (26, 13), (29, 10), (32, 13), (35, 9), (35, 6), (13, 6)], "brown")
+    p.eye(20, 15, 3); p.eye(28, 15, 3)
+    p.smile(24, 20, 2)
+    p.cheek(16, 19); p.cheek(32, 19)
+    return p.done()
+
+
+def bear_mud():
+    """the Bear, rolled in mud: a little black cloud (its eyes and cheeks still its own)"""
+    p = dict(g.FRIENDS)["BEAR"]()
+    mud = {g.C["brown"]: (70, 56, 52), g.C["dbrown"]: (44, 34, 32), g.C["tan"]: (98, 82, 74), g.C["dtan"]: (80, 64, 58)}
+    im = p.im
+    for y in range(im.height):
+        for x in range(im.width):
+            r, gg, b, a = im.getpixel((x, y))
+            if a and (r, gg, b) in mud:
+                im.putpixel((x, y), mud[(r, gg, b)] + (255,))
+    return p
 
 
 def with_hat(name, im, hat):
@@ -41,7 +76,7 @@ def with_hat(name, im, hat):
 
 
 def main():
-    fn = dict(g.FRIENDS + list(g.STAND_INS.values()))
+    fn = dict(g.FRIENDS + list(g.STAND_INS.values()) + [("ROBIN", kid), ("BEAR MUD", bear_mud)])
     shimmer = [g.C[k] for k in g.SHIMMER]
     out = {}
     for key, who in CAST.items():
@@ -67,6 +102,10 @@ def main():
     j = src.index("/* accented", i)
     rows = re.findall(r"\{((?:0x[0-9A-F]{2}, ){6}0x[0-9A-F]{2})\}", src[i:j])
     font = {ch: [int(v, 16) for v in r.split(", ")] for ch, r in zip("ABCDEFGHIJKLMNOPQRSTUVWXYZ13#!58-?794", rows)}
+    # a few the toy has no need of, in its style, for the films' captions and credits
+    font.update({"0": [0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E], "2": [0x0E, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1F],
+                 "6": [0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E], ".": [0, 0, 0, 0, 0, 0x0C, 0x0C],
+                 ",": [0, 0, 0, 0, 0x0C, 0x04, 0x08], "'": [0x04, 0x04, 0x08, 0, 0, 0, 0]})
     dest = Path(__file__).with_name("pics.js")
     dest.write_text("export const PICS = " + json.dumps(out) + ";\nexport const FONT = " + json.dumps(font) +
                     ';\nexport const OUTLINE = "#341a3a";\n')
