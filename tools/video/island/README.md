@@ -62,3 +62,28 @@ for k in 0 1 2 3; do PAGE=halloween.html node render.mjs $((k*720)) $(((k+1)*720
 ffmpeg -framerate 30 -i frames_h/f%05d.jpg -i halloween.wav -c:v libx264 -crf 24 -preset slow -tune animation \
   -pix_fmt yuv420p -c:a aac -b:a 160k -shortest -movflags +faststart rainbow-island-halloween.mp4
 ```
+
+## The Bear and the Balloon
+
+A third film, about 1 minute 43: the first Winnie-the-Pooh story (A. A. Milne, 1926), acted by Rainbow mode's Bear on a
+new stage, a clearing in a wood. The story is Milne's (it's in the public domain in the US); nothing comes from the
+Disney films. The Bear hears a buzz, climbs the honey tree, falls through the branches into the gorse bush, asks Robin
+for a balloon (blue, like the sky), rolls in mud to be a little black cloud and floats up. Robin walks to and fro under
+an umbrella ("tut-tut, it looks like rain"), the bees aren't fooled, Robin's popgun pops the balloon, the Bear comes down
+slowly, and a butterfly lands on his nose: POOH!
+
+New for it: Robin (a child drawn in the toy's style for the films, `kid()` in `gen_pics.py`, speaking on Flute Bird's
+flute), the Bear covered in mud, the stage (the honey tree with its hole and branches, the gorse bush, Robin's cottage,
+the puddle, the wood round the clearing) and the props (two balloons, an umbrella, a cork popgun, a swarm of bees).
+School Bus's toms bump him down the tree, Toy Drum does the crack and the pops, the Scientist's squelch is the mud, and
+Rainbow's cloud pad plays softly underneath.
+
+`common.js` holds what the films share. The speech bubbles are laid out from the inside out: each note's head, stem,
+flag and letter, then the same padding on all four sides. All three films use them.
+
+```sh
+node audio.mjs ../../../build/emu/felucca.wasm honey.wav honey.mjs
+for k in 0 1 2 3; do PAGE=honey.html node render.mjs $((k*773)) $(( k<3 ? (k+1)*773 : 3090 )) frames_p 1920 1080 & done; wait
+ffmpeg -framerate 30 -i frames_p/f%05d.jpg -i honey.wav -c:v libx264 -crf 24 -preset slow -tune animation \
+  -pix_fmt yuv420p -c:a aac -b:a 160k -shortest -movflags +faststart the-bear-and-the-balloon.mp4
+```
